@@ -15,6 +15,7 @@ import {
   FlameIcon,
   SnowflakeIcon,
 } from './ui/Icons'
+import { useTheme } from '../context/ThemeContext'
 import type { AnalyticsResponse } from '../types'
 
 interface AnalyticsPanelProps {
@@ -25,6 +26,8 @@ interface AnalyticsPanelProps {
 }
 
 export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact = false }: AnalyticsPanelProps) {
+  const { colors, colorMode } = useTheme()
+  const warningColor = colorMode === 'light' ? 'orange.600' : 'orange.300'
   if (selectedStations.length === 0) {
     return (
       <Card>
@@ -62,7 +65,7 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
       <Card variant="accent" accentColor="orange">
         <CardBody py={compact ? 2 : 4}>
           <Flex align="center" gap={3}>
-            <Text color="orange.300" fontSize={compact ? 'xs' : 'sm'}>
+            <Text color={warningColor} fontSize={compact ? 'xs' : 'sm'}>
               No data available for selected stations and year range
             </Text>
           </Flex>
@@ -158,7 +161,7 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
                     borderWidth="1px"
                     borderColor="rgba(255, 255, 255, 0.08)"
                   >
-                    <Text fontSize="2xs" color="gray.400" fontFamily="mono">
+                    <Text fontSize="2xs" color={colors.textSecondary} fontFamily="mono">
                       {station.station_id}: {station.mean_temp.toFixed(1)}°C avg, σ={station.std_temp.toFixed(1)}
                     </Text>
                   </Box>
@@ -220,14 +223,14 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
               >
                 <Flex align="center" gap={2} mb={2}>
                   <FlameIcon size="md" color="#f59e0b" />
-                  <Text fontSize="xs" color="gray.400" textTransform="uppercase" letterSpacing="wider" fontWeight="500">
+                  <Text fontSize="xs" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" fontWeight="500">
                     Hottest Year
                   </Text>
                 </Flex>
                 <Text fontSize="2xl" fontWeight="700" color="orange.300" fontFamily="mono">
                   {hottestStation.hottest_year}
                 </Text>
-                <Text fontSize="sm" color="gray.400" mt={1}>
+                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                   <Text as="span" color="orange.400" fontWeight="600">
                     {hottestStation.hottest_year_temp.toFixed(1)}°C
                   </Text>
@@ -249,14 +252,14 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
               >
                 <Flex align="center" gap={2} mb={2}>
                   <SnowflakeIcon size="md" color="#06b6d4" />
-                  <Text fontSize="xs" color="gray.400" textTransform="uppercase" letterSpacing="wider" fontWeight="500">
+                  <Text fontSize="xs" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" fontWeight="500">
                     Coldest Year
                   </Text>
                 </Flex>
                 <Text fontSize="2xl" fontWeight="700" color="blue.300" fontFamily="mono">
                   {coldestStation.coldest_year}
                 </Text>
-                <Text fontSize="sm" color="gray.400" mt={1}>
+                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                   <Text as="span" color="blue.400" fontWeight="600">
                     {coldestStation.coldest_year_temp.toFixed(1)}°C
                   </Text>
@@ -268,7 +271,7 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
             {/* Per-station statistics */}
             {analytics.stations.length > 1 && (
               <Box>
-                <Text fontSize="xs" color="gray.500" textTransform="uppercase" letterSpacing="wide" mb={3} fontWeight="500">
+                <Text fontSize="xs" color={colors.textMuted} textTransform="uppercase" letterSpacing="wide" mb={3} fontWeight="500">
                   Per-Station Statistics
                 </Text>
                 <Flex gap={2} flexWrap="wrap">
@@ -295,7 +298,7 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
                       <Text fontSize="sm" fontWeight="600" color="gray.300" fontFamily="mono">
                         {station.station_id}
                       </Text>
-                      <Text fontSize="xs" color="gray.500">
+                      <Text fontSize="xs" color={colors.textMuted}>
                         {station.mean_temp.toFixed(1)}°C avg, σ={station.std_temp.toFixed(1)}
                       </Text>
                     </Box>

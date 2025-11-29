@@ -3,6 +3,7 @@
  */
 import { Box, type BoxProps } from '@chakra-ui/react'
 import { forwardRef, type ReactNode } from 'react'
+import { useTheme } from '../../context/ThemeContext'
 
 interface CardProps extends Omit<BoxProps, 'animationDelay'> {
   children: ReactNode
@@ -24,35 +25,38 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     },
     ref
   ) => {
+    const { colors, colorMode } = useTheme()
+
     const variants = {
       default: {
-        bg: 'rgba(255, 255, 255, 0.03)',
+        bg: colors.card,
         borderWidth: '1px',
-        borderColor: 'rgba(255, 255, 255, 0.08)',
+        borderColor: colors.border,
+        boxShadow: colorMode === 'light' ? '0 1px 3px rgba(0, 0, 0, 0.08)' : 'none',
         _hover: {},
       },
       elevated: {
-        bg: 'rgba(255, 255, 255, 0.04)',
+        bg: colors.cardSolid,
         borderWidth: '1px',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)',
+        borderColor: colors.border,
+        boxShadow: colorMode === 'light' ? '0 4px 12px rgba(0, 0, 0, 0.1)' : '0 4px 24px rgba(0, 0, 0, 0.3)',
         _hover: {},
       },
       interactive: {
-        bg: 'rgba(255, 255, 255, 0.03)',
+        bg: colors.card,
         borderWidth: '1px',
-        borderColor: 'rgba(255, 255, 255, 0.08)',
+        borderColor: colors.border,
         cursor: 'pointer',
         transition: 'all 0.2s ease',
         _hover: {
-          bg: 'rgba(255, 255, 255, 0.06)',
-          borderColor: 'rgba(255, 255, 255, 0.15)',
+          bg: colors.cardHover,
+          borderColor: colors.borderHover,
           transform: 'translateY(-2px)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+          boxShadow: colorMode === 'light' ? '0 8px 24px rgba(0, 0, 0, 0.12)' : '0 8px 32px rgba(0, 0, 0, 0.4)',
         },
       },
       accent: {
-        bg: 'rgba(255, 255, 255, 0.03)',
+        bg: colors.card,
         borderWidth: '1px',
         borderColor: getAccentBorderColor(accentColor),
         boxShadow: getAccentGlow(accentColor),
@@ -111,12 +115,13 @@ interface CardHeaderProps extends BoxProps {
 }
 
 export function CardHeader({ children, ...props }: CardHeaderProps) {
+  const { colors } = useTheme()
   return (
     <Box
       px={4}
       py={3}
       borderBottomWidth="1px"
-      borderColor="rgba(255, 255, 255, 0.08)"
+      borderColor={colors.border}
       {...props}
     >
       {children}

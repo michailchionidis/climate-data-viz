@@ -8,6 +8,7 @@ import { useStations } from '../hooks/useClimateData'
 import { SectionHeader } from './ui/SectionHeader'
 import { CheckIcon, AlertIcon } from './ui/Icons'
 import { STATION_COLORS } from '../theme'
+import { useTheme } from '../context/ThemeContext'
 
 interface StationSelectorProps {
   selectedStations: string[]
@@ -23,6 +24,8 @@ export function StationSelector({
   compact = false,
   hideHeader = false,
 }: StationSelectorProps) {
+  const { colors, colorMode } = useTheme()
+  const spinnerColor = colorMode === 'light' ? 'cyan.500' : 'cyan.400'
   const { data: stations, isLoading, error } = useStations()
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -82,8 +85,8 @@ export function StationSelector({
           gap={2}
           flex={1}
         >
-          <Spinner size={compact ? 'md' : 'lg'} color="cyan.400" />
-          <Text fontSize="xs" color="gray.400">
+          <Spinner size={compact ? 'md' : 'lg'} color={spinnerColor} />
+          <Text fontSize="xs" color={colors.textSecondary}>
             Loading stations...
           </Text>
         </Flex>
@@ -142,19 +145,20 @@ export function StationSelector({
           placeholder="Search..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          bg="rgba(255, 255, 255, 0.03)"
-          borderColor="rgba(255, 255, 255, 0.1)"
+          bg={colors.inputBg}
+          borderColor={colors.border}
           borderRadius="6px"
           px={3}
           py={1.5}
           h="auto"
           fontSize="xs"
-          _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+          color={colors.text}
+          _hover={{ borderColor: colors.borderHover }}
           _focus={{
             borderColor: 'rgba(6, 182, 212, 0.5)',
             boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
           }}
-          _placeholder={{ color: 'gray.600' }}
+          _placeholder={{ color: colors.textMuted }}
         />
       </Box>
 
@@ -168,22 +172,22 @@ export function StationSelector({
             width: '4px',
           },
           '&::-webkit-scrollbar-track': {
-            background: 'rgba(255,255,255,0.03)',
+            background: colors.inputBg,
             borderRadius: '2px',
           },
           '&::-webkit-scrollbar-thumb': {
-            background: 'rgba(255,255,255,0.15)',
+            background: colors.border,
             borderRadius: '2px',
           },
           '&::-webkit-scrollbar-thumb:hover': {
-            background: 'rgba(255,255,255,0.25)',
+            background: colors.borderHover,
           },
         }}
       >
         <Flex direction="column" gap={0.5}>
           {filteredStations.length === 0 ? (
             <Box py={2} textAlign="center">
-              <Text color="gray.500" fontSize="xs">
+              <Text color={colors.textMuted} fontSize="xs">
                 No match for "{searchQuery}"
               </Text>
             </Box>
@@ -204,8 +208,8 @@ export function StationSelector({
                   borderWidth="1px"
                   borderColor={isSelected ? `${color}40` : 'transparent'}
                   _hover={{
-                    bg: isSelected ? `${color}20` : 'rgba(255, 255, 255, 0.05)',
-                    borderColor: isSelected ? `${color}50` : 'rgba(255, 255, 255, 0.1)',
+                    bg: isSelected ? `${color}20` : colors.buttonHover,
+                    borderColor: isSelected ? `${color}50` : colors.border,
                   }}
                   onClick={() => handleToggle(station.id)}
                   transition="all 0.15s ease"
@@ -221,7 +225,7 @@ export function StationSelector({
                     h={compact ? '14px' : '18px'}
                     borderRadius="4px"
                     borderWidth="2px"
-                    borderColor={isSelected ? color : 'rgba(255, 255, 255, 0.2)'}
+                    borderColor={isSelected ? color : colors.border}
                     bg={isSelected ? color : 'transparent'}
                     display="flex"
                     alignItems="center"
@@ -238,25 +242,14 @@ export function StationSelector({
                   <Box flex={1} minW={0}>
                     <Text
                       fontSize={compact ? 'xs' : 'sm'}
-                      fontWeight="500"
-                      color={isSelected ? 'white' : 'gray.300'}
+                      fontWeight="600"
+                      color={isSelected ? color : colors.textSecondary}
                       css={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
                     >
                       {station.name}
                     </Text>
                   </Box>
 
-                  {/* Color indicator */}
-                  {isSelected && (
-                    <Box
-                      w="6px"
-                      h="6px"
-                      borderRadius="full"
-                      bg={color}
-                      boxShadow={`0 0 6px ${color}`}
-                      flexShrink={0}
-                    />
-                  )}
                 </Flex>
               )
             })
@@ -273,7 +266,7 @@ export function StationSelector({
         flexShrink={0}
       >
         <Flex justify="space-between" align="center">
-          <Text fontSize="2xs" color="gray.500">
+          <Text fontSize="2xs" color={colors.textMuted}>
             {selectedStations.length}/{stations?.length || 0} selected
           </Text>
           {selectedStations.length > 0 && (
@@ -288,7 +281,7 @@ export function StationSelector({
                 />
               ))}
               {selectedStations.length > 4 && (
-                <Text fontSize="2xs" color="gray.500">
+                <Text fontSize="2xs" color={colors.textMuted}>
                   +{selectedStations.length - 4}
                 </Text>
               )}

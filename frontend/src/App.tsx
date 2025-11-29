@@ -18,7 +18,8 @@ import type { VisualizationMode, ZoomState } from './types'
 
 function App() {
   // Theme
-  const { colors } = useTheme()
+  const { colors, colorMode } = useTheme()
+  const cyanAccent = colorMode === 'light' ? 'cyan.600' : 'cyan.300'
 
   // State management
   const [selectedStations, setSelectedStations] = useState<string[]>([])
@@ -105,7 +106,7 @@ function App() {
         transform={isLoaded ? 'translateY(0)' : 'translateY(-10px)'}
         transition="all 0.5s ease-out"
       >
-        <Container maxW="1800px" py={2} px={{ base: 3, md: 4 }}>
+        <Container maxW="1800px" py={2} px={{ base: 3, md: 4 }} mx="auto">
           <Flex justify="space-between" align="center">
             <Flex align="center" gap={2}>
               {/* Logo */}
@@ -180,7 +181,7 @@ function App() {
                 <Text
                   fontSize="2xs"
                   fontWeight="600"
-                  color={selectedStations.length > 0 ? 'cyan.300' : colors.textMuted}
+                  color={selectedStations.length > 0 ? cyanAccent : colors.textMuted}
                 >
                   {selectedStations.length} station{selectedStations.length !== 1 ? 's' : ''} selected
                 </Text>
@@ -195,6 +196,7 @@ function App() {
         maxW="1800px"
         py={{ base: 2, lg: 3 }}
         px={{ base: 3, md: 4 }}
+        mx="auto"
         flex={{ base: 'none', lg: 1 }}
         overflow={{ base: 'visible', lg: 'hidden' }}
       >
@@ -364,16 +366,16 @@ function App() {
       {/* Footer - Compact */}
       <Box
         borderTopWidth="1px"
-        borderColor="rgba(255, 255, 255, 0.06)"
+        borderColor={colors.border}
         py={2}
         flexShrink={0}
         opacity={isLoaded ? 1 : 0}
         transition="opacity 0.5s ease-out 0.4s"
       >
-        <Container maxW="1800px" px={4}>
+        <Container maxW="1800px" px={4} mx="auto">
           <Flex justify="space-between" align="center">
             <Flex align="center" gap={1.5}>
-              <Text fontSize="2xs" color="gray.600">
+              <Text fontSize="2xs" color={colors.textMuted}>
                 Built with
               </Text>
               <Flex gap={1}>
@@ -382,15 +384,15 @@ function App() {
                     key={tech}
                     px={1.5}
                     py={0.5}
-                    bg="rgba(255, 255, 255, 0.05)"
+                    bg={colors.buttonBg}
                     borderRadius="md"
                   >
-                    <Text fontSize="2xs" color="gray.500">{tech}</Text>
+                    <Text fontSize="2xs" color={colors.textMuted}>{tech}</Text>
                   </Box>
                 ))}
               </Flex>
             </Flex>
-            <Text fontSize="2xs" color="gray.600" fontFamily="mono">
+            <Text fontSize="2xs" color={colors.textMuted} fontFamily="mono">
               Data: 1859–2019 • 10 Stations
             </Text>
           </Flex>
