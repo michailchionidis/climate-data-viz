@@ -3,6 +3,7 @@
  */
 import { Box, Text, Flex } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
+import { useTheme } from '../../context/ThemeContext'
 
 interface EmptyStateProps {
   icon?: ReactNode
@@ -21,14 +22,16 @@ export function EmptyState({
   minHeight = '200px',
   compact = false,
 }: EmptyStateProps) {
+  const { colors } = useTheme()
+
   return (
     <Box
       minH={minHeight}
       flex={1}
-      bg="rgba(255, 255, 255, 0.02)"
+      bg={colors.card}
       borderRadius={compact ? '8px' : '12px'}
       borderWidth="1px"
-      borderColor="rgba(255, 255, 255, 0.06)"
+      borderColor={colors.border}
       borderStyle="dashed"
       display="flex"
       alignItems="center"
@@ -40,11 +43,11 @@ export function EmptyState({
             {icon}
           </Box>
         )}
-        <Text color="gray.300" fontSize={compact ? 'sm' : 'md'} fontWeight="500" mb={compact ? 0 : 1}>
+        <Text color={colors.textSecondary} fontSize={compact ? 'sm' : 'md'} fontWeight="500" mb={compact ? 0 : 1}>
           {title}
         </Text>
         {description && !compact && (
-          <Text color="gray.500" fontSize="sm" maxW="280px">
+          <Text color={colors.textMuted} fontSize="sm" maxW="280px">
             {description}
           </Text>
         )}
