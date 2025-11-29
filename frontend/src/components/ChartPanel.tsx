@@ -153,22 +153,30 @@ export function ChartPanel({
       }
 
       // Main mean line
+      const yStd = station.data.map((d) => d.std)
+
       traces.push({
         type: 'scatter',
         mode: 'lines',
         name: station.station_name,
         x,
         y: yMean,
+        customdata: yStd, // Pass std values for tooltip
         line: {
           color,
           width: 2.5,
           shape: 'spline',
         },
-        hovertemplate:
-          `<b style="color:${color}">${station.station_name}</b><br>` +
-          `<b>Year:</b> %{x}<br>` +
-          `<b>Mean:</b> %{y:.1f}°C` +
-          `<extra></extra>`,
+        hovertemplate: showSigmaBounds
+          ? `<b style="color:${color}">${station.station_name}</b><br>` +
+            `<b>Year:</b> %{x}<br>` +
+            `<b>Mean:</b> %{y:.1f}°C<br>` +
+            `<b>σ:</b> %{customdata:.2f}°C` +
+            `<extra></extra>`
+          : `<b style="color:${color}">${station.station_name}</b><br>` +
+            `<b>Year:</b> %{x}<br>` +
+            `<b>Mean:</b> %{y:.1f}°C` +
+            `<extra></extra>`,
       })
     })
   }
