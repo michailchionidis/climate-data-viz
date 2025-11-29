@@ -39,6 +39,9 @@ import {
   LuHash,
   LuClock,
   LuTarget,
+  LuImage,
+  LuFileText,
+  LuFileSpreadsheet,
 } from 'react-icons/lu'
 import {
   HiOutlinePresentationChartLine,
@@ -384,6 +387,30 @@ export function PresentationChartIcon({ size = 'md', color = 'currentColor', ...
   return (
     <IconWrapper size={size} color={color} {...props}>
       <HiOutlinePresentationChartLine />
+    </IconWrapper>
+  )
+}
+
+export function ImageIcon({ size = 'md', color = 'currentColor', ...props }: IconWrapperProps) {
+  return (
+    <IconWrapper size={size} color={color} {...props}>
+      <LuImage />
+    </IconWrapper>
+  )
+}
+
+export function FileTextIcon({ size = 'md', color = 'currentColor', ...props }: IconWrapperProps) {
+  return (
+    <IconWrapper size={size} color={color} {...props}>
+      <LuFileText />
+    </IconWrapper>
+  )
+}
+
+export function FileSpreadsheetIcon({ size = 'md', color = 'currentColor', ...props }: IconWrapperProps) {
+  return (
+    <IconWrapper size={size} color={color} {...props}>
+      <LuFileSpreadsheet />
     </IconWrapper>
   )
 }
