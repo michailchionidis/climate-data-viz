@@ -134,66 +134,84 @@ export function ExportMenu({
     setIsOpen(false)
 
     try {
-      // Find the Plotly chart element - it has the Plotly methods attached
-      const plotElement = chartRef?.current?.querySelector('.js-plotly-plot')
+      // Find the Plotly chart element
+      const plotElement = chartRef?.current?.querySelector('.js-plotly-plot') as HTMLElement | null
 
       if (plotElement) {
         const timestamp = new Date().toISOString().split('T')[0]
         const filename = `climate_chart_${mode}_${timestamp}`
 
-        // Access Plotly from the plot element's _fullLayout which has reference to Plotly
-        // Or trigger the camera button click programmatically
-        const cameraButton = chartRef?.current?.querySelector('[data-title="Download plot as a png"]') as HTMLElement | null
+        // Get the SVG element from the chart
+        const svgElement = plotElement.querySelector('svg.main-svg')
+        if (svgElement) {
+          // Clone the SVG to avoid modifying the original
+          const clonedSvg = svgElement.cloneNode(true) as SVGElement
 
-        if (cameraButton) {
-          // Simply click the existing camera button
-          cameraButton.click()
-        } else {
-          // Fallback: Use html2canvas approach or SVG export
-          const svgElement = plotElement.querySelector('svg.main-svg')
-          if (svgElement) {
-            const svgData = new XMLSerializer().serializeToString(svgElement)
-            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
-            const url = URL.createObjectURL(svgBlob)
+          // Get the bounding box to set proper dimensions
+          const bbox = svgElement.getBoundingClientRect()
 
-            // Create an image from SVG
-            const img = new Image()
-            img.onload = () => {
-              const canvas = document.createElement('canvas')
-              canvas.width = 1920
-              canvas.height = 1080
-              const ctx = canvas.getContext('2d')
-              if (ctx) {
-                ctx.fillStyle = '#0a0a0f'
-                ctx.fillRect(0, 0, canvas.width, canvas.height)
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+          // Set explicit dimensions on the cloned SVG
+          clonedSvg.setAttribute('width', String(bbox.width))
+          clonedSvg.setAttribute('height', String(bbox.height))
 
-                canvas.toBlob((blob) => {
-                  if (blob) {
-                    const link = document.createElement('a')
-                    link.href = URL.createObjectURL(blob)
-                    link.download = `${filename}.png`
-                    link.click()
-                    URL.revokeObjectURL(link.href)
-                  }
-                }, 'image/png')
-              }
-              URL.revokeObjectURL(url)
+          const svgData = new XMLSerializer().serializeToString(clonedSvg)
+          const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
+          const url = URL.createObjectURL(svgBlob)
+
+          const img = new Image()
+          img.onload = () => {
+            // Create high-res canvas (2x scale)
+            const scale = 2
+            const canvas = document.createElement('canvas')
+            canvas.width = bbox.width * scale
+            canvas.height = bbox.height * scale
+            const ctx = canvas.getContext('2d')
+
+            if (ctx) {
+              // Scale for high DPI
+              ctx.scale(scale, scale)
+
+              // Fill background based on current theme
+              ctx.fillStyle = colorMode === 'dark' ? '#0a0a0f' : '#ffffff'
+              ctx.fillRect(0, 0, bbox.width, bbox.height)
+
+              // Draw the image
+              ctx.drawImage(img, 0, 0, bbox.width, bbox.height)
+
+              canvas.toBlob((blob) => {
+                if (blob) {
+                  const link = document.createElement('a')
+                  link.href = URL.createObjectURL(blob)
+                  link.download = `${filename}.png`
+                  link.click()
+                  URL.revokeObjectURL(link.href)
+                }
+                setIsExporting(false)
+              }, 'image/png')
+            } else {
+              setIsExporting(false)
             }
-            img.src = url
-          } else {
-            console.error('No SVG element found in chart')
+            URL.revokeObjectURL(url)
           }
+          img.onerror = () => {
+            console.error('Failed to load SVG image')
+            setIsExporting(false)
+            URL.revokeObjectURL(url)
+          }
+          img.src = url
+        } else {
+          console.error('No SVG element found in chart')
+          setIsExporting(false)
         }
       } else {
         console.error('Chart element not found')
+        setIsExporting(false)
       }
     } catch (error) {
       console.error('PNG Export failed:', error)
-    } finally {
       setIsExporting(false)
     }
-  }, [mode, chartRef])
+  }, [mode, chartRef, colorMode])
 
   const hasData = mode === 'monthly' ? !!monthlyData : !!annualData
 

@@ -226,6 +226,7 @@ export function ChartPanel({
     displayModeBar: true,
     displaylogo: false,
     modeBarButtonsToRemove: [
+      'toImage', // Hide camera button - we have our own Export PNG in dropdown
       'lasso2d',
       'select2d',
       'hoverClosestCartesian',
