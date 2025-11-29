@@ -9,7 +9,19 @@ class StationAnalytics(BaseModel):
     station_id: str
     station_name: str
     min_temp: float = Field(..., description="Minimum temperature ever recorded")
+    min_temp_year: int = Field(
+        ..., description="Year when min temperature was recorded"
+    )
+    min_temp_month: int = Field(
+        ..., description="Month when min temperature was recorded"
+    )
     max_temp: float = Field(..., description="Maximum temperature ever recorded")
+    max_temp_year: int = Field(
+        ..., description="Year when max temperature was recorded"
+    )
+    max_temp_month: int = Field(
+        ..., description="Month when max temperature was recorded"
+    )
     mean_temp: float = Field(..., description="Overall mean temperature")
     std_temp: float = Field(..., description="Overall standard deviation")
     coldest_year: int = Field(..., description="Year with lowest mean temperature")

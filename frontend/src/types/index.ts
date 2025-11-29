@@ -53,7 +53,11 @@ export interface StationAnalytics {
   station_id: string
   station_name: string
   min_temp: number
+  min_temp_year: number
+  min_temp_month: number
   max_temp: number
+  max_temp_year: number
+  max_temp_month: number
   mean_temp: number
   std_temp: number
   coldest_year: number
