@@ -20,6 +20,7 @@ interface ChartPanelProps {
   showSigmaBounds: boolean
   isLoading: boolean
   selectedStations: string[]
+  fillHeight?: boolean
 }
 
 export function ChartPanel({
@@ -29,17 +30,21 @@ export function ChartPanel({
   showSigmaBounds,
   isLoading,
   selectedStations,
+  fillHeight = false,
 }: ChartPanelProps) {
+  const cardHeight = fillHeight ? '100%' : 'auto'
+  const chartMinHeight = fillHeight ? '200px' : '450px'
+
   // Empty state
   if (selectedStations.length === 0) {
     return (
-      <Card>
-        <CardBody p={0}>
+      <Card h={cardHeight} display="flex" flexDirection="column">
+        <CardBody p={0} flex={1} display="flex">
           <EmptyState
             icon={<LineChartIcon size="xl" color="#71717a" />}
             title="Select stations to visualize"
             description="Choose one or more weather stations from the panel on the left to see temperature trends"
-            minHeight="450px"
+            minHeight={chartMinHeight}
           />
         </CardBody>
       </Card>
@@ -49,11 +54,11 @@ export function ChartPanel({
   // Loading state
   if (isLoading) {
     return (
-      <Card>
-        <CardBody p={0}>
+      <Card h={cardHeight} display="flex" flexDirection="column">
+        <CardBody p={0} flex={1} display="flex">
           <LoadingState
             message="Loading temperature data..."
-            minHeight="450px"
+            minHeight={chartMinHeight}
             size="lg"
           />
         </CardBody>
@@ -222,12 +227,12 @@ export function ChartPanel({
     : `${annualData?.total_years} years`
 
   return (
-    <Card>
-      <CardHeader>
+    <Card h={cardHeight} display="flex" flexDirection="column">
+      <CardHeader py={fillHeight ? 2 : 3} flexShrink={0}>
         <Flex justify="space-between" align="center">
-          <Flex align="center" gap={3}>
+          <Flex align="center" gap={2}>
             <Text
-              fontSize="sm"
+              fontSize={fillHeight ? 'xs' : 'sm'}
               fontWeight="600"
               color="gray.300"
               textTransform="uppercase"
@@ -237,21 +242,21 @@ export function ChartPanel({
             </Text>
             {showSigmaBounds && mode === 'annual' && (
               <Box
-                px={2}
+                px={1.5}
                 py={0.5}
                 bg="rgba(139, 92, 246, 0.15)"
                 borderRadius="full"
                 borderWidth="1px"
                 borderColor="rgba(139, 92, 246, 0.3)"
               >
-                <Text fontSize="xs" color="purple.300" fontWeight="500">
-                  ±1σ enabled
+                <Text fontSize="2xs" color="purple.300" fontWeight="500">
+                  ±1σ
                 </Text>
               </Box>
             )}
           </Flex>
-          <Flex align="center" gap={3}>
-            <Text fontSize="xs" color="gray.500" fontFamily="mono">
+          <Flex align="center" gap={2}>
+            <Text fontSize="2xs" color="gray.500" fontFamily="mono">
               {dataPointCount}
             </Text>
             {/* Export button */}
@@ -264,7 +269,7 @@ export function ChartPanel({
         </Flex>
       </CardHeader>
 
-      <Box h="450px" p={2}>
+      <Box flex={1} minH={chartMinHeight} p={1}>
         <Plot
           data={traces}
           layout={layout}
@@ -274,28 +279,27 @@ export function ChartPanel({
         />
       </Box>
 
-      {/* Chart footer with tips */}
+      {/* Chart footer with tips - compact */}
       <Box
-        px={4}
-        py={2}
+        px={3}
+        py={1.5}
         borderTopWidth="1px"
         borderColor="rgba(255, 255, 255, 0.06)"
         bg="rgba(255, 255, 255, 0.02)"
+        flexShrink={0}
       >
         <Flex justify="space-between" align="center">
-          <Flex align="center" gap={2}>
-            <InfoIcon size="sm" color="#52525b" />
-            <Text fontSize="xs" color="gray.600">
+          <Flex align="center" gap={1.5}>
+            <InfoIcon size="xs" color="#52525b" />
+            <Text fontSize="2xs" color="gray.600">
               Drag to pan • Scroll to zoom • Double-click to reset
             </Text>
           </Flex>
-          <Flex gap={2}>
-            {selectedStations.length > 1 && (
-              <Text fontSize="xs" color="gray.600">
-                Click legend items to toggle stations
-              </Text>
-            )}
-          </Flex>
+          {selectedStations.length > 1 && (
+            <Text fontSize="2xs" color="gray.600">
+              Click legend to toggle
+            </Text>
+          )}
         </Flex>
       </Box>
     </Card>

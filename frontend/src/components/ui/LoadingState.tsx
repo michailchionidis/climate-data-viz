@@ -25,6 +25,9 @@ export function LoadingState({
   return (
     <Box
       minH={minHeight}
+      h="100%"
+      w="100%"
+      flex={1}
       bg="rgba(255, 255, 255, 0.02)"
       borderRadius="12px"
       borderWidth="1px"
