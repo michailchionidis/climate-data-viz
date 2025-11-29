@@ -11,7 +11,8 @@ import { EmptyState } from './ui/EmptyState'
 import { LoadingState } from './ui/LoadingState'
 import { ExportButton } from './ExportButton'
 import { LineChartIcon, InfoIcon } from './ui/Icons'
-import { STATION_COLORS, chartTheme } from '../theme'
+import { STATION_COLORS, getChartTheme } from '../theme'
+import { useTheme } from '../context/ThemeContext'
 import type { MonthlyDataResponse, AnnualDataResponse, VisualizationMode } from '../types'
 
 interface ChartPanelProps {
@@ -33,6 +34,9 @@ export function ChartPanel({
   selectedStations,
   fillHeight = false,
 }: ChartPanelProps) {
+  const { colorMode, colors } = useTheme()
+  const chartTheme = getChartTheme(colorMode)
+
   const cardHeight = fillHeight ? '100%' : 'auto'
   const chartMinHeight = fillHeight ? '200px' : '450px'
 
@@ -194,21 +198,21 @@ export function ChartPanel({
       orientation: 'h',
       yanchor: 'bottom',
       y: 1.02,
-      xanchor: isMobile ? 'left' : 'right',
-      x: isMobile ? 0 : 1,
-      font: { size: isMobile ? 10 : 11, color: '#a1a1aa' },
+      xanchor: 'left',
+      x: 0,
+      font: { size: isMobile ? 10 : 11, color: colors.textSecondary },
       bgcolor: 'transparent',
       itemsizing: 'constant',
     },
     hovermode: 'x unified',
     dragmode: 'pan',
     hoverlabel: {
-      bgcolor: 'rgba(24, 24, 27, 0.95)',
-      bordercolor: 'rgba(255, 255, 255, 0.1)',
+      bgcolor: colors.chartHoverBg,
+      bordercolor: colors.border,
       font: {
         family: 'Inter, system-ui, sans-serif',
         size: 12,
-        color: '#e4e4e7',
+        color: colors.text,
       },
     },
     transition: {
@@ -250,7 +254,7 @@ export function ChartPanel({
             <Text
               fontSize={fillHeight ? 'xs' : 'sm'}
               fontWeight="600"
-              color="gray.300"
+              color={colors.textSecondary}
               textTransform="uppercase"
               letterSpacing="wide"
             >
@@ -260,19 +264,19 @@ export function ChartPanel({
               <Box
                 px={1.5}
                 py={0.5}
-                bg="rgba(139, 92, 246, 0.15)"
+                bg={colors.selectedBg}
                 borderRadius="full"
                 borderWidth="1px"
-                borderColor="rgba(139, 92, 246, 0.3)"
+                borderColor={colors.selectedBorder}
               >
-                <Text fontSize="2xs" color="purple.300" fontWeight="500">
+                <Text fontSize="2xs" color="cyan.400" fontWeight="500">
                   ±1σ
                 </Text>
               </Box>
             )}
           </Flex>
           <Flex align="center" gap={2}>
-            <Text fontSize="2xs" color="gray.500" fontFamily="mono">
+            <Text fontSize="2xs" color={colors.textMuted} fontFamily="mono">
               {dataPointCount}
             </Text>
             {/* Export button */}
@@ -300,19 +304,19 @@ export function ChartPanel({
         px={3}
         py={1.5}
         borderTopWidth="1px"
-        borderColor="rgba(255, 255, 255, 0.06)"
-        bg="rgba(255, 255, 255, 0.02)"
+        borderColor={colors.border}
+        bg={colors.inputBg}
         flexShrink={0}
       >
         <Flex justify="space-between" align="center">
           <Flex align="center" gap={1.5}>
-            <InfoIcon size="xs" color="#52525b" />
-            <Text fontSize="2xs" color="gray.600">
+            <InfoIcon size="xs" color={colors.textMuted} />
+            <Text fontSize="2xs" color={colors.textMuted}>
               Drag to pan • Scroll to zoom • Double-click to reset
             </Text>
           </Flex>
           {selectedStations.length > 1 && (
-            <Text fontSize="2xs" color="gray.600">
+            <Text fontSize="2xs" color={colors.textMuted}>
               Click legend to toggle
             </Text>
           )}

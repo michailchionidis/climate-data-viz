@@ -2,6 +2,7 @@
  * Section header component with title and optional badge
  */
 import { Flex, Text, Box } from '@chakra-ui/react'
+import { useTheme } from '../../context/ThemeContext'
 
 interface SectionHeaderProps {
   title: string
@@ -25,6 +26,7 @@ export function SectionHeader({
   action,
   compact = false,
 }: SectionHeaderProps) {
+  const { colors: themeColors } = useTheme()
   const colors = badgeColors[badgeColor]
 
   return (
@@ -33,7 +35,7 @@ export function SectionHeader({
         <Text
           fontSize={compact ? 'xs' : 'sm'}
           fontWeight="600"
-          color="gray.300"
+          color={themeColors.textSecondary}
           textTransform="uppercase"
           letterSpacing="wide"
         >

@@ -60,28 +60,87 @@ export const themeColors = {
     bgSecondary: '#111118',
     card: 'rgba(255, 255, 255, 0.03)',
     cardHover: 'rgba(255, 255, 255, 0.06)',
+    cardSolid: '#18181b',
     border: 'rgba(255, 255, 255, 0.08)',
     borderHover: 'rgba(255, 255, 255, 0.15)',
+    borderActive: 'rgba(6, 182, 212, 0.4)',
     text: '#e4e4e7',
     textSecondary: '#a1a1aa',
     textMuted: '#71717a',
     headerBg: 'rgba(10, 10, 15, 0.95)',
+    inputBg: 'rgba(255, 255, 255, 0.03)',
+    buttonBg: 'rgba(255, 255, 255, 0.05)',
+    buttonHover: 'rgba(255, 255, 255, 0.08)',
+    selectedBg: 'rgba(6, 182, 212, 0.15)',
+    selectedBorder: 'rgba(6, 182, 212, 0.4)',
+    // Chart specific
+    chartGrid: 'rgba(255, 255, 255, 0.05)',
+    chartLine: 'rgba(255, 255, 255, 0.1)',
+    chartHoverBg: 'rgba(24, 24, 27, 0.95)',
   },
   light: {
     bg: '#f8fafc',
     bgSecondary: '#ffffff',
-    card: 'rgba(0, 0, 0, 0.02)',
-    cardHover: 'rgba(0, 0, 0, 0.04)',
-    border: 'rgba(0, 0, 0, 0.08)',
-    borderHover: 'rgba(0, 0, 0, 0.15)',
-    text: '#1e293b',
-    textSecondary: '#475569',
-    textMuted: '#94a3b8',
-    headerBg: 'rgba(248, 250, 252, 0.95)',
+    card: 'rgba(255, 255, 255, 0.8)',
+    cardHover: 'rgba(255, 255, 255, 0.95)',
+    cardSolid: '#ffffff',
+    border: 'rgba(0, 0, 0, 0.1)',
+    borderHover: 'rgba(0, 0, 0, 0.2)',
+    borderActive: 'rgba(6, 182, 212, 0.6)',
+    text: '#0f172a',
+    textSecondary: '#334155',
+    textMuted: '#64748b',
+    headerBg: 'rgba(255, 255, 255, 0.95)',
+    inputBg: 'rgba(0, 0, 0, 0.03)',
+    buttonBg: 'rgba(0, 0, 0, 0.05)',
+    buttonHover: 'rgba(0, 0, 0, 0.08)',
+    selectedBg: 'rgba(6, 182, 212, 0.1)',
+    selectedBorder: 'rgba(6, 182, 212, 0.5)',
+    // Chart specific
+    chartGrid: 'rgba(0, 0, 0, 0.06)',
+    chartLine: 'rgba(0, 0, 0, 0.1)',
+    chartHoverBg: 'rgba(255, 255, 255, 0.98)',
   },
 } as const
 
 export type ColorMode = 'dark' | 'light'
+
+// Get chart theme based on color mode
+export const getChartTheme = (mode: ColorMode) => {
+  const colors = themeColors[mode]
+  return {
+    paper_bgcolor: 'transparent',
+    plot_bgcolor: 'transparent',
+    font: {
+      family: 'Inter, system-ui, sans-serif',
+      color: colors.textSecondary,
+      size: 12,
+    },
+    xaxis: {
+      gridcolor: colors.chartGrid,
+      linecolor: colors.chartLine,
+      tickfont: { size: 11, color: colors.textMuted },
+      title: { font: { size: 12, color: colors.textSecondary } },
+    },
+    yaxis: {
+      gridcolor: colors.chartGrid,
+      linecolor: colors.chartLine,
+      tickfont: { size: 11, color: colors.textMuted },
+      title: { font: { size: 12, color: colors.textSecondary } },
+      zeroline: true,
+      zerolinecolor: colors.chartLine,
+    },
+    legend: {
+      font: { size: 11, color: colors.textSecondary },
+      bgcolor: 'transparent',
+    },
+    hoverlabel: {
+      bgcolor: colors.chartHoverBg,
+      bordercolor: colors.border,
+      font: { family: 'Inter, system-ui, sans-serif', size: 12, color: colors.text },
+    },
+  }
+}
 
 // Animation keyframes as CSS string
 export const globalStyles = `

@@ -53,7 +53,7 @@ export function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
       <Box
         opacity={isDark ? 1 : 0.4}
         transition="opacity 0.2s"
-        color={isDark ? '#8b5cf6' : colors.textMuted}
+        color={isDark ? '#06b6d4' : colors.textMuted}
         zIndex={1}
       >
         <MoonIcon size="sm" />
@@ -65,10 +65,10 @@ export function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
         w={dimensions.thumb}
         h={dimensions.thumb}
         borderRadius="full"
-        bg={isDark ? '#8b5cf6' : '#f59e0b'}
+        bg={isDark ? '#06b6d4' : '#f59e0b'}
         left={isDark ? `calc(100% - ${dimensions.thumb} - 2px)` : '2px'}
         transition="all 0.2s ease"
-        boxShadow={isDark ? '0 0 8px rgba(139, 92, 246, 0.5)' : '0 0 8px rgba(245, 158, 11, 0.5)'}
+        boxShadow={isDark ? '0 0 8px rgba(6, 182, 212, 0.5)' : '0 0 8px rgba(245, 158, 11, 0.5)'}
       />
     </Flex>
   )

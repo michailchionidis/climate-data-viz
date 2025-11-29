@@ -4,6 +4,7 @@
  */
 import { Box, Text, Flex, Input, Button, VStack } from '@chakra-ui/react'
 import { SectionHeader } from './ui/SectionHeader'
+import { useTheme } from '../context/ThemeContext'
 import type { VisualizationMode, ZoomState } from '../types'
 
 interface ControlsPanelProps {
@@ -37,6 +38,9 @@ export function ControlsPanel({
   maxYear = 2019,
   compact = false,
 }: ControlsPanelProps) {
+  const { colors, colorMode } = useTheme()
+  const cyanAccent = colorMode === 'light' ? 'cyan.600' : 'cyan.300'
+
   const handleZoomToYear = () => {
     if (zoom.centerYear) {
       const from = Math.max(minYear, zoom.centerYear - zoom.windowSize)
@@ -64,10 +68,10 @@ export function ControlsPanel({
         {/* Mode toggle */}
         <Box
           p={0.5}
-          bg="rgba(255, 255, 255, 0.03)"
+          bg={colors.inputBg}
           borderRadius="8px"
           borderWidth="1px"
-          borderColor="rgba(255, 255, 255, 0.08)"
+          borderColor={colors.border}
         >
           <Flex gap={0.5}>
             <Box
@@ -75,18 +79,18 @@ export function ControlsPanel({
               py={compact ? 1 : 2}
               px={2}
               borderRadius="6px"
-              bg={mode === 'monthly' ? 'rgba(6, 182, 212, 0.2)' : 'transparent'}
+              bg={mode === 'monthly' ? colors.selectedBg : 'transparent'}
               cursor="pointer"
               onClick={() => onModeChange('monthly')}
               transition="all 0.2s ease"
               _hover={{
-                bg: mode === 'monthly' ? 'rgba(6, 182, 212, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                bg: mode === 'monthly' ? colors.selectedBg : colors.buttonHover,
               }}
             >
               <Text
                 fontSize="xs"
                 fontWeight="600"
-                color={mode === 'monthly' ? 'cyan.300' : 'gray.400'}
+                color={mode === 'monthly' ? 'cyan.400' : colors.textMuted}
                 textAlign="center"
               >
                 Monthly
@@ -97,18 +101,18 @@ export function ControlsPanel({
               py={compact ? 1 : 2}
               px={2}
               borderRadius="6px"
-              bg={mode === 'annual' ? 'rgba(6, 182, 212, 0.2)' : 'transparent'}
+              bg={mode === 'annual' ? colors.selectedBg : 'transparent'}
               cursor="pointer"
               onClick={() => onModeChange('annual')}
               transition="all 0.2s ease"
               _hover={{
-                bg: mode === 'annual' ? 'rgba(6, 182, 212, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                bg: mode === 'annual' ? colors.selectedBg : colors.buttonHover,
               }}
             >
               <Text
                 fontSize="xs"
                 fontWeight="600"
-                color={mode === 'annual' ? 'cyan.300' : 'gray.400'}
+                color={mode === 'annual' ? 'cyan.400' : colors.textMuted}
                 textAlign="center"
               >
                 Annual Avg
@@ -123,14 +127,14 @@ export function ControlsPanel({
             mt={2}
             p={compact ? 2 : 3}
             borderRadius="6px"
-            bg={showSigmaBounds ? 'rgba(139, 92, 246, 0.15)' : 'rgba(255, 255, 255, 0.03)'}
+            bg={showSigmaBounds ? colors.selectedBg : colors.inputBg}
             borderWidth="1px"
-            borderColor={showSigmaBounds ? 'rgba(139, 92, 246, 0.4)' : 'rgba(255, 255, 255, 0.08)'}
+            borderColor={showSigmaBounds ? colors.selectedBorder : colors.border}
             cursor="pointer"
             onClick={() => onShowSigmaBoundsChange(!showSigmaBounds)}
             _hover={{
-              bg: showSigmaBounds ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-              borderColor: showSigmaBounds ? 'rgba(139, 92, 246, 0.5)' : 'rgba(255, 255, 255, 0.15)',
+              bg: showSigmaBounds ? colors.selectedBg : colors.buttonHover,
+              borderColor: showSigmaBounds ? colors.selectedBorder : colors.borderHover,
             }}
             transition="all 0.2s ease"
             align="center"
@@ -141,7 +145,7 @@ export function ControlsPanel({
               w={compact ? '28px' : '36px'}
               h={compact ? '16px' : '20px'}
               borderRadius="full"
-              bg={showSigmaBounds ? '#8b5cf6' : 'rgba(255, 255, 255, 0.1)'}
+              bg={showSigmaBounds ? '#06b6d4' : colors.buttonBg}
               position="relative"
               transition="all 0.2s ease"
               flexShrink={0}
@@ -158,7 +162,7 @@ export function ControlsPanel({
                 boxShadow="0 1px 3px rgba(0,0,0,0.3)"
               />
             </Box>
-            <Text fontSize="xs" color={showSigmaBounds ? 'purple.200' : 'gray.400'} fontWeight="500">
+            <Text fontSize="xs" color={showSigmaBounds ? 'cyan.400' : colors.textMuted} fontWeight="500">
               Show ±1σ Overlay
             </Text>
           </Flex>
@@ -175,7 +179,7 @@ export function ControlsPanel({
         />
         <Flex gap={2} align="center">
           <Box flex={1}>
-            <Text fontSize="2xs" color="gray.500" mb={1} fontWeight="500">
+            <Text fontSize="2xs" color={colors.textMuted} mb={1} fontWeight="500">
               From
             </Text>
             <Input
@@ -184,14 +188,16 @@ export function ControlsPanel({
               placeholder={String(minYear)}
               value={yearFrom || ''}
               onChange={(e) => onYearFromChange(e.target.value ? parseInt(e.target.value) : null)}
-              bg="rgba(255, 255, 255, 0.03)"
-              borderColor="rgba(255, 255, 255, 0.1)"
+              bg={colors.inputBg}
+              borderColor={colors.border}
               borderRadius="6px"
               px={3}
               py={1.5}
               h="auto"
               fontSize="xs"
-              _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+              color={colors.text}
+              _placeholder={{ color: colors.textMuted }}
+              _hover={{ borderColor: colors.borderHover }}
               _focus={{
                 borderColor: 'rgba(6, 182, 212, 0.5)',
                 boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
@@ -199,11 +205,11 @@ export function ControlsPanel({
               fontFamily="mono"
             />
           </Box>
-          <Text color="gray.600" pt={4} fontSize="sm">
+          <Text color={colors.textMuted} pt={4} fontSize="sm">
             —
           </Text>
           <Box flex={1}>
-            <Text fontSize="2xs" color="gray.500" mb={1} fontWeight="500">
+            <Text fontSize="2xs" color={colors.textMuted} mb={1} fontWeight="500">
               To
             </Text>
             <Input
@@ -212,14 +218,16 @@ export function ControlsPanel({
               placeholder={String(maxYear)}
               value={yearTo || ''}
               onChange={(e) => onYearToChange(e.target.value ? parseInt(e.target.value) : null)}
-              bg="rgba(255, 255, 255, 0.03)"
-              borderColor="rgba(255, 255, 255, 0.1)"
+              bg={colors.inputBg}
+              borderColor={colors.border}
               borderRadius="6px"
               px={3}
               py={1.5}
               h="auto"
               fontSize="xs"
-              _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+              color={colors.text}
+              _placeholder={{ color: colors.textMuted }}
+              _hover={{ borderColor: colors.borderHover }}
               _focus={{
                 borderColor: 'rgba(6, 182, 212, 0.5)',
                 boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
@@ -240,10 +248,10 @@ export function ControlsPanel({
               key={preset.label}
               px={1.5}
               py={0.5}
-              bg="rgba(255, 255, 255, 0.03)"
+              bg={colors.inputBg}
               borderRadius="4px"
               borderWidth="1px"
-              borderColor="rgba(255, 255, 255, 0.08)"
+              borderColor={colors.border}
               cursor="pointer"
               _hover={{
                 bg: 'rgba(255, 255, 255, 0.06)',
@@ -255,7 +263,7 @@ export function ControlsPanel({
               }}
               transition="all 0.15s ease"
             >
-              <Text fontSize="2xs" color="gray.400">
+              <Text fontSize="2xs" color={colors.textSecondary}>
                 {preset.label}
               </Text>
             </Box>
@@ -271,7 +279,7 @@ export function ControlsPanel({
           {compact ? (
             <Flex gap={2} w="full">
               <Box flex={1}>
-                <Text fontSize="2xs" color="gray.500" mb={0.5} fontWeight="500">
+                <Text fontSize="2xs" color={colors.textMuted} mb={0.5} fontWeight="500">
                   Center Year
                 </Text>
                 <Input
@@ -285,14 +293,16 @@ export function ControlsPanel({
                       centerYear: e.target.value ? parseInt(e.target.value) : null,
                     })
                   }
-                  bg="rgba(255, 255, 255, 0.03)"
-                  borderColor="rgba(255, 255, 255, 0.1)"
+                  bg={colors.inputBg}
+                  borderColor={colors.border}
                   borderRadius="6px"
                   px={3}
                   py={1.5}
                   h="auto"
                   fontSize="xs"
-                  _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                  color={colors.text}
+                  _placeholder={{ color: colors.textMuted }}
+                  _hover={{ borderColor: colors.borderHover }}
                   _focus={{
                     borderColor: 'rgba(6, 182, 212, 0.5)',
                     boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
@@ -302,7 +312,7 @@ export function ControlsPanel({
               </Box>
               <Box flex={1}>
                 <Flex justify="space-between" align="center" mb={0.5}>
-                  <Text fontSize="2xs" color="gray.500" fontWeight="500">
+                  <Text fontSize="2xs" color={colors.textMuted} fontWeight="500">
                     Window
                   </Text>
                   <Text fontSize="2xs" color="cyan.300" fontFamily="mono" fontWeight="600">
@@ -336,7 +346,7 @@ export function ControlsPanel({
             <>
               {/* Center Year input */}
               <Box w="full">
-                <Text fontSize="2xs" color="gray.500" mb={1} fontWeight="500">
+                <Text fontSize="2xs" color={colors.textMuted} mb={1} fontWeight="500">
                   Center Year
                 </Text>
                 <Input
@@ -350,14 +360,16 @@ export function ControlsPanel({
                       centerYear: e.target.value ? parseInt(e.target.value) : null,
                     })
                   }
-                  bg="rgba(255, 255, 255, 0.03)"
-                  borderColor="rgba(255, 255, 255, 0.1)"
+                  bg={colors.inputBg}
+                  borderColor={colors.border}
                   borderRadius="6px"
                   px={3}
                   py={1.5}
                   h="auto"
                   fontSize="xs"
-                  _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+                  color={colors.text}
+                  _placeholder={{ color: colors.textMuted }}
+                  _hover={{ borderColor: colors.borderHover }}
                   _focus={{
                     borderColor: 'rgba(6, 182, 212, 0.5)',
                     boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
@@ -369,7 +381,7 @@ export function ControlsPanel({
               {/* Window size slider */}
               <Box w="full">
                 <Flex justify="space-between" align="center" mb={1}>
-                  <Text fontSize="2xs" color="gray.500" fontWeight="500">
+                  <Text fontSize="2xs" color={colors.textMuted} fontWeight="500">
                     Window Size
                   </Text>
                   <Box
@@ -415,7 +427,7 @@ export function ControlsPanel({
               flex={1}
               size="xs"
               bg={zoom.centerYear ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255, 255, 255, 0.05)'}
-              color={zoom.centerYear ? 'cyan.300' : 'gray.500'}
+              color={zoom.centerYear ? cyanAccent : 'gray.500'}
               borderWidth="1px"
               borderColor={zoom.centerYear ? 'rgba(6, 182, 212, 0.4)' : 'rgba(255, 255, 255, 0.1)'}
               _hover={{
@@ -433,10 +445,10 @@ export function ControlsPanel({
             <Button
               flex={1}
               size="xs"
-              bg="rgba(255, 255, 255, 0.03)"
-              color="gray.400"
+              bg={colors.inputBg}
+              color={colors.textSecondary}
               borderWidth="1px"
-              borderColor="rgba(255, 255, 255, 0.1)"
+              borderColor={colors.border}
               _hover={{
                 bg: 'rgba(255, 255, 255, 0.06)',
                 borderColor: 'rgba(255, 255, 255, 0.15)',

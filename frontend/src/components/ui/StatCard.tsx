@@ -3,6 +3,7 @@
  */
 import { Box, Text, Flex, type BoxProps } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
+import { useTheme } from '../../context/ThemeContext'
 
 interface StatCardProps extends Omit<BoxProps, 'animationDelay'> {
   label: string
@@ -77,6 +78,7 @@ export function StatCard({
   compact = false,
   ...props
 }: StatCardProps) {
+  const { colors: themeColors } = useTheme()
   const colors = colorMap[color]
   const sizes = sizeMap[size]
 
@@ -106,13 +108,13 @@ export function StatCard({
       <Box
         px={2.5}
         py={1.5}
-        bg="rgba(255, 255, 255, 0.03)"
+        bg={themeColors.inputBg}
         borderRadius="8px"
         borderWidth="1px"
-        borderColor="rgba(255, 255, 255, 0.08)"
+        borderColor={themeColors.border}
         transition="all 0.2s ease"
         _hover={{
-          bg: 'rgba(255, 255, 255, 0.05)',
+          bg: themeColors.buttonHover,
           borderColor: colors.border,
         }}
         {...props}
@@ -124,7 +126,7 @@ export function StatCard({
             </Box>
           )}
           <Box>
-            <Text fontSize="2xs" color="gray.500" textTransform="uppercase" letterSpacing="wider" fontWeight="500" lineHeight="1">
+            <Text fontSize="2xs" color={themeColors.textMuted} textTransform="uppercase" letterSpacing="wider" fontWeight="500" lineHeight="1">
               {label}
             </Text>
             <Flex align="baseline" gap={1}>
@@ -132,7 +134,7 @@ export function StatCard({
                 {value}
               </Text>
               {subValue && (
-                <Text fontSize="2xs" color="gray.500">
+                <Text fontSize="2xs" color={themeColors.textMuted}>
                   {subValue}
                 </Text>
               )}
@@ -146,13 +148,13 @@ export function StatCard({
   return (
     <Box
       p={sizes.padding}
-      bg="rgba(255, 255, 255, 0.03)"
+      bg={themeColors.inputBg}
       borderRadius="12px"
       borderWidth="1px"
-      borderColor="rgba(255, 255, 255, 0.08)"
+      borderColor={themeColors.border}
       transition="all 0.25s ease"
       _hover={{
-        bg: 'rgba(255, 255, 255, 0.05)',
+        bg: themeColors.buttonHover,
         borderColor: colors.border,
         boxShadow: colors.glow,
         transform: 'translateY(-2px)',
@@ -168,7 +170,7 @@ export function StatCard({
         )}
         <Text
           fontSize={sizes.label}
-          color="gray.400"
+          color={themeColors.textSecondary}
           textTransform="uppercase"
           letterSpacing="wider"
           fontWeight="500"
@@ -201,7 +203,7 @@ export function StatCard({
       </Flex>
 
       {subValue && (
-        <Text fontSize="xs" color="gray.500" mt={1}>
+        <Text fontSize="xs" color={themeColors.textMuted} mt={1}>
           {subValue}
         </Text>
       )}
@@ -211,6 +213,7 @@ export function StatCard({
 
 // Skeleton loading state for StatCard
 export function StatCardSkeleton({ size = 'md', compact = false }: { size?: 'sm' | 'md' | 'lg'; compact?: boolean }) {
+  const { colors } = useTheme()
   const sizes = sizeMap[size]
 
   if (compact) {
@@ -218,13 +221,13 @@ export function StatCardSkeleton({ size = 'md', compact = false }: { size?: 'sm'
       <Box
         px={2.5}
         py={1.5}
-        bg="rgba(255, 255, 255, 0.03)"
+        bg={colors.inputBg}
         borderRadius="8px"
         borderWidth="1px"
-        borderColor="rgba(255, 255, 255, 0.08)"
+        borderColor={colors.border}
       >
-        <Box h="8px" w="40px" bg="rgba(255, 255, 255, 0.05)" borderRadius="2px" mb={1} className="animate-shimmer" />
-        <Box h="14px" w="50px" bg="rgba(255, 255, 255, 0.05)" borderRadius="2px" className="animate-shimmer" />
+        <Box h="8px" w="40px" bg={colors.buttonBg} borderRadius="2px" mb={1} className="animate-shimmer" />
+        <Box h="14px" w="50px" bg={colors.buttonBg} borderRadius="2px" className="animate-shimmer" />
       </Box>
     )
   }
@@ -232,15 +235,15 @@ export function StatCardSkeleton({ size = 'md', compact = false }: { size?: 'sm'
   return (
     <Box
       p={sizes.padding}
-      bg="rgba(255, 255, 255, 0.03)"
+      bg={colors.inputBg}
       borderRadius="12px"
       borderWidth="1px"
-      borderColor="rgba(255, 255, 255, 0.08)"
+      borderColor={colors.border}
     >
       <Box
         h="12px"
         w="60%"
-        bg="rgba(255, 255, 255, 0.05)"
+        bg={colors.buttonBg}
         borderRadius="4px"
         mb={3}
         className="animate-shimmer"
@@ -248,7 +251,7 @@ export function StatCardSkeleton({ size = 'md', compact = false }: { size?: 'sm'
       <Box
         h="32px"
         w="80%"
-        bg="rgba(255, 255, 255, 0.05)"
+        bg={colors.buttonBg}
         borderRadius="4px"
         className="animate-shimmer"
       />

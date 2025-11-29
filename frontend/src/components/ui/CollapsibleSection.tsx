@@ -4,7 +4,8 @@
  */
 import { useState } from 'react'
 import { Box, Flex, Text } from '@chakra-ui/react'
-import { ChevronDownIcon, ChevronUpIcon } from './Icons'
+import { ChevronDownIcon } from './Icons'
+import { useTheme } from '../../context/ThemeContext'
 
 interface CollapsibleSectionProps {
   title: string
@@ -22,6 +23,7 @@ export function CollapsibleSection({
   badge,
   mobileOnly = true,
 }: CollapsibleSectionProps) {
+  const { colors } = useTheme()
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
   return (
@@ -47,14 +49,14 @@ export function CollapsibleSection({
         borderRadius="md"
         transition="all 0.2s"
         _hover={{
-          bg: { base: 'rgba(255, 255, 255, 0.03)', lg: mobileOnly ? 'transparent' : 'rgba(255, 255, 255, 0.03)' },
+          bg: { base: colors.buttonHover, lg: mobileOnly ? 'transparent' : colors.buttonHover },
         }}
       >
         <Flex align="center" gap={2}>
           <Text
             fontSize="xs"
             fontWeight="700"
-            color="gray.300"
+            color={colors.textSecondary}
             textTransform="uppercase"
             letterSpacing="0.05em"
           >
@@ -67,7 +69,7 @@ export function CollapsibleSection({
               bg="rgba(6, 182, 212, 0.15)"
               borderRadius="full"
               fontSize="2xs"
-              color="cyan.300"
+              color="cyan.400"
               fontWeight="600"
             >
               {badge}
@@ -78,7 +80,7 @@ export function CollapsibleSection({
         {/* Chevron - only visible on mobile */}
         <Box
           display={{ base: 'block', lg: mobileOnly ? 'none' : 'block' }}
-          color="gray.500"
+          color={colors.textMuted}
           transition="transform 0.2s"
           transform={isOpen ? 'rotate(0deg)' : 'rotate(-90deg)'}
         >

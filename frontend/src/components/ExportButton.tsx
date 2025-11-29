@@ -4,6 +4,7 @@
 import { useState, useCallback } from 'react'
 import { Text, Button } from '@chakra-ui/react'
 import { DownloadIcon } from './ui/Icons'
+import { useTheme } from '../context/ThemeContext'
 import type { MonthlyDataResponse, AnnualDataResponse, VisualizationMode } from '../types'
 
 interface ExportButtonProps {
@@ -19,6 +20,7 @@ export function ExportButton({
   mode,
   disabled = false,
 }: ExportButtonProps) {
+  const { colors } = useTheme()
   const [isExporting, setIsExporting] = useState(false)
 
   const exportToCSV = useCallback(() => {
@@ -72,17 +74,17 @@ export function ExportButton({
   return (
     <Button
       size="sm"
-      bg="rgba(255, 255, 255, 0.05)"
-      color="gray.300"
+      bg={colors.buttonBg}
+      color={colors.textSecondary}
       borderWidth="1px"
-      borderColor="rgba(255, 255, 255, 0.1)"
+      borderColor={colors.border}
       borderRadius="8px"
       _hover={{
-        bg: 'rgba(255, 255, 255, 0.08)',
-        borderColor: 'rgba(255, 255, 255, 0.2)',
+        bg: colors.buttonHover,
+        borderColor: colors.borderHover,
       }}
       _active={{
-        bg: 'rgba(255, 255, 255, 0.1)',
+        bg: colors.buttonHover,
       }}
       onClick={exportToCSV}
       disabled={disabled || !hasData || isExporting}
