@@ -2,6 +2,7 @@
  * Controls panel for visualization settings
  * Premium UI with smooth interactions
  */
+import { useState, useEffect } from 'react'
 import { Box, Text, Flex, Input, Button, VStack } from '@chakra-ui/react'
 import { SectionHeader } from './ui/SectionHeader'
 import { useTheme } from '../context/ThemeContext'
@@ -41,12 +42,23 @@ export function ControlsPanel({
   const { colors, colorMode } = useTheme()
   const cyanAccent = colorMode === 'light' ? 'cyan.600' : 'cyan.300'
 
+  // Track the last applied zoom settings to know when Apply should be enabled
+  const [appliedZoom, setAppliedZoom] = useState<ZoomState>({ centerYear: null, windowSize: 10 })
+
+  // Check if current zoom differs from applied zoom (i.e., there are unapplied changes)
+  const hasUnappliedChanges = zoom.centerYear !== null && (
+    zoom.centerYear !== appliedZoom.centerYear ||
+    zoom.windowSize !== appliedZoom.windowSize
+  )
+
   const handleZoomToYear = () => {
     if (zoom.centerYear) {
       const from = Math.max(minYear, zoom.centerYear - zoom.windowSize)
       const to = Math.min(maxYear, zoom.centerYear + zoom.windowSize)
       onYearFromChange(from)
       onYearToChange(to)
+      // Mark current zoom as applied
+      setAppliedZoom({ ...zoom })
     }
   }
 
@@ -54,7 +66,16 @@ export function ControlsPanel({
     onYearFromChange(null)
     onYearToChange(null)
     onZoomChange({ centerYear: null, windowSize: 10 })
+    // Reset applied zoom state
+    setAppliedZoom({ centerYear: null, windowSize: 10 })
   }
+
+  // Reset applied state when center year is cleared externally
+  useEffect(() => {
+    if (zoom.centerYear === null) {
+      setAppliedZoom({ centerYear: null, windowSize: 10 })
+    }
+  }, [zoom.centerYear])
 
   // Calculate slider progress for styling
   const sliderProgress = ((zoom.windowSize - 5) / (50 - 5)) * 100
@@ -310,12 +331,12 @@ export function ControlsPanel({
                   fontFamily="mono"
                 />
               </Box>
-              <Box flex={1}>
+              <Box flex={1} opacity={zoom.centerYear ? 1 : 0.4}>
                 <Flex justify="space-between" align="center" mb={0.5}>
                   <Text fontSize="2xs" color={colors.textMuted} fontWeight="500">
                     Window
                   </Text>
-                  <Text fontSize="2xs" color="cyan.300" fontFamily="mono" fontWeight="600">
+                  <Text fontSize="2xs" color={zoom.centerYear ? 'cyan.300' : colors.textMuted} fontFamily="mono" fontWeight="600">
                     ±{zoom.windowSize}y
                   </Text>
                 </Flex>
@@ -325,6 +346,7 @@ export function ControlsPanel({
                   max={50}
                   step={5}
                   value={zoom.windowSize}
+                  disabled={!zoom.centerYear}
                   onChange={(e) =>
                     onZoomChange({
                       ...zoom,
@@ -336,8 +358,10 @@ export function ControlsPanel({
                     height: '4px',
                     borderRadius: '2px',
                     marginTop: '8px',
-                    background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${sliderProgress}%, rgba(255,255,255,0.1) ${sliderProgress}%, rgba(255,255,255,0.1) 100%)`,
-                    cursor: 'pointer',
+                    background: zoom.centerYear
+                      ? `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${sliderProgress}%, rgba(255,255,255,0.1) ${sliderProgress}%, rgba(255,255,255,0.1) 100%)`
+                      : 'rgba(255,255,255,0.1)',
+                    cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
                   }}
                 />
               </Box>
@@ -379,7 +403,7 @@ export function ControlsPanel({
               </Box>
 
               {/* Window size slider */}
-              <Box w="full">
+              <Box w="full" opacity={zoom.centerYear ? 1 : 0.4}>
                 <Flex justify="space-between" align="center" mb={1}>
                   <Text fontSize="2xs" color={colors.textMuted} fontWeight="500">
                     Window Size
@@ -387,10 +411,10 @@ export function ControlsPanel({
                   <Box
                     px={1.5}
                     py={0.5}
-                    bg="rgba(6, 182, 212, 0.15)"
+                    bg={zoom.centerYear ? 'rgba(6, 182, 212, 0.15)' : 'rgba(255, 255, 255, 0.05)'}
                     borderRadius="md"
                   >
-                    <Text fontSize="2xs" color="cyan.300" fontFamily="mono" fontWeight="600">
+                    <Text fontSize="2xs" color={zoom.centerYear ? 'cyan.300' : colors.textMuted} fontFamily="mono" fontWeight="600">
                       ±{zoom.windowSize}y
                     </Text>
                   </Box>
@@ -402,6 +426,7 @@ export function ControlsPanel({
                     max={50}
                     step={5}
                     value={zoom.windowSize}
+                    disabled={!zoom.centerYear}
                     onChange={(e) =>
                       onZoomChange({
                         ...zoom,
@@ -412,8 +437,10 @@ export function ControlsPanel({
                       width: '100%',
                       height: '4px',
                       borderRadius: '2px',
-                      background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${sliderProgress}%, rgba(255,255,255,0.1) ${sliderProgress}%, rgba(255,255,255,0.1) 100%)`,
-                      cursor: 'pointer',
+                      background: zoom.centerYear
+                        ? `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${sliderProgress}%, rgba(255,255,255,0.1) ${sliderProgress}%, rgba(255,255,255,0.1) 100%)`
+                        : 'rgba(255,255,255,0.1)',
+                      cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
                     }}
                   />
                 </Box>
@@ -426,18 +453,18 @@ export function ControlsPanel({
             <Button
               flex={1}
               size="xs"
-              bg={zoom.centerYear ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255, 255, 255, 0.05)'}
-              color={zoom.centerYear ? cyanAccent : 'gray.500'}
+              bg={hasUnappliedChanges ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255, 255, 255, 0.05)'}
+              color={hasUnappliedChanges ? cyanAccent : 'gray.500'}
               borderWidth="1px"
-              borderColor={zoom.centerYear ? 'rgba(6, 182, 212, 0.4)' : 'rgba(255, 255, 255, 0.1)'}
+              borderColor={hasUnappliedChanges ? 'rgba(6, 182, 212, 0.4)' : 'rgba(255, 255, 255, 0.1)'}
               _hover={{
-                bg: zoom.centerYear ? 'rgba(6, 182, 212, 0.3)' : 'rgba(255, 255, 255, 0.08)',
+                bg: hasUnappliedChanges ? 'rgba(6, 182, 212, 0.3)' : 'rgba(255, 255, 255, 0.08)',
               }}
               _active={{
-                bg: zoom.centerYear ? 'rgba(6, 182, 212, 0.4)' : 'rgba(255, 255, 255, 0.1)',
+                bg: hasUnappliedChanges ? 'rgba(6, 182, 212, 0.4)' : 'rgba(255, 255, 255, 0.1)',
               }}
               onClick={handleZoomToYear}
-              disabled={!zoom.centerYear}
+              disabled={!hasUnappliedChanges}
               borderRadius="6px"
             >
               Apply
