@@ -1,27 +1,32 @@
 """Pydantic schemas for API request/response models."""
+
 from pydantic import BaseModel, Field
 
 
 class Station(BaseModel):
     """Weather station information."""
-    
+
     id: str = Field(..., description="Unique station identifier")
     name: str = Field(..., description="Full station name with location")
-    
-    model_config = {"json_schema_extra": {"example": {"id": "ATHENS", "name": "Athens, Greece"}}}
+
+    model_config = {
+        "json_schema_extra": {"example": {"id": "ATHENS", "name": "Athens, Greece"}}
+    }
 
 
 class MonthlyDataPoint(BaseModel):
     """Single monthly temperature data point."""
-    
+
     year: int = Field(..., ge=1859, le=2100, description="Year of measurement")
     month: int = Field(..., ge=1, le=12, description="Month (1-12)")
-    temperature: float | None = Field(None, description="Temperature in °C, null if missing")
+    temperature: float | None = Field(
+        None, description="Temperature in °C, null if missing"
+    )
 
 
 class StationMonthlyData(BaseModel):
     """Monthly data for a single station."""
-    
+
     station_id: str
     station_name: str
     data: list[MonthlyDataPoint]
@@ -29,14 +34,14 @@ class StationMonthlyData(BaseModel):
 
 class MonthlyDataResponse(BaseModel):
     """Response containing monthly data for multiple stations."""
-    
+
     stations: list[StationMonthlyData]
     total_points: int
 
 
 class AnnualDataPoint(BaseModel):
     """Annual temperature statistics for a single year."""
-    
+
     year: int = Field(..., ge=1859, le=2100)
     mean: float = Field(..., description="Mean annual temperature (°C)")
     std: float = Field(..., description="Standard deviation of monthly temperatures")
@@ -48,7 +53,7 @@ class AnnualDataPoint(BaseModel):
 
 class StationAnnualData(BaseModel):
     """Annual statistics for a single station."""
-    
+
     station_id: str
     station_name: str
     data: list[AnnualDataPoint]
@@ -56,14 +61,14 @@ class StationAnnualData(BaseModel):
 
 class AnnualDataResponse(BaseModel):
     """Response containing annual data for multiple stations."""
-    
+
     stations: list[StationAnnualData]
     total_years: int
 
 
 class StationAnalytics(BaseModel):
     """Statistical analytics for a single station."""
-    
+
     station_id: str
     station_name: str
     min_temp: float = Field(..., description="Minimum temperature across all data")
@@ -79,7 +84,7 @@ class StationAnalytics(BaseModel):
 
 class AnalyticsResponse(BaseModel):
     """Response containing analytics for selected stations."""
-    
+
     stations: list[StationAnalytics]
     year_range: tuple[int, int]
     total_stations: int
@@ -87,12 +92,11 @@ class AnalyticsResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     """Health check response."""
-    
+
     status: str
 
 
 class ErrorResponse(BaseModel):
     """Standard error response."""
-    
-    detail: str
 
+    detail: str

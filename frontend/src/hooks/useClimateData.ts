@@ -142,4 +142,3 @@ export function useClimateData(
     isAnalyticsLoading: analyticsQuery.isLoading,
   }
 }
-

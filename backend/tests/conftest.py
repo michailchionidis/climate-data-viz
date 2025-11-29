@@ -1,4 +1,5 @@
 """Pytest configuration and fixtures for testing."""
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -10,7 +11,7 @@ from app.services.data_loader import data_service
 def setup_test_data() -> None:
     """
     Initialize test data before running tests.
-    
+
     This loads the actual CSV data file. Tests require the real data
     to be present at the configured path.
     """
@@ -39,7 +40,7 @@ def sample_temperatures_with_nulls() -> list[float | None]:
 def valid_station_ids() -> list[str]:
     """
     Valid station IDs from the actual CSV data.
-    
+
     These are the first 3 station IDs found in the loaded data.
     """
     stations = data_service.get_stations()

@@ -101,4 +101,3 @@ export interface PlotlyTrace {
   fillcolor?: string
   hovertemplate?: string
 }
-

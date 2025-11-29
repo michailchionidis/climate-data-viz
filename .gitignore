@@ -24,6 +24,7 @@ coverage.xml
 *.swp
 *.swo
 *~
+.cursorrules
 
 # OS
 .DS_Store
@@ -60,4 +61,3 @@ Assignment*.txt
 
 # Root-level data file (use backend/data/climate_data.csv instead)
 /temperature_data_extended.csv
-

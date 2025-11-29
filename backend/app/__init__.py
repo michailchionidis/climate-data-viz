@@ -1,2 +1,1 @@
 """Climate Data Visualization API."""
-

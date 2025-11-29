@@ -1,9 +1,12 @@
 name: Deploy
 
+# NOTE: This workflow is disabled until AWS infrastructure is configured.
+# To enable automatic deployment, uncomment the push trigger below.
 on:
-  push:
-    branches: [main]
-    tags: ['v*']
+  # Temporarily disabled - uncomment when AWS is configured:
+  # push:
+  #   branches: [main]
+  #   tags: ['v*']
   workflow_dispatch:
     inputs:
       environment:
@@ -26,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -85,7 +88,7 @@ jobs:
     needs: build-and-push
     if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
     environment: staging
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -105,19 +108,19 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/climate-viz
-            
+
             # Login to ECR
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-            
+
             # Pull latest images
             docker pull ${{ secrets.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY_BACKEND }}:${{ github.sha }}
             docker pull ${{ secrets.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY_FRONTEND }}:${{ github.sha }}
-            
+
             # Update docker-compose with new image tags
             export IMAGE_TAG=${{ github.sha }}
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d
-            
+
             # Clean up old images
             docker image prune -f
 
@@ -132,7 +135,7 @@ jobs:
     needs: [build-and-push, deploy-staging]
     if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.environment == 'production'
     environment: production
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -152,15 +155,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/climate-viz
-            
+
             # Login to ECR
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-            
+
             # Pull and deploy
             export IMAGE_TAG=${{ github.sha }}
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d
-            
+
             # Clean up
             docker image prune -f
 
@@ -176,4 +179,3 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

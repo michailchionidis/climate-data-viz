@@ -1,6 +1,6 @@
 /**
  * Basic smoke tests for the Climate Data Explorer application.
- * 
+ *
  * These tests verify that core components render without crashing.
  * More detailed component tests should be added as the application grows.
  */
@@ -48,7 +48,7 @@ describe('Application Setup', () => {
       <div data-testid="test-element">Test</div>,
       { wrapper: createTestWrapper() }
     )
-    
+
     expect(screen.getByTestId('test-element')).toBeInTheDocument()
   })
 
@@ -62,9 +62,9 @@ describe('Application Setup', () => {
 describe('React Query Setup', () => {
   it('should render with QueryClientProvider', () => {
     const TestComponent = () => <div>Query Client Works</div>
-    
+
     render(<TestComponent />, { wrapper: createTestWrapper() })
-    
+
     expect(screen.getByText('Query Client Works')).toBeInTheDocument()
   })
 })
@@ -72,10 +72,9 @@ describe('React Query Setup', () => {
 describe('Chakra UI Setup', () => {
   it('should render with ChakraProvider', () => {
     const TestComponent = () => <button>Chakra Button</button>
-    
+
     render(<TestComponent />, { wrapper: createTestWrapper() })
-    
+
     expect(screen.getByRole('button')).toBeInTheDocument()
   })
 })
-
