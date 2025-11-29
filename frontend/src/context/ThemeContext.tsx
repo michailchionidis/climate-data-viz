@@ -5,10 +5,13 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import { type ColorMode, themeColors } from '../theme'
 
+// Union type for colors - can be either dark or light theme colors
+type ThemeColors = typeof themeColors.dark | typeof themeColors.light
+
 interface ThemeContextType {
   colorMode: ColorMode
   toggleColorMode: () => void
-  colors: typeof themeColors.dark
+  colors: ThemeColors
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
