@@ -179,7 +179,7 @@ export function ControlsPanel({
               From
             </Text>
             <Input
-              size="xs"
+              size="sm"
               type="number"
               placeholder={String(minYear)}
               value={yearFrom || ''}
@@ -187,6 +187,10 @@ export function ControlsPanel({
               bg="rgba(255, 255, 255, 0.03)"
               borderColor="rgba(255, 255, 255, 0.1)"
               borderRadius="6px"
+              px={3}
+              py={1.5}
+              h="auto"
+              fontSize="xs"
               _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
               _focus={{
                 borderColor: 'rgba(6, 182, 212, 0.5)',
@@ -203,7 +207,7 @@ export function ControlsPanel({
               To
             </Text>
             <Input
-              size="xs"
+              size="sm"
               type="number"
               placeholder={String(maxYear)}
               value={yearTo || ''}
@@ -211,6 +215,10 @@ export function ControlsPanel({
               bg="rgba(255, 255, 255, 0.03)"
               borderColor="rgba(255, 255, 255, 0.1)"
               borderRadius="6px"
+              px={3}
+              py={1.5}
+              h="auto"
+              fontSize="xs"
               _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
               _focus={{
                 borderColor: 'rgba(6, 182, 212, 0.5)',
@@ -267,7 +275,7 @@ export function ControlsPanel({
                   Center Year
                 </Text>
                 <Input
-                  size="xs"
+                  size="sm"
                   type="number"
                   placeholder="1990"
                   value={zoom.centerYear || ''}
@@ -280,6 +288,10 @@ export function ControlsPanel({
                   bg="rgba(255, 255, 255, 0.03)"
                   borderColor="rgba(255, 255, 255, 0.1)"
                   borderRadius="6px"
+                  px={3}
+                  py={1.5}
+                  h="auto"
+                  fontSize="xs"
                   _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
                   _focus={{
                     borderColor: 'rgba(6, 182, 212, 0.5)',
@@ -328,7 +340,7 @@ export function ControlsPanel({
                   Center Year
                 </Text>
                 <Input
-                  size="xs"
+                  size="sm"
                   type="number"
                   placeholder="e.g., 1990"
                   value={zoom.centerYear || ''}
@@ -341,6 +353,10 @@ export function ControlsPanel({
                   bg="rgba(255, 255, 255, 0.03)"
                   borderColor="rgba(255, 255, 255, 0.1)"
                   borderRadius="6px"
+                  px={3}
+                  py={1.5}
+                  h="auto"
+                  fontSize="xs"
                   _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
                   _focus={{
                     borderColor: 'rgba(6, 182, 212, 0.5)',

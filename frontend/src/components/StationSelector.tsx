@@ -13,12 +13,15 @@ interface StationSelectorProps {
   selectedStations: string[]
   onSelectionChange: (stations: string[]) => void
   compact?: boolean
+  /** Hide the header section (used when wrapped in CollapsibleSection) */
+  hideHeader?: boolean
 }
 
 export function StationSelector({
   selectedStations,
   onSelectionChange,
   compact = false,
+  hideHeader = false,
 }: StationSelectorProps) {
   const { data: stations, isLoading, error } = useStations()
   const [searchQuery, setSearchQuery] = useState('')
@@ -54,8 +57,14 @@ export function StationSelector({
     }
   }
 
-  // Get color for station based on its index
+  // Get color for station based on its position in selectedStations
+  // This ensures colors match the chart which uses selectedStations order
   const getStationColor = (stationId: string): string => {
+    const selectedIndex = selectedStations.indexOf(stationId)
+    if (selectedIndex !== -1) {
+      return STATION_COLORS[selectedIndex % STATION_COLORS.length]
+    }
+    // For unselected stations, use their position in the full list (grayed out anyway)
     if (!stations) return STATION_COLORS[0]
     const index = stations.findIndex((s) => s.id === stationId)
     return STATION_COLORS[index % STATION_COLORS.length]
@@ -106,34 +115,40 @@ export function StationSelector({
 
   return (
     <Box h="100%" display="flex" flexDirection="column">
-      <SectionHeader
-        title="Weather Stations"
-        compact={compact}
-        action={
-          <Text
-            fontSize="2xs"
-            color="cyan.400"
-            cursor="pointer"
-            onClick={handleSelectAll}
-            _hover={{ color: 'cyan.300' }}
-            transition="color 0.15s"
-            fontWeight="500"
-          >
-            {selectedStations.length === stations?.length ? 'Clear' : 'All'}
-          </Text>
-        }
-      />
+      {!hideHeader && (
+        <SectionHeader
+          title="Weather Stations"
+          compact={compact}
+          action={
+            <Text
+              fontSize="2xs"
+              color="cyan.400"
+              cursor="pointer"
+              onClick={handleSelectAll}
+              _hover={{ color: 'cyan.300' }}
+              transition="color 0.15s"
+              fontWeight="500"
+            >
+              {selectedStations.length === stations?.length ? 'Clear' : 'All'}
+            </Text>
+          }
+        />
+      )}
 
       {/* Search input */}
       <Box mb={compact ? 2 : 3} flexShrink={0}>
         <Input
-          size="xs"
+          size="sm"
           placeholder="Search..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           bg="rgba(255, 255, 255, 0.03)"
           borderColor="rgba(255, 255, 255, 0.1)"
           borderRadius="6px"
+          px={3}
+          py={1.5}
+          h="auto"
+          fontSize="xs"
           _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
           _focus={{
             borderColor: 'rgba(6, 182, 212, 0.5)',
