@@ -11,7 +11,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import router as api_router  # noqa: E402
+from app.api.router import api_router
 from app.config import settings
 from app.core.exceptions import (
     ClimateDataException,
@@ -20,7 +20,7 @@ from app.core.exceptions import (
     StationNotFoundError,
 )
 from app.core.logging import get_logger, setup_logging
-from app.services.data_loader import data_service
+from app.domains.shared import data_service
 
 # Initialize logging
 setup_logging()

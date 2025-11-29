@@ -1,16 +1,13 @@
-"""Analytics API endpoints.
-
-This module handles endpoints for statistical analysis and summaries
-of temperature data across weather stations.
-"""
+"""API routes for analytics domain."""
 
 from fastapi import APIRouter, HTTPException, Query
 
-from app.api.schemas import AnalyticsResponse
-from app.core.dependencies import AnalyticsServiceDep, DataServiceDep
 from app.core.exceptions import InvalidDateRangeError, StationNotFoundError
+from app.domains.analytics.schemas import AnalyticsResponse
+from app.domains.analytics.service import analytics_service
+from app.domains.stations.service import stations_service
 
-router = APIRouter()
+router = APIRouter(prefix="/analytics", tags=["analytics"])
 
 
 @router.get(
@@ -20,8 +17,6 @@ router = APIRouter()
     description="Get comprehensive statistical summary for selected stations.",
 )
 def get_analytics(
-    data_service: DataServiceDep,
-    analytics_service: AnalyticsServiceDep,
     stations: str = Query(
         ...,
         description="Comma-separated list of station IDs",
@@ -58,11 +53,9 @@ def get_analytics(
         )
 
     # Validate station IDs
-    available_stations = {s["id"] for s in data_service.get_stations()}
-    invalid_stations = [s for s in station_ids if s not in available_stations]
-
-    if invalid_stations:
-        raise StationNotFoundError(invalid_stations)
+    invalid = stations_service.validate_stations(station_ids)
+    if invalid:
+        raise StationNotFoundError(invalid)
 
     # Validate year range
     if year_from and year_to and year_from > year_to:

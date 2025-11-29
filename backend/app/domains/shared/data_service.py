@@ -1,4 +1,8 @@
-"""Data loading service for CSV climate data."""
+"""Data loading service for CSV climate data.
+
+This is a shared service used by multiple domains to access the underlying
+temperature data from the CSV file.
+"""
 
 from pathlib import Path
 
@@ -9,10 +13,6 @@ from app.core.exceptions import DataLoadError
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
-
-# Station number to name mapping
-# Note: Using station IDs as names since the actual locations are not provided in the dataset
-STATION_NAMES: dict[str, str] = {}
 
 
 class DataService:
@@ -108,13 +108,8 @@ class DataService:
             month_map = {name: i + 1 for i, name in enumerate(month_cols)}
             df["month"] = df["month_name"].map(month_map)
 
-            # Add station names from mapping
-            df["station_name"] = df["station_id"].map(STATION_NAMES)
-
-            # Handle missing station names (stations not in our mapping)
-            df["station_name"] = df["station_name"].fillna(
-                df["station_id"].apply(lambda x: f"Station {x}")
-            )
+            # Add station names (using IDs since actual locations unknown)
+            df["station_name"] = df["station_id"].apply(lambda x: f"Station {x}")
 
             # Convert temperature to numeric (handles 'null' strings)
             df["temperature"] = pd.to_numeric(df["temperature"], errors="coerce")

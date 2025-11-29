@@ -1,10 +1,10 @@
 # Climate Data Visualization Platform
 
 [![Tests](https://github.com/YOUR_USERNAME/climate-data-viz/workflows/Test/badge.svg)](https://github.com/YOUR_USERNAME/climate-data-viz/actions)
-[![Backend Coverage](https://img.shields.io/badge/backend%20coverage-88%25-brightgreen)](https://github.com/YOUR_USERNAME/climate-data-viz)
+[![Backend Coverage](https://img.shields.io/badge/backend%20coverage-82%25-brightgreen)](https://github.com/YOUR_USERNAME/climate-data-viz)
 [![Docker](https://img.shields.io/badge/docker-ready-blue)](https://github.com/YOUR_USERNAME/climate-data-viz)
 
-A full-stack web application for exploring and visualizing historical climate data from weather stations worldwide. Built with **FastAPI** and **React**, following **TDD** practices.
+A full-stack web application for exploring and visualizing historical climate data from weather stations worldwide. Built with **FastAPI** and **React**, following **TDD** practices and **Domain-Driven Design**.
 
 ![Dashboard Preview](docs/images/dashboard-preview.png)
 
@@ -21,6 +21,8 @@ A full-stack web application for exploring and visualizing historical climate da
 
 ## 🏗️ Architecture
 
+### High-Level Overview
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Frontend (React)                         │
@@ -35,11 +37,28 @@ A full-stack web application for exploring and visualizing historical climate da
                               │ HTTP/REST
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                       Backend (FastAPI)                          │
-│  ┌─────────────┐ ┌──────────────┐ ┌─────────────────────────┐  │
-│  │   API       │ │   Services   │ │      Data Layer         │  │
-│  │  Routes     │◄│  Analytics   │◄│  (pandas DataFrame)     │  │
-│  └─────────────┘ └──────────────┘ └─────────────────────────┘  │
+│                    Backend (FastAPI + DDD)                       │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                      API Layer                            │  │
+│  │  router.py ──▶ aggregates domain routers                 │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                    Domain Layer                           │  │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────┐ │  │
+│  │  │  stations/  │ │climate_data/│ │     analytics/      │ │  │
+│  │  │  routes     │ │   routes    │ │      routes         │ │  │
+│  │  │  schemas    │ │   schemas   │ │      schemas        │ │  │
+│  │  │  service    │ │   service   │ │      service        │ │  │
+│  │  └─────────────┘ └─────────────┘ └─────────────────────┘ │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                   Shared Services                         │  │
+│  │  data_service.py ──▶ CSV loading & DataFrame caching     │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                   Core Infrastructure                     │  │
+│  │  exceptions.py │ dependencies.py │ logging.py            │  │
+│  └──────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -49,14 +68,32 @@ A full-stack web application for exploring and visualizing historical climate da
                     └─────────────────┘
 ```
 
+### Backend: Domain-Driven Design
+
+The backend follows **Domain-Driven Design (DDD)** principles, organizing code by business domain rather than technical layer:
+
+| Domain | Responsibility | Endpoints |
+|--------|----------------|-----------|
+| **stations** | Weather station listing | `GET /stations` |
+| **climate_data** | Temperature data retrieval | `GET /data/monthly`, `GET /data/annual` |
+| **analytics** | Statistical computations | `GET /analytics` |
+| **shared** | Cross-domain data access | CSV loading, DataFrame caching |
+
+**Benefits of this architecture:**
+- ✅ **Encapsulation**: Each domain is self-contained with its own routes, schemas, and services
+- ✅ **Scalability**: Easy to add new domains without affecting existing code
+- ✅ **Maintainability**: Find code by feature, not by technical layer
+- ✅ **Testability**: Domain-specific tests with clear boundaries
+- ✅ **Team-friendly**: Multiple developers can work on different domains independently
+
 ## 🛠️ Tech Stack
 
 ### Backend
 - **FastAPI** - Modern Python web framework with automatic OpenAPI docs
 - **pandas** - Data processing and statistical computations
-- **NumPy** - Numerical operations for mean/std calculations
 - **Pydantic** - Data validation and serialization
 - **pytest** - Testing framework with coverage reporting
+- **Domain-Driven Design** - Clean architecture pattern
 
 ### Frontend
 - **React 19** - UI library with TypeScript
@@ -69,6 +106,7 @@ A full-stack web application for exploring and visualizing historical climate da
 ### Infrastructure
 - **Docker Compose** - Container orchestration
 - **GitHub Actions** - CI/CD pipeline
+- **Pre-commit hooks** - Code quality enforcement
 - **AWS** - Cloud deployment (EC2/App Runner)
 
 ## 📦 Project Structure
@@ -77,18 +115,34 @@ A full-stack web application for exploring and visualizing historical climate da
 ├── backend/
 │   ├── app/
 │   │   ├── api/
-│   │   │   ├── routes.py      # API endpoints
-│   │   │   └── schemas.py     # Pydantic models
-│   │   ├── services/
-│   │   │   ├── data_loader.py # CSV loading & caching
-│   │   │   └── analytics.py   # Statistical computations
-│   │   ├── config.py          # App configuration
-│   │   └── main.py            # FastAPI app entry
+│   │   │   ├── router.py         # Aggregates domain routers
+│   │   │   └── schemas.py        # Re-exports for backwards compat
+│   │   ├── core/
+│   │   │   ├── dependencies.py   # FastAPI DI
+│   │   │   ├── exceptions.py     # Custom exceptions
+│   │   │   └── logging.py        # Structured logging
+│   │   ├── domains/              # ⭐ Domain-Driven Design
+│   │   │   ├── shared/
+│   │   │   │   └── data_service.py   # CSV loading & caching
+│   │   │   ├── stations/
+│   │   │   │   ├── routes.py     # API endpoints
+│   │   │   │   ├── schemas.py    # Pydantic models
+│   │   │   │   └── service.py    # Business logic
+│   │   │   ├── climate_data/
+│   │   │   │   ├── routes.py
+│   │   │   │   ├── schemas.py
+│   │   │   │   └── service.py
+│   │   │   └── analytics/
+│   │   │       ├── routes.py
+│   │   │       ├── schemas.py
+│   │   │       └── service.py
+│   │   ├── config.py             # App configuration
+│   │   └── main.py               # FastAPI app entry
 │   ├── data/
-│   │   └── climate_data.csv   # Source dataset
+│   │   └── temperature_data_extended.csv
 │   ├── tests/
-│   │   ├── test_analytics.py  # TDD: analytics service tests
-│   │   └── test_api.py        # API integration tests
+│   │   ├── test_analytics.py     # TDD: domain service tests
+│   │   └── test_api.py           # API integration tests
 │   ├── Dockerfile
 │   └── pyproject.toml
 │
@@ -111,7 +165,7 @@ A full-stack web application for exploring and visualizing historical climate da
 │   └── package.json
 │
 ├── docker-compose.yml
-├── docker-compose.dev.yml
+├── .pre-commit-config.yaml
 └── .github/workflows/
     ├── test.yml
     └── deploy.yml
@@ -250,13 +304,18 @@ npm test -- --coverage
 
 The project uses GitHub Actions for continuous integration and deployment:
 
-1. **On Push/PR**:
+1. **Pre-commit Checks** (first gate):
+   - Code formatting (Ruff)
+   - Linting
+   - Type checking (mypy)
+
+2. **On Push/PR**:
    - Run backend tests with coverage
    - Run frontend tests and linting
    - Build Docker images
-   - Report coverage to PR
+   - Integration tests
 
-2. **On Release**:
+3. **On Release**:
    - Build production images
    - Push to container registry
    - Deploy to AWS
@@ -274,7 +333,12 @@ This project follows a **trunk-based development** workflow with protected main 
 Configure these rules in GitHub Settings → Branches → Add rule for `main`:
 
 - ✅ Require pull request reviews before merging
-- ✅ Require status checks to pass (backend-test, frontend-test, docker-build)
+- ✅ Require status checks to pass:
+  - `Pre-commit Checks`
+  - `Backend Tests`
+  - `Frontend Tests`
+  - `Docker Build`
+  - `Integration Tests`
 - ✅ Require branches to be up to date before merging
 - ✅ Do not allow bypassing the above settings
 
@@ -301,6 +365,12 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/):
 - `chore:` - Maintenance tasks
 
 ## 📊 Design Decisions & Tradeoffs
+
+### Why Domain-Driven Design?
+- **Encapsulation**: Each domain (stations, climate_data, analytics) is self-contained
+- **Scalability**: Adding new features = adding new domains
+- **Team-friendly**: Clear boundaries for parallel development
+- **Maintainability**: Find code by feature, not by layer
 
 ### Why In-Memory Data (pandas) vs Database?
 - **Simplicity**: CSV is ~160 years × 12 months × 10 stations ≈ 19,200 rows - easily fits in memory

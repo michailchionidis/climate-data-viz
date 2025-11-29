@@ -1,42 +1,41 @@
-"""Core dependencies for dependency injection across the application.
+"""Core dependencies for FastAPI dependency injection.
 
-This module provides FastAPI dependencies that can be injected into route handlers,
-following the Dependency Injection pattern for better testability and modularity.
-
-Example usage:
-    @router.get("/stations")
-    def get_stations(data_service: DataServiceDep) -> list[Station]:
-        return data_service.get_stations()
+This module provides dependency injection functions for services.
+These can be used with FastAPI's Depends() for cleaner route handlers.
 """
 
 from typing import Annotated
 
 from fastapi import Depends
 
-from app.services.analytics import AnalyticsService, analytics_service
-from app.services.data_loader import DataService, data_service
+from app.domains.analytics.service import AnalyticsService, analytics_service
+from app.domains.climate_data.service import ClimateDataService, climate_data_service
+from app.domains.shared.data_service import DataService, data_service
+from app.domains.stations.service import StationsService, stations_service
 
 
 def get_data_service() -> DataService:
-    """
-    Dependency provider for DataService.
-
-    Returns the singleton data service instance.
-    Can be overridden in tests using FastAPI's dependency_overrides.
-    """
+    """Get the shared DataService instance."""
     return data_service
 
 
-def get_analytics_service() -> AnalyticsService:
-    """
-    Dependency provider for AnalyticsService.
+def get_stations_service() -> StationsService:
+    """Get the StationsService instance."""
+    return stations_service
 
-    Returns the singleton analytics service instance.
-    Can be overridden in tests using FastAPI's dependency_overrides.
-    """
+
+def get_climate_data_service() -> ClimateDataService:
+    """Get the ClimateDataService instance."""
+    return climate_data_service
+
+
+def get_analytics_service() -> AnalyticsService:
+    """Get the AnalyticsService instance."""
     return analytics_service
 
 
-# Type aliases for cleaner route signatures
+# Type aliases for dependency injection
 DataServiceDep = Annotated[DataService, Depends(get_data_service)]
+StationsServiceDep = Annotated[StationsService, Depends(get_stations_service)]
+ClimateDataServiceDep = Annotated[ClimateDataService, Depends(get_climate_data_service)]
 AnalyticsServiceDep = Annotated[AnalyticsService, Depends(get_analytics_service)]
