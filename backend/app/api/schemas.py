@@ -10,8 +10,12 @@ class Station(BaseModel):
     name: str = Field(..., description="Full station name with location")
 
     model_config = {
-        "json_schema_extra": {"example": {"id": "ATHENS", "name": "Athens, Greece"}}
+        "json_schema_extra": {"example": {"id": "66062", "name": "Station 66062"}}
     }
+
+
+# Alias for consistency with other response models
+StationResponse = Station
 
 
 class MonthlyDataPoint(BaseModel):

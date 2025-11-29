@@ -1,23 +1,18 @@
 """Data loading service for CSV climate data."""
 
-import logging
 from pathlib import Path
 
 import pandas as pd
 
 from app.config import settings
+from app.core.exceptions import DataLoadError
+from app.core.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Station number to name mapping
 # Note: Using station IDs as names since the actual locations are not provided in the dataset
 STATION_NAMES: dict[str, str] = {}
-
-
-class DataLoadError(Exception):
-    """Raised when data cannot be loaded from CSV."""
-
-    pass
 
 
 class DataService:
