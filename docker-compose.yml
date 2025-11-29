@@ -1,0 +1,91 @@
+# =============================================================================
+# Docker Compose - Climate Data Visualization
+# =============================================================================
+# Services:
+#   - backend:  FastAPI application (production)
+#   - frontend: React application served by Nginx (production)
+#
+# Usage:
+#   Production:  docker compose up -d
+#   Development: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#   Testing:     docker compose run --rm backend-test
+#                docker compose run --rm frontend-test
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Backend API (Production)
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: climate-viz-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Backend Tests
+  # ---------------------------------------------------------------------------
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: test
+    container_name: climate-viz-backend-test
+    volumes:
+      # Mount for coverage reports to be accessible on host
+      - ./backend/coverage:/app/coverage
+    environment:
+      - ENVIRONMENT=test
+    profiles:
+      - test
+
+  # ---------------------------------------------------------------------------
+  # Frontend (Production)
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - VITE_API_URL=/api/v1
+    container_name: climate-viz-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Frontend Tests
+  # ---------------------------------------------------------------------------
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: test
+    container_name: climate-viz-frontend-test
+    volumes:
+      # Mount for coverage reports to be accessible on host
+      - ./frontend/coverage:/app/coverage
+    environment:
+      - CI=true
+    profiles:
+      - test
+
+networks:
+  default:
+    name: climate-viz-network

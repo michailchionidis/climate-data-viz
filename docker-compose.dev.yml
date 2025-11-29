@@ -1,0 +1,33 @@
+version: '3.8'
+
+# Development configuration with hot reload
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: climate-viz-backend-dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/data:/app/data
+    environment:
+      - ENVIRONMENT=development
+      - BACKEND_CORS_ORIGINS=http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # Note: For frontend development, run `npm run dev` locally
+  # This provides better hot reload experience with Vite
+  
+networks:
+  default:
+    name: climate-viz-network-dev
+
