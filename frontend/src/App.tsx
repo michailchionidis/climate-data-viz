@@ -3,13 +3,14 @@
  * A Tesla-level dashboard for exploring historical temperature data
  */
 import { useState, useCallback, useEffect } from 'react'
-import { Box, Container, Text, Flex, Grid, GridItem } from '@chakra-ui/react'
+import { Box, Container, Text, Flex } from '@chakra-ui/react'
 import { StationSelector } from './components/StationSelector'
 import { ControlsPanel } from './components/ControlsPanel'
 import { AnalyticsPanel } from './components/AnalyticsPanel'
 import { ChartPanel } from './components/ChartPanel'
+import { Sidebar } from './components/Sidebar'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { ActivityIcon } from './components/ui/Icons'
+import { ActivityIcon, SidebarIcon } from './components/ui/Icons'
 import { ThemeToggle } from './components/ui/ThemeToggle'
 import { CollapsibleSection } from './components/ui/CollapsibleSection'
 import { useClimateData, useStations } from './hooks/useClimateData'
@@ -29,6 +30,12 @@ function App() {
   const [showSigmaBounds, setShowSigmaBounds] = useState(false)
   const [zoom, setZoom] = useState<ZoomState>({ centerYear: null, windowSize: 10 })
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+
+  // Toggle sidebar
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarCollapsed((prev) => !prev)
+  }, [])
 
   // Trigger entrance animation
   useEffect(() => {
@@ -142,6 +149,33 @@ function App() {
             </Flex>
 
             <Flex align="center" gap={2}>
+              {/* Sidebar toggle - desktop only */}
+              <Box
+                as="button"
+                display={{ base: 'none', lg: 'flex' }}
+                alignItems="center"
+                gap={1.5}
+                px={2}
+                py={1}
+                bg={isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.50' : 'rgba(6, 182, 212, 0.15)') : colors.card}
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor={isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.200' : 'rgba(6, 182, 212, 0.3)') : colors.border}
+                cursor="pointer"
+                onClick={toggleSidebar}
+                _hover={{
+                  bg: isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.100' : 'rgba(6, 182, 212, 0.25)') : colors.buttonHover,
+                  borderColor: isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.300' : 'rgba(6, 182, 212, 0.4)') : colors.borderHover,
+                }}
+                transition="all 0.15s"
+                title={isSidebarCollapsed ? 'Show filters' : 'Hide filters'}
+              >
+                <SidebarIcon size="sm" color={isSidebarCollapsed ? (colorMode === 'light' ? '#0891b2' : '#06b6d4') : colors.textMuted} />
+                <Text fontSize="2xs" color={isSidebarCollapsed ? cyanAccent : colors.textMuted} fontWeight="500">
+                  {isSidebarCollapsed ? `Filters (${selectedStations.length}/${stations?.length || 0})` : 'Filters'}
+                </Text>
+              </Box>
+
               {/* Keyboard shortcuts hint - desktop only */}
               <Flex gap={1.5} display={{ base: 'none', lg: 'flex' }}>
                 {[
@@ -174,193 +208,183 @@ function App() {
 
       {/* Main Content - Responsive layout */}
       <Container
-        maxW="1800px"
+        maxW={isSidebarCollapsed ? '100%' : '1800px'}
         py={{ base: 2, lg: 3 }}
         px={{ base: 3, md: 4 }}
         mx="auto"
         flex={{ base: 'none', lg: 1 }}
         overflow={{ base: 'visible', lg: 'hidden' }}
+        transition="max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
       >
-        <Grid
-          templateColumns={{ base: '1fr', lg: '280px 1fr' }}
-          gap={{ base: 3, lg: 4 }}
-          h={{ base: 'auto', lg: '100%' }}
-        >
-          {/* Left Sidebar - Stacked on mobile, 50/50 split on desktop */}
-          <GridItem overflow={{ base: 'visible', lg: 'hidden' }}>
+        {/* Mobile Layout - Stacked sections */}
+        <Box display={{ base: 'block', lg: 'none' }}>
+          <Flex direction="column" gap={3}>
+            {/* Station Selector - Mobile */}
             <Box
-              display="flex"
-              flexDirection="column"
-              gap={3}
-              opacity={isLoaded ? 1 : 0}
-              transform={isLoaded ? 'translateX(0)' : 'translateX(-20px)'}
-              transition="all 0.5s ease-out 0.1s"
-              h={{ base: 'auto', lg: '100%' }}
+              p={3}
+              bg={colors.card}
+              borderRadius="10px"
+              borderWidth="1px"
+              borderColor={colors.border}
             >
-              {/* Station Selector */}
-              <Box
-                p={3}
-                bg={colors.card}
-                borderRadius="10px"
-                borderWidth="1px"
-                borderColor={colors.border}
-                flex={{ base: 'none', lg: 1 }}
-                minH={{ base: 'auto', lg: 0 }}
-                maxH={{ base: 'none', lg: 'none' }}
-                overflow="hidden"
-                display="flex"
-                flexDirection="column"
-                transition="all 0.3s ease"
-              >
-                {/* Mobile: Collapsible, Desktop: Always open */}
-                <Box display={{ base: 'block', lg: 'none' }}>
-                  <CollapsibleSection
-                    title="Weather Stations"
-                    badge={`${selectedStations.length}/${stations?.length || 0}`}
-                    defaultOpen={true}
-                    action={
-                      <Text
-                        fontSize="2xs"
-                        color={cyanAccent}
-                        cursor="pointer"
-                        onClick={() => {
-                          if (selectedStations.length === (stations?.length || 0)) {
-                            handleStationChange([])
-                          } else {
-                            handleStationChange(stations?.map((s) => s.id) || [])
-                          }
-                        }}
-                        _hover={{ opacity: 0.8 }}
-                        transition="opacity 0.15s"
-                        fontWeight="500"
-                      >
-                        {selectedStations.length === (stations?.length || 0) ? 'Clear' : 'All'}
-                      </Text>
-                    }
+              <CollapsibleSection
+                title="Weather Stations"
+                badge={`${selectedStations.length}/${stations?.length || 0}`}
+                defaultOpen={true}
+                action={
+                  <Text
+                    fontSize="2xs"
+                    color={cyanAccent}
+                    cursor="pointer"
+                    onClick={() => {
+                      if (selectedStations.length === (stations?.length || 0)) {
+                        handleStationChange([])
+                      } else {
+                        handleStationChange(stations?.map((s) => s.id) || [])
+                      }
+                    }}
+                    _hover={{ opacity: 0.8 }}
+                    transition="opacity 0.15s"
+                    fontWeight="500"
                   >
-                    <Box maxH="250px" overflow="auto">
-                      <StationSelector
-                        selectedStations={selectedStations}
-                        onSelectionChange={handleStationChange}
-                        compact
-                        hideHeader
-                      />
-                    </Box>
-                  </CollapsibleSection>
-                </Box>
-                <Box display={{ base: 'none', lg: 'flex' }} flex={1} flexDirection="column" minH={0}>
+                    {selectedStations.length === (stations?.length || 0) ? 'Clear' : 'All'}
+                  </Text>
+                }
+              >
+                <Box maxH="250px" overflow="auto">
                   <StationSelector
                     selectedStations={selectedStations}
                     onSelectionChange={handleStationChange}
                     compact
+                    hideHeader
                   />
                 </Box>
-              </Box>
-
-              {/* Controls */}
-              <Box
-                p={3}
-                bg={colors.card}
-                borderRadius="10px"
-                borderWidth="1px"
-                borderColor={colors.border}
-                flex={{ base: 'none', lg: 1 }}
-                minH={{ base: 'auto', lg: 0 }}
-                overflow="auto"
-                transition="all 0.3s ease"
-                css={{
-                  '&::-webkit-scrollbar': {
-                    width: '4px',
-                  },
-                  '&::-webkit-scrollbar-track': {
-                    background: colors.card,
-                  },
-                  '&::-webkit-scrollbar-thumb': {
-                    background: colors.border,
-                    borderRadius: '2px',
-                  },
-                }}
-              >
-                {/* Mobile: Collapsible, Desktop: Always open */}
-                <Box display={{ base: 'block', lg: 'none' }}>
-                  <CollapsibleSection
-                    title="Visualization Options"
-                    defaultOpen={false}
-                  >
-                    <ControlsPanel
-                      yearFrom={yearFrom}
-                      yearTo={yearTo}
-                      onYearFromChange={setYearFrom}
-                      onYearToChange={setYearTo}
-                      mode={mode}
-                      onModeChange={handleModeChange}
-                      showSigmaBounds={showSigmaBounds}
-                      onShowSigmaBoundsChange={setShowSigmaBounds}
-                      zoom={zoom}
-                      onZoomChange={setZoom}
-                      compact
-                    />
-                  </CollapsibleSection>
-                </Box>
-                <Box display={{ base: 'none', lg: 'block' }}>
-                  <ControlsPanel
-                    yearFrom={yearFrom}
-                    yearTo={yearTo}
-                    onYearFromChange={setYearFrom}
-                    onYearToChange={setYearTo}
-                    mode={mode}
-                    onModeChange={handleModeChange}
-                    showSigmaBounds={showSigmaBounds}
-                    onShowSigmaBoundsChange={setShowSigmaBounds}
-                    zoom={zoom}
-                    onZoomChange={setZoom}
-                    compact
-                  />
-                </Box>
-              </Box>
+              </CollapsibleSection>
             </Box>
-          </GridItem>
+
+            {/* Controls - Mobile */}
+            <Box
+              p={3}
+              bg={colors.card}
+              borderRadius="10px"
+              borderWidth="1px"
+              borderColor={colors.border}
+            >
+              <CollapsibleSection
+                title="Visualization Options"
+                defaultOpen={false}
+              >
+                <ControlsPanel
+                  yearFrom={yearFrom}
+                  yearTo={yearTo}
+                  onYearFromChange={setYearFrom}
+                  onYearToChange={setYearTo}
+                  mode={mode}
+                  onModeChange={handleModeChange}
+                  showSigmaBounds={showSigmaBounds}
+                  onShowSigmaBoundsChange={setShowSigmaBounds}
+                  zoom={zoom}
+                  onZoomChange={setZoom}
+                  compact
+                />
+              </CollapsibleSection>
+            </Box>
+
+            {/* Analytics - Mobile */}
+            <ErrorBoundary>
+              <AnalyticsPanel
+                analytics={analytics}
+                isLoading={isAnalyticsLoading}
+                selectedStations={selectedStations}
+                compact
+              />
+            </ErrorBoundary>
+
+            {/* Chart - Mobile */}
+            <Box minH="350px">
+              <ErrorBoundary>
+                <ChartPanel
+                  monthlyData={monthlyData}
+                  annualData={annualData}
+                  mode={mode}
+                  showSigmaBounds={showSigmaBounds}
+                  isLoading={isLoading}
+                  selectedStations={selectedStations}
+                  fillHeight
+                />
+              </ErrorBoundary>
+            </Box>
+          </Flex>
+        </Box>
+
+        {/* Desktop Layout - Collapsible Sidebar */}
+        <Flex
+          display={{ base: 'none', lg: 'flex' }}
+          gap={4}
+          h="100%"
+          position="relative"
+          opacity={isLoaded ? 1 : 0}
+          transform={isLoaded ? 'translateX(0)' : 'translateX(-20px)'}
+          transition="all 0.5s ease-out 0.1s"
+        >
+          {/* Unified Sidebar */}
+          <Sidebar
+            selectedStations={selectedStations}
+            onStationChange={handleStationChange}
+            stations={stations}
+            yearFrom={yearFrom}
+            yearTo={yearTo}
+            onYearFromChange={setYearFrom}
+            onYearToChange={setYearTo}
+            mode={mode}
+            onModeChange={handleModeChange}
+            showSigmaBounds={showSigmaBounds}
+            onShowSigmaBoundsChange={setShowSigmaBounds}
+            zoom={zoom}
+            onZoomChange={setZoom}
+            isCollapsed={isSidebarCollapsed}
+            onToggle={toggleSidebar}
+          />
 
           {/* Main Content Area */}
-          <GridItem overflow={{ base: 'visible', lg: 'hidden' }} display="flex" flexDirection="column">
-            <Flex
-              direction="column"
-              gap={3}
-              opacity={isLoaded ? 1 : 0}
-              transform={isLoaded ? 'translateY(0)' : 'translateY(20px)'}
-              transition="all 0.5s ease-out 0.2s"
-              h={{ base: 'auto', lg: '100%' }}
-              overflow={{ base: 'visible', lg: 'hidden' }}
-            >
-              {/* Analytics Summary */}
-              <Box flexShrink={0}>
-                <ErrorBoundary>
-                  <AnalyticsPanel
-                    analytics={analytics}
-                    isLoading={isAnalyticsLoading}
-                    selectedStations={selectedStations}
-                    compact
-                  />
-                </ErrorBoundary>
-              </Box>
+          <Flex
+            flex={1}
+            direction="column"
+            gap={3}
+            overflow="hidden"
+            opacity={isLoaded ? 1 : 0}
+            transform={isLoaded ? 'translateY(0)' : 'translateY(20px)'}
+            transition="all 0.5s ease-out 0.2s"
+          >
+            {/* Analytics Summary */}
+            <Box flexShrink={0}>
+              <ErrorBoundary>
+                <AnalyticsPanel
+                  analytics={analytics}
+                  isLoading={isAnalyticsLoading}
+                  selectedStations={selectedStations}
+                  compact
+                />
+              </ErrorBoundary>
+            </Box>
 
-              {/* Chart */}
-              <Box flex={{ base: 'none', lg: 1 }} minH={{ base: '350px', lg: 0 }}>
-                <ErrorBoundary>
-                  <ChartPanel
-                    monthlyData={monthlyData}
-                    annualData={annualData}
-                    mode={mode}
-                    showSigmaBounds={showSigmaBounds}
-                    isLoading={isLoading}
-                    selectedStations={selectedStations}
-                    fillHeight
-                  />
-                </ErrorBoundary>
-              </Box>
-            </Flex>
-          </GridItem>
-        </Grid>
+            {/* Chart */}
+            <Box flex={1} minH={0}>
+              <ErrorBoundary>
+                <ChartPanel
+                  monthlyData={monthlyData}
+                  annualData={annualData}
+                  mode={mode}
+                  showSigmaBounds={showSigmaBounds}
+                  isLoading={isLoading}
+                  selectedStations={selectedStations}
+                  fillHeight
+                  containerKey={isSidebarCollapsed ? 'collapsed' : 'expanded'}
+                />
+              </ErrorBoundary>
+            </Box>
+          </Flex>
+        </Flex>
       </Container>
 
       {/* Footer - Compact */}

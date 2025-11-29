@@ -42,6 +42,7 @@ import {
   LuImage,
   LuFileText,
   LuFileSpreadsheet,
+  LuPanelLeftClose,
 } from 'react-icons/lu'
 import {
   HiOutlinePresentationChartLine,
@@ -411,6 +412,14 @@ export function FileSpreadsheetIcon({ size = 'md', color = 'currentColor', ...pr
   return (
     <IconWrapper size={size} color={color} {...props}>
       <LuFileSpreadsheet />
+    </IconWrapper>
+  )
+}
+
+export function SidebarIcon({ size = 'md', color = 'currentColor', ...props }: IconWrapperProps) {
+  return (
+    <IconWrapper size={size} color={color} {...props}>
+      <LuPanelLeftClose />
     </IconWrapper>
   )
 }
