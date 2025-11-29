@@ -2,6 +2,7 @@
  * Interactive chart panel using Plotly.js
  * Premium visualization with smooth animations and rich tooltips
  */
+import { useState, useEffect } from 'react'
 import { Box, Text, Flex } from '@chakra-ui/react'
 import Plot from 'react-plotly.js'
 import type { Data, Layout } from 'plotly.js'
@@ -34,6 +35,19 @@ export function ChartPanel({
 }: ChartPanelProps) {
   const cardHeight = fillHeight ? '100%' : 'auto'
   const chartMinHeight = fillHeight ? '200px' : '450px'
+
+  // Track window width for responsive legend positioning
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' && window.innerWidth < 768
+  )
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Empty state
   if (selectedStations.length === 0) {
@@ -156,7 +170,9 @@ export function ChartPanel({
 
   const layout: Partial<Layout> = {
     ...chartTheme,
-    margin: { l: 60, r: 40, t: 20, b: 60 },
+    margin: isMobile
+      ? { l: 50, r: 15, t: 15, b: 40 }  // Compact margins for mobile
+      : { l: 60, r: 40, t: 20, b: 60 },
     xaxis: {
       ...chartTheme.xaxis,
       title: {
@@ -178,9 +194,9 @@ export function ChartPanel({
       orientation: 'h',
       yanchor: 'bottom',
       y: 1.02,
-      xanchor: 'right',
-      x: 1,
-      font: { size: 11, color: '#a1a1aa' },
+      xanchor: isMobile ? 'left' : 'right',
+      x: isMobile ? 0 : 1,
+      font: { size: isMobile ? 10 : 11, color: '#a1a1aa' },
       bgcolor: 'transparent',
       itemsizing: 'constant',
     },

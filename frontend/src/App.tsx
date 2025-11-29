@@ -10,10 +10,16 @@ import { AnalyticsPanel } from './components/AnalyticsPanel'
 import { ChartPanel } from './components/ChartPanel'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ActivityIcon } from './components/ui/Icons'
-import { useClimateData } from './hooks/useClimateData'
+import { ThemeToggle } from './components/ui/ThemeToggle'
+import { CollapsibleSection } from './components/ui/CollapsibleSection'
+import { useClimateData, useStations } from './hooks/useClimateData'
+import { useTheme } from './context/ThemeContext'
 import type { VisualizationMode, ZoomState } from './types'
 
 function App() {
+  // Theme
+  const { colors } = useTheme()
+
   // State management
   const [selectedStations, setSelectedStations] = useState<string[]>([])
   const [yearFrom, setYearFrom] = useState<number | null>(null)
@@ -28,6 +34,9 @@ function App() {
     const timer = setTimeout(() => setIsLoaded(true), 100)
     return () => clearTimeout(timer)
   }, [])
+
+  // Fetch stations list
+  const { data: stations } = useStations()
 
   // Fetch data based on current filters
   const { monthlyData, annualData, analytics, isLoading, isAnalyticsLoading } = useClimateData(
@@ -73,26 +82,36 @@ function App() {
   }, [mode])
 
   return (
-    <Box h="100vh" bg="#0a0a0f" display="flex" flexDirection="column" overflow="hidden">
+    <Box
+      h={{ base: 'auto', lg: '100vh' }}
+      minH="100vh"
+      bg={colors.bg}
+      display="flex"
+      flexDirection="column"
+      overflow={{ base: 'auto', lg: 'hidden' }}
+      transition="background-color 0.3s ease"
+    >
       {/* Header - Compact */}
       <Box
         borderBottomWidth="1px"
-        borderColor="rgba(255, 255, 255, 0.08)"
-        bg="rgba(10, 10, 15, 0.85)"
+        borderColor={colors.border}
+        bg={colors.headerBg}
         backdropFilter="blur(12px)"
         flexShrink={0}
         zIndex={100}
+        position={{ base: 'sticky', lg: 'relative' }}
+        top={0}
         opacity={isLoaded ? 1 : 0}
         transform={isLoaded ? 'translateY(0)' : 'translateY(-10px)'}
         transition="all 0.5s ease-out"
       >
-        <Container maxW="1800px" py={2}>
+        <Container maxW="1800px" py={2} px={{ base: 3, md: 4 }}>
           <Flex justify="space-between" align="center">
-            <Flex align="center" gap={2.5}>
+            <Flex align="center" gap={2}>
               {/* Logo */}
               <Box
-                w="32px"
-                h="32px"
+                w={{ base: '28px', md: '32px' }}
+                h={{ base: '28px', md: '32px' }}
                 borderRadius="8px"
                 bg="linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)"
                 display="flex"
@@ -100,28 +119,29 @@ function App() {
                 justifyContent="center"
                 borderWidth="1px"
                 borderColor="rgba(6, 182, 212, 0.3)"
+                flexShrink={0}
               >
                 <ActivityIcon size="md" color="#06b6d4" />
               </Box>
               <Box>
                 <Text
-                  fontSize="md"
+                  fontSize={{ base: 'sm', md: 'md' }}
                   fontWeight="700"
-                  color="white"
+                  color={colors.text}
                   letterSpacing="-0.02em"
                   fontFamily="'Outfit', sans-serif"
                   lineHeight="1.2"
                 >
                   Climate Data Explorer
                 </Text>
-                <Text fontSize="2xs" color="gray.500" letterSpacing="0.02em" display={{ base: 'none', md: 'block' }}>
+                <Text fontSize="2xs" color={colors.textMuted} letterSpacing="0.02em" display={{ base: 'none', md: 'block' }}>
                   Historical temperature data from weather stations worldwide
                 </Text>
               </Box>
             </Flex>
 
             <Flex align="center" gap={2}>
-              {/* Keyboard shortcuts hint - more compact */}
+              {/* Keyboard shortcuts hint - desktop only */}
               <Flex gap={1.5} display={{ base: 'none', lg: 'flex' }}>
                 {[
                   { key: 'M', label: 'Mode' },
@@ -132,32 +152,35 @@ function App() {
                     key={key}
                     px={1.5}
                     py={0.5}
-                    bg="rgba(255, 255, 255, 0.05)"
+                    bg={colors.card}
                     borderRadius="md"
                     borderWidth="1px"
-                    borderColor="rgba(255, 255, 255, 0.1)"
+                    borderColor={colors.border}
                   >
-                    <Text fontSize="2xs" color="gray.500">
-                      <Text as="span" color="gray.400" fontFamily="mono">{key}</Text> {label}
+                    <Text fontSize="2xs" color={colors.textMuted}>
+                      <Text as="span" color={colors.textSecondary} fontFamily="mono">{key}</Text> {label}
                     </Text>
                   </Box>
                 ))}
               </Flex>
 
+              {/* Theme toggle */}
+              <ThemeToggle size="sm" />
+
               {/* Station count badge - compact */}
               <Box
                 px={2}
                 py={1}
-                bg={selectedStations.length > 0 ? 'rgba(6, 182, 212, 0.15)' : 'rgba(255, 255, 255, 0.05)'}
+                bg={selectedStations.length > 0 ? 'rgba(6, 182, 212, 0.15)' : colors.card}
                 borderRadius="full"
                 borderWidth="1px"
-                borderColor={selectedStations.length > 0 ? 'rgba(6, 182, 212, 0.4)' : 'rgba(255, 255, 255, 0.1)'}
+                borderColor={selectedStations.length > 0 ? 'rgba(6, 182, 212, 0.4)' : colors.border}
                 transition="all 0.2s ease"
               >
                 <Text
                   fontSize="2xs"
                   fontWeight="600"
-                  color={selectedStations.length > 0 ? 'cyan.300' : 'gray.500'}
+                  color={selectedStations.length > 0 ? 'cyan.300' : colors.textMuted}
                 >
                   {selectedStations.length} station{selectedStations.length !== 1 ? 's' : ''} selected
                 </Text>
@@ -167,15 +190,21 @@ function App() {
         </Container>
       </Box>
 
-      {/* Main Content - Flex grow to fill available space */}
-      <Container maxW="1800px" py={3} px={4} flex={1} overflow="hidden">
+      {/* Main Content - Responsive layout */}
+      <Container
+        maxW="1800px"
+        py={{ base: 2, lg: 3 }}
+        px={{ base: 3, md: 4 }}
+        flex={{ base: 'none', lg: 1 }}
+        overflow={{ base: 'visible', lg: 'hidden' }}
+      >
         <Grid
           templateColumns={{ base: '1fr', lg: '280px 1fr' }}
-          gap={4}
-          h="100%"
+          gap={{ base: 3, lg: 4 }}
+          h={{ base: 'auto', lg: '100%' }}
         >
-          {/* Left Sidebar - 50/50 split between stations and controls */}
-          <GridItem overflow="hidden">
+          {/* Left Sidebar - Stacked on mobile, 50/50 split on desktop */}
+          <GridItem overflow={{ base: 'visible', lg: 'hidden' }}>
             <Box
               display="flex"
               flexDirection="column"
@@ -183,80 +212,125 @@ function App() {
               opacity={isLoaded ? 1 : 0}
               transform={isLoaded ? 'translateX(0)' : 'translateX(-20px)'}
               transition="all 0.5s ease-out 0.1s"
-              h="100%"
+              h={{ base: 'auto', lg: '100%' }}
             >
-              {/* Station Selector - 50% height */}
+              {/* Station Selector */}
               <Box
                 p={3}
-                bg="rgba(255, 255, 255, 0.03)"
+                bg={colors.card}
                 borderRadius="10px"
                 borderWidth="1px"
-                borderColor="rgba(255, 255, 255, 0.08)"
-                flex={1}
-                minH={0}
+                borderColor={colors.border}
+                flex={{ base: 'none', lg: 1 }}
+                minH={{ base: 'auto', lg: 0 }}
+                maxH={{ base: 'none', lg: 'none' }}
                 overflow="hidden"
                 display="flex"
                 flexDirection="column"
+                transition="all 0.3s ease"
               >
-                <StationSelector
-                  selectedStations={selectedStations}
-                  onSelectionChange={handleStationChange}
-                  compact
-                />
+                {/* Mobile: Collapsible, Desktop: Always open */}
+                <Box display={{ base: 'block', lg: 'none' }}>
+                  <CollapsibleSection
+                    title="Weather Stations"
+                    badge={`${selectedStations.length}/${stations?.length || 0}`}
+                    defaultOpen={true}
+                  >
+                    <Box maxH="250px" overflow="auto">
+                      <StationSelector
+                        selectedStations={selectedStations}
+                        onSelectionChange={handleStationChange}
+                        compact
+                        hideHeader
+                      />
+                    </Box>
+                  </CollapsibleSection>
+                </Box>
+                <Box display={{ base: 'none', lg: 'flex' }} flex={1} flexDirection="column" minH={0}>
+                  <StationSelector
+                    selectedStations={selectedStations}
+                    onSelectionChange={handleStationChange}
+                    compact
+                  />
+                </Box>
               </Box>
 
-              {/* Controls - 50% height */}
+              {/* Controls */}
               <Box
                 p={3}
-                bg="rgba(255, 255, 255, 0.03)"
+                bg={colors.card}
                 borderRadius="10px"
                 borderWidth="1px"
-                borderColor="rgba(255, 255, 255, 0.08)"
-                flex={1}
-                minH={0}
+                borderColor={colors.border}
+                flex={{ base: 'none', lg: 1 }}
+                minH={{ base: 'auto', lg: 0 }}
                 overflow="auto"
+                transition="all 0.3s ease"
                 css={{
                   '&::-webkit-scrollbar': {
                     width: '4px',
                   },
                   '&::-webkit-scrollbar-track': {
-                    background: 'rgba(255,255,255,0.03)',
+                    background: colors.card,
                   },
                   '&::-webkit-scrollbar-thumb': {
-                    background: 'rgba(255,255,255,0.15)',
+                    background: colors.border,
                     borderRadius: '2px',
                   },
                 }}
               >
-                <ControlsPanel
-                  yearFrom={yearFrom}
-                  yearTo={yearTo}
-                  onYearFromChange={setYearFrom}
-                  onYearToChange={setYearTo}
-                  mode={mode}
-                  onModeChange={handleModeChange}
-                  showSigmaBounds={showSigmaBounds}
-                  onShowSigmaBoundsChange={setShowSigmaBounds}
-                  zoom={zoom}
-                  onZoomChange={setZoom}
-                  compact
-                />
+                {/* Mobile: Collapsible, Desktop: Always open */}
+                <Box display={{ base: 'block', lg: 'none' }}>
+                  <CollapsibleSection
+                    title="Visualization Options"
+                    defaultOpen={false}
+                  >
+                    <ControlsPanel
+                      yearFrom={yearFrom}
+                      yearTo={yearTo}
+                      onYearFromChange={setYearFrom}
+                      onYearToChange={setYearTo}
+                      mode={mode}
+                      onModeChange={handleModeChange}
+                      showSigmaBounds={showSigmaBounds}
+                      onShowSigmaBoundsChange={setShowSigmaBounds}
+                      zoom={zoom}
+                      onZoomChange={setZoom}
+                      compact
+                    />
+                  </CollapsibleSection>
+                </Box>
+                <Box display={{ base: 'none', lg: 'block' }}>
+                  <ControlsPanel
+                    yearFrom={yearFrom}
+                    yearTo={yearTo}
+                    onYearFromChange={setYearFrom}
+                    onYearToChange={setYearTo}
+                    mode={mode}
+                    onModeChange={handleModeChange}
+                    showSigmaBounds={showSigmaBounds}
+                    onShowSigmaBoundsChange={setShowSigmaBounds}
+                    zoom={zoom}
+                    onZoomChange={setZoom}
+                    compact
+                  />
+                </Box>
               </Box>
             </Box>
           </GridItem>
 
-          {/* Main Content Area - Flex layout for dynamic chart height */}
-          <GridItem overflow="hidden" display="flex" flexDirection="column">
+          {/* Main Content Area */}
+          <GridItem overflow={{ base: 'visible', lg: 'hidden' }} display="flex" flexDirection="column">
             <Flex
               direction="column"
               gap={3}
               opacity={isLoaded ? 1 : 0}
               transform={isLoaded ? 'translateY(0)' : 'translateY(20px)'}
               transition="all 0.5s ease-out 0.2s"
-              h="100%"
-              overflow="hidden"
+              h={{ base: 'auto', lg: '100%' }}
+              overflow={{ base: 'visible', lg: 'hidden' }}
             >
-              {/* Analytics Summary - Compact */}
+              {/* Analytics Summary */}
               <Box flexShrink={0}>
                 <ErrorBoundary>
                   <AnalyticsPanel
@@ -268,8 +342,8 @@ function App() {
                 </ErrorBoundary>
               </Box>
 
-              {/* Chart - Grows to fill remaining space */}
-              <Box flex={1} minH={0}>
+              {/* Chart */}
+              <Box flex={{ base: 'none', lg: 1 }} minH={{ base: '350px', lg: 0 }}>
                 <ErrorBoundary>
                   <ChartPanel
                     monthlyData={monthlyData}

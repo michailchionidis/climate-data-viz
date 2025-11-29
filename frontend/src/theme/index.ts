@@ -1,6 +1,6 @@
 /**
  * Custom theme configuration for Climate Data Explorer
- * Tesla-inspired dark theme with premium feel
+ * Tesla-inspired theme with dark/light mode support
  */
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react'
 
@@ -21,15 +21,7 @@ const customConfig = defineConfig({
           800: { value: '#234e52' },
           900: { value: '#1d4044' },
         },
-        // Surface colors for dark theme
-        surface: {
-          bg: { value: '#0a0a0f' },
-          card: { value: 'rgba(255, 255, 255, 0.03)' },
-          cardHover: { value: 'rgba(255, 255, 255, 0.06)' },
-          border: { value: 'rgba(255, 255, 255, 0.08)' },
-          borderHover: { value: 'rgba(255, 255, 255, 0.15)' },
-        },
-        // Accent colors
+        // Accent colors (same for both themes)
         accent: {
           cyan: { value: '#06b6d4' },
           cyanGlow: { value: 'rgba(6, 182, 212, 0.15)' },
@@ -60,6 +52,36 @@ const customConfig = defineConfig({
 })
 
 export const system = createSystem(defaultConfig, customConfig)
+
+// Theme color tokens for dark and light modes
+export const themeColors = {
+  dark: {
+    bg: '#0a0a0f',
+    bgSecondary: '#111118',
+    card: 'rgba(255, 255, 255, 0.03)',
+    cardHover: 'rgba(255, 255, 255, 0.06)',
+    border: 'rgba(255, 255, 255, 0.08)',
+    borderHover: 'rgba(255, 255, 255, 0.15)',
+    text: '#e4e4e7',
+    textSecondary: '#a1a1aa',
+    textMuted: '#71717a',
+    headerBg: 'rgba(10, 10, 15, 0.95)',
+  },
+  light: {
+    bg: '#f8fafc',
+    bgSecondary: '#ffffff',
+    card: 'rgba(0, 0, 0, 0.02)',
+    cardHover: 'rgba(0, 0, 0, 0.04)',
+    border: 'rgba(0, 0, 0, 0.08)',
+    borderHover: 'rgba(0, 0, 0, 0.15)',
+    text: '#1e293b',
+    textSecondary: '#475569',
+    textMuted: '#94a3b8',
+    headerBg: 'rgba(248, 250, 252, 0.95)',
+  },
+} as const
+
+export type ColorMode = 'dark' | 'light'
 
 // Animation keyframes as CSS string
 export const globalStyles = `
