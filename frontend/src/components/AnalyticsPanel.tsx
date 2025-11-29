@@ -11,7 +11,6 @@ import {
   TemperatureMinIcon,
   TemperatureMaxIcon,
   BarChartIcon,
-  TrendingUpIcon,
   FlameIcon,
   SnowflakeIcon,
 } from './ui/Icons'
@@ -74,12 +73,15 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
     )
   }
 
-  // Aggregate statistics across all selected stations
-  const allTemps = analytics.stations.flatMap((s) => [s.min_temp, s.max_temp])
-  const globalMin = Math.min(...allTemps)
-  const globalMax = Math.max(...allTemps)
+  // Find station with global min temperature
+  const minStation = analytics.stations.reduce((prev, curr) =>
+    curr.min_temp < prev.min_temp ? curr : prev
+  )
+  // Find station with global max temperature
+  const maxStation = analytics.stations.reduce((prev, curr) =>
+    curr.max_temp > prev.max_temp ? curr : prev
+  )
   const avgMean = analytics.stations.reduce((sum, s) => sum + s.mean_temp, 0) / analytics.stations.length
-  const avgCoverage = analytics.stations.reduce((sum, s) => sum + s.data_coverage, 0) / analytics.stations.length
 
   // Find hottest and coldest years across all stations
   const hottestStation = analytics.stations.reduce((prev, curr) =>
@@ -88,6 +90,12 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
   const coldestStation = analytics.stations.reduce((prev, curr) =>
     curr.coldest_year_temp < prev.coldest_year_temp ? curr : prev
   )
+
+  // Helper to format month name
+  const getMonthName = (month: number): string => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    return months[month - 1] || ''
+  }
 
   return (
     <Card>
@@ -106,14 +114,16 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
               <StatCard
                 icon={<TemperatureMinIcon size="md" />}
                 label="Min"
-                value={`${globalMin.toFixed(1)}°C`}
+                value={`${minStation.min_temp.toFixed(1)}°C`}
+                subValue={`${getMonthName(minStation.min_temp_month)} ${minStation.min_temp_year} @ ${minStation.station_id}`}
                 color="blue"
                 compact
               />
               <StatCard
                 icon={<TemperatureMaxIcon size="md" />}
                 label="Max"
-                value={`${globalMax.toFixed(1)}°C`}
+                value={`${maxStation.max_temp.toFixed(1)}°C`}
+                subValue={`${getMonthName(maxStation.max_temp_month)} ${maxStation.max_temp_year} @ ${maxStation.station_id}`}
                 color="orange"
                 compact
               />
@@ -122,13 +132,6 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
                 label="Avg"
                 value={`${avgMean.toFixed(1)}°C`}
                 color="cyan"
-                compact
-              />
-              <StatCard
-                icon={<TrendingUpIcon size="md" />}
-                label="Coverage"
-                value={`${avgCoverage.toFixed(0)}%`}
-                color="green"
                 compact
               />
               <StatCard
@@ -172,11 +175,12 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
         ) : (
           <>
             {/* Main stats grid */}
-            <SimpleGrid columns={{ base: 2, lg: 4 }} gap={3} mb={4}>
+            <SimpleGrid columns={{ base: 2, lg: 3 }} gap={3} mb={4}>
               <StatCard
                 icon={<TemperatureMinIcon size="lg" />}
                 label="Min Temperature"
-                value={`${globalMin.toFixed(1)}°C`}
+                value={`${minStation.min_temp.toFixed(1)}°C`}
+                subValue={`${getMonthName(minStation.min_temp_month)} ${minStation.min_temp_year} @ ${minStation.station_id}`}
                 color="blue"
                 animate
                 animationDelay={0.1}
@@ -184,7 +188,8 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
               <StatCard
                 icon={<TemperatureMaxIcon size="lg" />}
                 label="Max Temperature"
-                value={`${globalMax.toFixed(1)}°C`}
+                value={`${maxStation.max_temp.toFixed(1)}°C`}
+                subValue={`${getMonthName(maxStation.max_temp_month)} ${maxStation.max_temp_year} @ ${maxStation.station_id}`}
                 color="orange"
                 animate
                 animationDelay={0.15}
@@ -196,14 +201,6 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
                 color="cyan"
                 animate
                 animationDelay={0.2}
-              />
-              <StatCard
-                icon={<TrendingUpIcon size="lg" />}
-                label="Data Coverage"
-                value={`${avgCoverage.toFixed(1)}%`}
-                color="green"
-                animate
-                animationDelay={0.25}
               />
             </SimpleGrid>
 

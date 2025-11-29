@@ -59,6 +59,16 @@ class AnalyticsService:
             mean_temp = float(temps.mean())
             std_temp = float(temps.std()) if len(temps) > 1 else 0.0
 
+            # Find when min/max occurred
+            min_idx = station_df["temperature"].idxmin()
+            max_idx = station_df["temperature"].idxmax()
+            min_row = station_df.loc[min_idx]
+            max_row = station_df.loc[max_idx]
+            min_temp_year = int(min_row["year"])  # type: ignore[arg-type]
+            min_temp_month = int(min_row["month"])  # type: ignore[arg-type]
+            max_temp_year = int(max_row["year"])  # type: ignore[arg-type]
+            max_temp_month = int(max_row["month"])  # type: ignore[arg-type]
+
             # Yearly averages for hottest/coldest
             yearly_means = station_df.groupby("year")["temperature"].mean().dropna()
 
@@ -82,7 +92,11 @@ class AnalyticsService:
                     station_id=station_id,
                     station_name=station_name,
                     min_temp=round(min_temp, 2),
+                    min_temp_year=min_temp_year,
+                    min_temp_month=min_temp_month,
                     max_temp=round(max_temp, 2),
+                    max_temp_year=max_temp_year,
+                    max_temp_month=max_temp_month,
                     mean_temp=round(mean_temp, 2),
                     std_temp=round(std_temp, 2),
                     coldest_year=coldest_year,

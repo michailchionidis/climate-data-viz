@@ -2,7 +2,6 @@
  * Unified Sidebar Component
  * Collapsible sidebar containing all filters and controls for desktop view
  */
-import { memo } from 'react'
 import { Box, Flex, Text } from '@chakra-ui/react'
 import { StationSelector } from './StationSelector'
 import { ControlsPanel } from './ControlsPanel'
