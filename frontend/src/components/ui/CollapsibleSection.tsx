@@ -14,6 +14,8 @@ interface CollapsibleSectionProps {
   badge?: string | number
   /** Only show collapse functionality on mobile */
   mobileOnly?: boolean
+  /** Action element to display in header (e.g., "All" button) */
+  action?: React.ReactNode
 }
 
 export function CollapsibleSection({
@@ -22,6 +24,7 @@ export function CollapsibleSection({
   defaultOpen = true,
   badge,
   mobileOnly = true,
+  action,
 }: CollapsibleSectionProps) {
   const { colors } = useTheme()
   const [isOpen, setIsOpen] = useState(defaultOpen)
@@ -77,15 +80,24 @@ export function CollapsibleSection({
           )}
         </Flex>
 
-        {/* Chevron - only visible on mobile */}
-        <Box
-          display={{ base: 'block', lg: mobileOnly ? 'none' : 'block' }}
-          color={colors.textMuted}
-          transition="transform 0.2s"
-          transform={isOpen ? 'rotate(0deg)' : 'rotate(-90deg)'}
-        >
-          <ChevronDownIcon size="sm" />
-        </Box>
+        <Flex align="center" gap={2}>
+          {/* Action element (e.g., "All" button) */}
+          {action && (
+            <Box onClick={(e) => e.stopPropagation()}>
+              {action}
+            </Box>
+          )}
+
+          {/* Chevron - only visible on mobile */}
+          <Box
+            display={{ base: 'block', lg: mobileOnly ? 'none' : 'block' }}
+            color={colors.textMuted}
+            transition="transform 0.2s"
+            transform={isOpen ? 'rotate(0deg)' : 'rotate(-90deg)'}
+          >
+            <ChevronDownIcon size="sm" />
+          </Box>
+        </Flex>
       </Flex>
 
       {/* Content - collapsible on mobile */}
