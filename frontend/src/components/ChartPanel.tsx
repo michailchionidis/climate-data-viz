@@ -1,24 +1,17 @@
 /**
  * Interactive chart panel using Plotly.js
+ * Premium visualization with smooth animations and rich tooltips
  */
-import { Box, Text, Flex, Spinner } from '@chakra-ui/react'
+import { Box, Text, Flex } from '@chakra-ui/react'
 import Plot from 'react-plotly.js'
 import type { Data, Layout } from 'plotly.js'
+import { Card, CardHeader, CardBody } from './ui/Card'
+import { EmptyState } from './ui/EmptyState'
+import { LoadingState } from './ui/LoadingState'
+import { ExportButton } from './ExportButton'
+import { LineChartIcon, InfoIcon } from './ui/Icons'
+import { STATION_COLORS, chartTheme } from '../theme'
 import type { MonthlyDataResponse, AnnualDataResponse, VisualizationMode } from '../types'
-
-// Color palette for different stations
-const STATION_COLORS = [
-  '#06b6d4', // cyan
-  '#f59e0b', // amber
-  '#10b981', // emerald
-  '#8b5cf6', // violet
-  '#ef4444', // red
-  '#ec4899', // pink
-  '#3b82f6', // blue
-  '#84cc16', // lime
-  '#f97316', // orange
-  '#14b8a6', // teal
-]
 
 interface ChartPanelProps {
   monthlyData: MonthlyDataResponse | undefined
@@ -37,48 +30,34 @@ export function ChartPanel({
   isLoading,
   selectedStations,
 }: ChartPanelProps) {
+  // Empty state
   if (selectedStations.length === 0) {
     return (
-      <Box
-        h="500px"
-        bg="whiteAlpha.50"
-        borderRadius="lg"
-        borderWidth="1px"
-        borderColor="whiteAlpha.100"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        flexDirection="column"
-      >
-        <Text fontSize="5xl" mb={4}>📈</Text>
-        <Text color="gray.400" fontSize="lg">
-          Select stations to visualize temperature data
-        </Text>
-        <Text color="gray.500" fontSize="sm" mt={2}>
-          Choose one or more weather stations from the panel on the left
-        </Text>
-      </Box>
+      <Card>
+        <CardBody p={0}>
+          <EmptyState
+            icon={<LineChartIcon size="xl" color="#71717a" />}
+            title="Select stations to visualize"
+            description="Choose one or more weather stations from the panel on the left to see temperature trends"
+            minHeight="450px"
+          />
+        </CardBody>
+      </Card>
     )
   }
 
+  // Loading state
   if (isLoading) {
     return (
-      <Box
-        h="500px"
-        bg="whiteAlpha.50"
-        borderRadius="lg"
-        borderWidth="1px"
-        borderColor="whiteAlpha.100"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        flexDirection="column"
-      >
-        <Spinner size="xl" color="cyan.400" />
-        <Text color="gray.400" fontSize="sm" mt={4}>
-          Loading temperature data...
-        </Text>
-      </Box>
+      <Card>
+        <CardBody p={0}>
+          <LoadingState
+            message="Loading temperature data..."
+            minHeight="450px"
+            size="lg"
+          />
+        </CardBody>
+      </Card>
     )
   }
 
@@ -99,8 +78,16 @@ export function ChartPanel({
         name: station.station_name,
         x,
         y,
-        line: { color, width: 1.5 },
-        hovertemplate: `<b>${station.station_name}</b><br>%{x}<br>Temperature: %{y:.1f}°C<extra></extra>`,
+        line: {
+          color,
+          width: 1.5,
+          shape: 'spline',
+        },
+        hovertemplate:
+          `<b style="color:${color}">${station.station_name}</b><br>` +
+          `<b>Date:</b> %{x}<br>` +
+          `<b>Temperature:</b> %{y:.1f}°C` +
+          `<extra></extra>`,
       })
     })
   } else if (mode === 'annual' && annualData) {
@@ -135,8 +122,8 @@ export function ChartPanel({
           y: yLower,
           line: { width: 0 },
           fill: 'tonexty',
-          fillcolor: `${color}20`,
-          showlegend: true,
+          fillcolor: `${color}15`,
+          showlegend: false,
           hoverinfo: 'skip',
         })
       }
@@ -148,35 +135,39 @@ export function ChartPanel({
         name: station.station_name,
         x,
         y: yMean,
-        line: { color, width: 2 },
-        hovertemplate: `<b>${station.station_name}</b><br>Year: %{x}<br>Mean: %{y:.1f}°C<extra></extra>`,
+        line: {
+          color,
+          width: 2.5,
+          shape: 'spline',
+        },
+        hovertemplate:
+          `<b style="color:${color}">${station.station_name}</b><br>` +
+          `<b>Year:</b> %{x}<br>` +
+          `<b>Mean:</b> %{y:.1f}°C` +
+          `<extra></extra>`,
       })
     })
   }
 
   const layout: Partial<Layout> = {
-    paper_bgcolor: 'transparent',
-    plot_bgcolor: 'transparent',
-    font: {
-      family: 'Outfit, system-ui, sans-serif',
-      color: '#a1a1aa',
-    },
-    margin: { l: 60, r: 30, t: 30, b: 60 },
+    ...chartTheme,
+    margin: { l: 60, r: 40, t: 20, b: 60 },
     xaxis: {
-      title: { text: mode === 'monthly' ? 'Date' : 'Year' },
-      gridcolor: 'rgba(255,255,255,0.05)',
-      linecolor: 'rgba(255,255,255,0.1)',
-      tickfont: { size: 11 },
+      ...chartTheme.xaxis,
+      title: {
+        text: mode === 'monthly' ? 'Date' : 'Year',
+        font: { size: 12, color: '#a1a1aa' },
+      },
       tickangle: mode === 'monthly' ? -45 : 0,
-      nticks: mode === 'monthly' ? 20 : undefined,
+      nticks: mode === 'monthly' ? 15 : undefined,
+      rangeslider: { visible: false },
     },
     yaxis: {
-      title: { text: 'Temperature (°C)' },
-      gridcolor: 'rgba(255,255,255,0.05)',
-      linecolor: 'rgba(255,255,255,0.1)',
-      tickfont: { size: 11 },
-      zeroline: true,
-      zerolinecolor: 'rgba(255,255,255,0.2)',
+      ...chartTheme.yaxis,
+      title: {
+        text: 'Temperature (°C)',
+        font: { size: 12, color: '#a1a1aa' },
+      },
     },
     legend: {
       orientation: 'h',
@@ -184,47 +175,94 @@ export function ChartPanel({
       y: 1.02,
       xanchor: 'right',
       x: 1,
-      font: { size: 11 },
+      font: { size: 11, color: '#a1a1aa' },
       bgcolor: 'transparent',
+      itemsizing: 'constant',
     },
     hovermode: 'x unified',
-    dragmode: 'zoom',
+    dragmode: 'pan',
+    hoverlabel: {
+      bgcolor: 'rgba(24, 24, 27, 0.95)',
+      bordercolor: 'rgba(255, 255, 255, 0.1)',
+      font: {
+        family: 'Inter, system-ui, sans-serif',
+        size: 12,
+        color: '#e4e4e7',
+      },
+    },
+    transition: {
+      duration: 300,
+      easing: 'cubic-in-out',
+    },
   }
 
   const config = {
     displayModeBar: true,
     displaylogo: false,
-    modeBarButtonsToRemove: ['lasso2d', 'select2d'] as any,
+    modeBarButtonsToRemove: [
+      'lasso2d',
+      'select2d',
+      'hoverClosestCartesian',
+      'hoverCompareCartesian',
+    ] as any,
+    modeBarButtonsToAdd: [] as any,
     responsive: true,
+    scrollZoom: true,
+    toImageButtonOptions: {
+      format: 'png' as const,
+      filename: `climate_data_${mode}_${new Date().toISOString().split('T')[0]}`,
+      height: 800,
+      width: 1400,
+      scale: 2,
+    },
   }
 
+  const dataPointCount = mode === 'monthly'
+    ? monthlyData?.total_points.toLocaleString()
+    : `${annualData?.total_years} years`
+
   return (
-    <Box
-      bg="whiteAlpha.50"
-      borderRadius="lg"
-      borderWidth="1px"
-      borderColor="whiteAlpha.100"
-      overflow="hidden"
-    >
-      <Flex
-        justify="space-between"
-        align="center"
-        px={4}
-        py={3}
-        borderBottomWidth="1px"
-        borderColor="whiteAlpha.100"
-      >
-        <Text fontSize="sm" fontWeight="600" color="gray.300" textTransform="uppercase" letterSpacing="wide">
-          {mode === 'monthly' ? 'Monthly Temperature Data' : 'Annual Averages'}
-          {showSigmaBounds && mode === 'annual' && ' (with ±1σ)'}
-        </Text>
-        <Text fontSize="xs" color="gray.500">
-          {mode === 'monthly'
-            ? `${monthlyData?.total_points.toLocaleString()} data points`
-            : `${annualData?.total_years} years`
-          }
-        </Text>
-      </Flex>
+    <Card>
+      <CardHeader>
+        <Flex justify="space-between" align="center">
+          <Flex align="center" gap={3}>
+            <Text
+              fontSize="sm"
+              fontWeight="600"
+              color="gray.300"
+              textTransform="uppercase"
+              letterSpacing="wide"
+            >
+              {mode === 'monthly' ? 'Monthly Temperature Data' : 'Annual Averages'}
+            </Text>
+            {showSigmaBounds && mode === 'annual' && (
+              <Box
+                px={2}
+                py={0.5}
+                bg="rgba(139, 92, 246, 0.15)"
+                borderRadius="full"
+                borderWidth="1px"
+                borderColor="rgba(139, 92, 246, 0.3)"
+              >
+                <Text fontSize="xs" color="purple.300" fontWeight="500">
+                  ±1σ enabled
+                </Text>
+              </Box>
+            )}
+          </Flex>
+          <Flex align="center" gap={3}>
+            <Text fontSize="xs" color="gray.500" fontFamily="mono">
+              {dataPointCount}
+            </Text>
+            {/* Export button */}
+            <ExportButton
+              monthlyData={monthlyData}
+              annualData={annualData}
+              mode={mode}
+            />
+          </Flex>
+        </Flex>
+      </CardHeader>
 
       <Box h="450px" p={2}>
         <Plot
@@ -235,6 +273,31 @@ export function ChartPanel({
           useResizeHandler
         />
       </Box>
-    </Box>
+
+      {/* Chart footer with tips */}
+      <Box
+        px={4}
+        py={2}
+        borderTopWidth="1px"
+        borderColor="rgba(255, 255, 255, 0.06)"
+        bg="rgba(255, 255, 255, 0.02)"
+      >
+        <Flex justify="space-between" align="center">
+          <Flex align="center" gap={2}>
+            <InfoIcon size="sm" color="#52525b" />
+            <Text fontSize="xs" color="gray.600">
+              Drag to pan • Scroll to zoom • Double-click to reset
+            </Text>
+          </Flex>
+          <Flex gap={2}>
+            {selectedStations.length > 1 && (
+              <Text fontSize="xs" color="gray.600">
+                Click legend items to toggle stations
+              </Text>
+            )}
+          </Flex>
+        </Flex>
+      </Box>
+    </Card>
   )
 }
