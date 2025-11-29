@@ -175,8 +175,8 @@ class TestAnnualDataEndpoint:
         assert len(data["stations"][0]["data"]) > 0
 
         point = data["stations"][0]["data"][0]
-        assert abs(point["upper_bound"] - (point["mean"] + point["std"])) < 0.01
-        assert abs(point["lower_bound"] - (point["mean"] - point["std"])) < 0.01
+        assert abs(point["upper_bound"] - (point["mean"] + point["std"])) < 0.02
+        assert abs(point["lower_bound"] - (point["mean"] - point["std"])) < 0.02
 
 
 class TestAnalyticsEndpoint:

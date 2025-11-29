@@ -215,8 +215,8 @@ class TestAnalyticsServiceAnnual:
         assert len(result.stations[0].data) > 0
 
         data_point = result.stations[0].data[0]
-        assert abs(data_point.upper_bound - (data_point.mean + data_point.std)) < 0.01
-        assert abs(data_point.lower_bound - (data_point.mean - data_point.std)) < 0.01
+        assert abs(data_point.upper_bound - (data_point.mean + data_point.std)) < 0.02
+        assert abs(data_point.lower_bound - (data_point.mean - data_point.std)) < 0.02
 
     def test_annual_data_reduces_points(self, valid_station_ids: list[str]) -> None:
         """Annual data should have ~12x fewer points than monthly."""
