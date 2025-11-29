@@ -167,25 +167,6 @@ function App() {
 
               {/* Theme toggle */}
               <ThemeToggle size="sm" />
-
-              {/* Station count badge - compact */}
-              <Box
-                px={2}
-                py={1}
-                bg={selectedStations.length > 0 ? 'rgba(6, 182, 212, 0.15)' : colors.card}
-                borderRadius="full"
-                borderWidth="1px"
-                borderColor={selectedStations.length > 0 ? 'rgba(6, 182, 212, 0.4)' : colors.border}
-                transition="all 0.2s ease"
-              >
-                <Text
-                  fontSize="2xs"
-                  fontWeight="600"
-                  color={selectedStations.length > 0 ? cyanAccent : colors.textMuted}
-                >
-                  {selectedStations.length} station{selectedStations.length !== 1 ? 's' : ''} selected
-                </Text>
-              </Box>
             </Flex>
           </Flex>
         </Container>
