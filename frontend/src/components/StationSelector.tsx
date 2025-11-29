@@ -1,8 +1,13 @@
 /**
  * Multi-select component for weather station selection
+ * Premium UI with search and visual feedback
  */
-import { Box, Text, Flex, Spinner, Checkbox } from '@chakra-ui/react'
+import { useState, useMemo } from 'react'
+import { Box, Text, Flex, Input, Spinner } from '@chakra-ui/react'
 import { useStations } from '../hooks/useClimateData'
+import { SectionHeader } from './ui/SectionHeader'
+import { CheckIcon, AlertIcon } from './ui/Icons'
+import { STATION_COLORS } from '../theme'
 
 interface StationSelectorProps {
   selectedStations: string[]
@@ -14,6 +19,20 @@ export function StationSelector({
   onSelectionChange,
 }: StationSelectorProps) {
   const { data: stations, isLoading, error } = useStations()
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Filter stations based on search
+  const filteredStations = useMemo(() => {
+    if (!stations) return []
+    if (!searchQuery.trim()) return stations
+
+    const query = searchQuery.toLowerCase()
+    return stations.filter(
+      (s) =>
+        s.name.toLowerCase().includes(query) ||
+        s.id.toLowerCase().includes(query)
+    )
+  }, [stations, searchQuery])
 
   const handleToggle = (stationId: string) => {
     if (selectedStations.includes(stationId)) {
@@ -33,115 +52,229 @@ export function StationSelector({
     }
   }
 
+  // Get color for station based on its index
+  const getStationColor = (stationId: string): string => {
+    if (!stations) return STATION_COLORS[0]
+    const index = stations.findIndex((s) => s.id === stationId)
+    return STATION_COLORS[index % STATION_COLORS.length]
+  }
+
   if (isLoading) {
     return (
-      <Box p={4} textAlign="center">
-        <Spinner size="md" color="cyan.400" />
-        <Text mt={2} fontSize="sm" color="gray.400">
-          Loading stations...
-        </Text>
+      <Box>
+        <SectionHeader title="Weather Stations" />
+        <Flex
+          direction="column"
+          align="center"
+          justify="center"
+          py={8}
+          gap={3}
+        >
+          <Spinner size="lg" color="cyan.400" />
+          <Text fontSize="sm" color="gray.400">
+            Loading stations...
+          </Text>
+        </Flex>
       </Box>
     )
   }
 
   if (error) {
     return (
-      <Box p={4} bg="red.900/20" borderRadius="md" borderWidth="1px" borderColor="red.500/30">
-        <Text color="red.400" fontSize="sm">
-          Failed to load stations. Please try again.
-        </Text>
+      <Box>
+        <SectionHeader title="Weather Stations" />
+        <Box
+          p={4}
+          bg="rgba(239, 68, 68, 0.1)"
+          borderRadius="8px"
+          borderWidth="1px"
+          borderColor="rgba(239, 68, 68, 0.3)"
+        >
+          <Flex align="center" gap={2}>
+            <AlertIcon size="sm" color="#ef4444" />
+            <Text color="red.400" fontSize="sm">
+              Failed to load stations. Please refresh.
+            </Text>
+          </Flex>
+        </Box>
       </Box>
     )
   }
 
   return (
     <Box>
-      <Flex justify="space-between" align="center" mb={3}>
-        <Text fontSize="sm" fontWeight="600" color="gray.300" textTransform="uppercase" letterSpacing="wide">
-          Weather Stations
-        </Text>
-        <Text
-          fontSize="xs"
-          color="cyan.400"
-          cursor="pointer"
-          onClick={handleSelectAll}
-          _hover={{ color: 'cyan.300' }}
-        >
-          {selectedStations.length === stations?.length ? 'Clear all' : 'Select all'}
-        </Text>
-      </Flex>
+      <SectionHeader
+        title="Weather Stations"
+        action={
+          <Text
+            fontSize="xs"
+            color="cyan.400"
+            cursor="pointer"
+            onClick={handleSelectAll}
+            _hover={{ color: 'cyan.300' }}
+            transition="color 0.15s"
+            fontWeight="500"
+          >
+            {selectedStations.length === stations?.length ? 'Clear all' : 'Select all'}
+          </Text>
+        }
+      />
 
+      {/* Search input */}
+      <Box mb={3}>
+        <Input
+          size="sm"
+          placeholder="Search stations..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          bg="rgba(255, 255, 255, 0.03)"
+          borderColor="rgba(255, 255, 255, 0.1)"
+          borderRadius="8px"
+          _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
+          _focus={{
+            borderColor: 'rgba(6, 182, 212, 0.5)',
+            boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
+          }}
+          _placeholder={{ color: 'gray.600' }}
+        />
+      </Box>
+
+      {/* Station list */}
       <Box
-        maxH="280px"
+        maxH="260px"
         overflowY="auto"
         css={{
           '&::-webkit-scrollbar': {
             width: '6px',
           },
           '&::-webkit-scrollbar-track': {
-            background: 'rgba(255,255,255,0.05)',
+            background: 'rgba(255,255,255,0.03)',
             borderRadius: '3px',
           },
           '&::-webkit-scrollbar-thumb': {
-            background: 'rgba(255,255,255,0.2)',
+            background: 'rgba(255,255,255,0.15)',
             borderRadius: '3px',
           },
           '&::-webkit-scrollbar-thumb:hover': {
-            background: 'rgba(255,255,255,0.3)',
+            background: 'rgba(255,255,255,0.25)',
           },
         }}
       >
         <Flex direction="column" gap={1}>
-          {stations?.map((station) => {
-            const isSelected = selectedStations.includes(station.id)
-            return (
-              <Flex
-                key={station.id}
-                align="center"
-                gap={3}
-                p={2}
-                borderRadius="md"
-                cursor="pointer"
-                bg={isSelected ? 'cyan.900/30' : 'transparent'}
-                borderWidth="1px"
-                borderColor={isSelected ? 'cyan.500/40' : 'transparent'}
-                _hover={{
-                  bg: isSelected ? 'cyan.900/40' : 'whiteAlpha.100',
-                }}
-                onClick={() => handleToggle(station.id)}
-                transition="all 0.15s"
-              >
-                <Checkbox.Root
-                  checked={isSelected}
-                  size="sm"
+          {filteredStations.length === 0 ? (
+            <Box py={4} textAlign="center">
+              <Text color="gray.500" fontSize="sm">
+                No stations match "{searchQuery}"
+              </Text>
+            </Box>
+          ) : (
+            filteredStations.map((station, idx) => {
+              const isSelected = selectedStations.includes(station.id)
+              const color = getStationColor(station.id)
+
+              return (
+                <Flex
+                  key={station.id}
+                  align="center"
+                  gap={3}
+                  p={2.5}
+                  borderRadius="8px"
+                  cursor="pointer"
+                  bg={isSelected ? `${color}15` : 'transparent'}
+                  borderWidth="1px"
+                  borderColor={isSelected ? `${color}40` : 'transparent'}
+                  _hover={{
+                    bg: isSelected ? `${color}20` : 'rgba(255, 255, 255, 0.05)',
+                    borderColor: isSelected ? `${color}50` : 'rgba(255, 255, 255, 0.1)',
+                  }}
+                  onClick={() => handleToggle(station.id)}
+                  transition="all 0.15s ease"
+                  style={{
+                    opacity: 0,
+                    animation: 'fadeInUp 0.3s ease-out forwards',
+                    animationDelay: `${idx * 0.03}s`,
+                  }}
                 >
-                  <Checkbox.HiddenInput />
-                  <Checkbox.Control
-                    borderColor={isSelected ? 'cyan.400' : 'gray.600'}
-                    bg={isSelected ? 'cyan.500' : 'transparent'}
+                  {/* Custom checkbox */}
+                  <Box
+                    w="18px"
+                    h="18px"
+                    borderRadius="5px"
+                    borderWidth="2px"
+                    borderColor={isSelected ? color : 'rgba(255, 255, 255, 0.2)'}
+                    bg={isSelected ? color : 'transparent'}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    transition="all 0.15s ease"
+                    flexShrink={0}
                   >
-                    <Checkbox.Indicator>
-                      <Box as="span" color="white" fontSize="xs">✓</Box>
-                    </Checkbox.Indicator>
-                  </Checkbox.Control>
-                </Checkbox.Root>
-                <Box flex={1}>
-                  <Text fontSize="sm" fontWeight="500" color={isSelected ? 'cyan.100' : 'gray.200'}>
-                    {station.name}
-                  </Text>
-                  <Text fontSize="xs" color="gray.500" fontFamily="mono">
-                    {station.id}
-                  </Text>
-                </Box>
-              </Flex>
-            )
-          })}
+                    {isSelected && (
+                      <CheckIcon size="xs" color="white" />
+                    )}
+                  </Box>
+
+                  {/* Station info */}
+                  <Box flex={1} minW={0}>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="500"
+                      color={isSelected ? 'white' : 'gray.300'}
+                      css={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+                    >
+                      {station.name}
+                    </Text>
+                  </Box>
+
+                  {/* Color indicator */}
+                  {isSelected && (
+                    <Box
+                      w="8px"
+                      h="8px"
+                      borderRadius="full"
+                      bg={color}
+                      boxShadow={`0 0 8px ${color}`}
+                      flexShrink={0}
+                    />
+                  )}
+                </Flex>
+              )
+            })
+          )}
         </Flex>
       </Box>
 
-      <Text fontSize="xs" color="gray.500" mt={3}>
-        {selectedStations.length} of {stations?.length || 0} selected
-      </Text>
+      {/* Selection count */}
+      <Box
+        mt={3}
+        pt={3}
+        borderTopWidth="1px"
+        borderColor="rgba(255, 255, 255, 0.06)"
+      >
+        <Flex justify="space-between" align="center">
+          <Text fontSize="xs" color="gray.500">
+            {selectedStations.length} of {stations?.length || 0} selected
+          </Text>
+          {selectedStations.length > 0 && (
+            <Flex gap={1}>
+              {selectedStations.slice(0, 4).map((id) => (
+                <Box
+                  key={id}
+                  w="6px"
+                  h="6px"
+                  borderRadius="full"
+                  bg={getStationColor(id)}
+                />
+              ))}
+              {selectedStations.length > 4 && (
+                <Text fontSize="xs" color="gray.500">
+                  +{selectedStations.length - 4}
+                </Text>
+              )}
+            </Flex>
+          )}
+        </Flex>
+      </Box>
     </Box>
   )
 }
