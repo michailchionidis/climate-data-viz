@@ -2,14 +2,14 @@
  * Interactive chart panel using Plotly.js
  * Premium visualization with smooth animations and rich tooltips
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Box, Text, Flex } from '@chakra-ui/react'
 import Plot from 'react-plotly.js'
 import type { Data, Layout } from 'plotly.js'
 import { Card, CardHeader, CardBody } from './ui/Card'
 import { EmptyState } from './ui/EmptyState'
 import { LoadingState } from './ui/LoadingState'
-import { ExportButton } from './ExportButton'
+import { ExportMenu } from './ExportMenu'
 import { LineChartIcon, InfoIcon } from './ui/Icons'
 import { STATION_COLORS, getChartTheme } from '../theme'
 import { useTheme } from '../context/ThemeContext'
@@ -36,6 +36,7 @@ export function ChartPanel({
 }: ChartPanelProps) {
   const { colorMode, colors } = useTheme()
   const chartTheme = getChartTheme(colorMode)
+  const chartContainerRef = useRef<HTMLDivElement>(null)
 
   const cardHeight = fillHeight ? '100%' : 'auto'
   const chartMinHeight = fillHeight ? '200px' : '450px'
@@ -279,17 +280,18 @@ export function ChartPanel({
             <Text fontSize="2xs" color={colors.textMuted} fontFamily="mono">
               {dataPointCount}
             </Text>
-            {/* Export button */}
-            <ExportButton
+            {/* Export menu */}
+            <ExportMenu
               monthlyData={monthlyData}
               annualData={annualData}
               mode={mode}
+              chartRef={chartContainerRef}
             />
           </Flex>
         </Flex>
       </CardHeader>
 
-      <Box flex={1} minH={chartMinHeight} p={1}>
+      <Box ref={chartContainerRef} flex={1} minH={chartMinHeight} p={1}>
         <Plot
           data={traces}
           layout={layout}
