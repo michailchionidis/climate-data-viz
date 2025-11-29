@@ -12,11 +12,13 @@ import { STATION_COLORS } from '../theme'
 interface StationSelectorProps {
   selectedStations: string[]
   onSelectionChange: (stations: string[]) => void
+  compact?: boolean
 }
 
 export function StationSelector({
   selectedStations,
   onSelectionChange,
+  compact = false,
 }: StationSelectorProps) {
   const { data: stations, isLoading, error } = useStations()
   const [searchQuery, setSearchQuery] = useState('')
@@ -61,17 +63,18 @@ export function StationSelector({
 
   if (isLoading) {
     return (
-      <Box>
-        <SectionHeader title="Weather Stations" />
+      <Box h="100%" display="flex" flexDirection="column">
+        <SectionHeader title="Weather Stations" compact={compact} />
         <Flex
           direction="column"
           align="center"
           justify="center"
-          py={8}
-          gap={3}
+          py={compact ? 4 : 8}
+          gap={2}
+          flex={1}
         >
-          <Spinner size="lg" color="cyan.400" />
-          <Text fontSize="sm" color="gray.400">
+          <Spinner size={compact ? 'md' : 'lg'} color="cyan.400" />
+          <Text fontSize="xs" color="gray.400">
             Loading stations...
           </Text>
         </Flex>
@@ -81,10 +84,10 @@ export function StationSelector({
 
   if (error) {
     return (
-      <Box>
-        <SectionHeader title="Weather Stations" />
+      <Box h="100%" display="flex" flexDirection="column">
+        <SectionHeader title="Weather Stations" compact={compact} />
         <Box
-          p={4}
+          p={compact ? 2 : 4}
           bg="rgba(239, 68, 68, 0.1)"
           borderRadius="8px"
           borderWidth="1px"
@@ -92,7 +95,7 @@ export function StationSelector({
         >
           <Flex align="center" gap={2}>
             <AlertIcon size="sm" color="#ef4444" />
-            <Text color="red.400" fontSize="sm">
+            <Text color="red.400" fontSize="xs">
               Failed to load stations. Please refresh.
             </Text>
           </Flex>
@@ -102,12 +105,13 @@ export function StationSelector({
   }
 
   return (
-    <Box>
+    <Box h="100%" display="flex" flexDirection="column">
       <SectionHeader
         title="Weather Stations"
+        compact={compact}
         action={
           <Text
-            fontSize="xs"
+            fontSize="2xs"
             color="cyan.400"
             cursor="pointer"
             onClick={handleSelectAll}
@@ -115,21 +119,21 @@ export function StationSelector({
             transition="color 0.15s"
             fontWeight="500"
           >
-            {selectedStations.length === stations?.length ? 'Clear all' : 'Select all'}
+            {selectedStations.length === stations?.length ? 'Clear' : 'All'}
           </Text>
         }
       />
 
       {/* Search input */}
-      <Box mb={3}>
+      <Box mb={compact ? 2 : 3} flexShrink={0}>
         <Input
-          size="sm"
-          placeholder="Search stations..."
+          size="xs"
+          placeholder="Search..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           bg="rgba(255, 255, 255, 0.03)"
           borderColor="rgba(255, 255, 255, 0.1)"
-          borderRadius="8px"
+          borderRadius="6px"
           _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
           _focus={{
             borderColor: 'rgba(6, 182, 212, 0.5)',
@@ -139,32 +143,33 @@ export function StationSelector({
         />
       </Box>
 
-      {/* Station list */}
+      {/* Station list - flex grow to fill available space */}
       <Box
-        maxH="260px"
+        flex={1}
+        minH={0}
         overflowY="auto"
         css={{
           '&::-webkit-scrollbar': {
-            width: '6px',
+            width: '4px',
           },
           '&::-webkit-scrollbar-track': {
             background: 'rgba(255,255,255,0.03)',
-            borderRadius: '3px',
+            borderRadius: '2px',
           },
           '&::-webkit-scrollbar-thumb': {
             background: 'rgba(255,255,255,0.15)',
-            borderRadius: '3px',
+            borderRadius: '2px',
           },
           '&::-webkit-scrollbar-thumb:hover': {
             background: 'rgba(255,255,255,0.25)',
           },
         }}
       >
-        <Flex direction="column" gap={1}>
+        <Flex direction="column" gap={0.5}>
           {filteredStations.length === 0 ? (
-            <Box py={4} textAlign="center">
-              <Text color="gray.500" fontSize="sm">
-                No stations match "{searchQuery}"
+            <Box py={2} textAlign="center">
+              <Text color="gray.500" fontSize="xs">
+                No match for "{searchQuery}"
               </Text>
             </Box>
           ) : (
@@ -176,9 +181,9 @@ export function StationSelector({
                 <Flex
                   key={station.id}
                   align="center"
-                  gap={3}
-                  p={2.5}
-                  borderRadius="8px"
+                  gap={2}
+                  p={compact ? 1.5 : 2.5}
+                  borderRadius="6px"
                   cursor="pointer"
                   bg={isSelected ? `${color}15` : 'transparent'}
                   borderWidth="1px"
@@ -191,15 +196,15 @@ export function StationSelector({
                   transition="all 0.15s ease"
                   style={{
                     opacity: 0,
-                    animation: 'fadeInUp 0.3s ease-out forwards',
-                    animationDelay: `${idx * 0.03}s`,
+                    animation: 'fadeInUp 0.2s ease-out forwards',
+                    animationDelay: `${idx * 0.02}s`,
                   }}
                 >
                   {/* Custom checkbox */}
                   <Box
-                    w="18px"
-                    h="18px"
-                    borderRadius="5px"
+                    w={compact ? '14px' : '18px'}
+                    h={compact ? '14px' : '18px'}
+                    borderRadius="4px"
                     borderWidth="2px"
                     borderColor={isSelected ? color : 'rgba(255, 255, 255, 0.2)'}
                     bg={isSelected ? color : 'transparent'}
@@ -217,7 +222,7 @@ export function StationSelector({
                   {/* Station info */}
                   <Box flex={1} minW={0}>
                     <Text
-                      fontSize="sm"
+                      fontSize={compact ? 'xs' : 'sm'}
                       fontWeight="500"
                       color={isSelected ? 'white' : 'gray.300'}
                       css={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
@@ -229,11 +234,11 @@ export function StationSelector({
                   {/* Color indicator */}
                   {isSelected && (
                     <Box
-                      w="8px"
-                      h="8px"
+                      w="6px"
+                      h="6px"
                       borderRadius="full"
                       bg={color}
-                      boxShadow={`0 0 8px ${color}`}
+                      boxShadow={`0 0 6px ${color}`}
                       flexShrink={0}
                     />
                   )}
@@ -246,28 +251,29 @@ export function StationSelector({
 
       {/* Selection count */}
       <Box
-        mt={3}
-        pt={3}
+        mt={2}
+        pt={2}
         borderTopWidth="1px"
         borderColor="rgba(255, 255, 255, 0.06)"
+        flexShrink={0}
       >
         <Flex justify="space-between" align="center">
-          <Text fontSize="xs" color="gray.500">
-            {selectedStations.length} of {stations?.length || 0} selected
+          <Text fontSize="2xs" color="gray.500">
+            {selectedStations.length}/{stations?.length || 0} selected
           </Text>
           {selectedStations.length > 0 && (
-            <Flex gap={1}>
+            <Flex gap={0.5}>
               {selectedStations.slice(0, 4).map((id) => (
                 <Box
                   key={id}
-                  w="6px"
-                  h="6px"
+                  w="5px"
+                  h="5px"
                   borderRadius="full"
                   bg={getStationColor(id)}
                 />
               ))}
               {selectedStations.length > 4 && (
-                <Text fontSize="xs" color="gray.500">
+                <Text fontSize="2xs" color="gray.500">
                   +{selectedStations.length - 4}
                 </Text>
               )}

@@ -15,6 +15,7 @@ interface StatCardProps extends Omit<BoxProps, 'animationDelay'> {
   size?: 'sm' | 'md' | 'lg'
   animate?: boolean
   animationDelay?: number
+  compact?: boolean
 }
 
 const colorMap = {
@@ -73,6 +74,7 @@ export function StatCard({
   size = 'md',
   animate = false,
   animationDelay = 0,
+  compact = false,
   ...props
 }: StatCardProps) {
   const colors = colorMap[color]
@@ -97,6 +99,49 @@ export function StatCard({
         animationDelay: `${animationDelay}s`,
       }
     : {}
+
+  // Compact mode: inline horizontal layout
+  if (compact) {
+    return (
+      <Box
+        px={2.5}
+        py={1.5}
+        bg="rgba(255, 255, 255, 0.03)"
+        borderRadius="8px"
+        borderWidth="1px"
+        borderColor="rgba(255, 255, 255, 0.08)"
+        transition="all 0.2s ease"
+        _hover={{
+          bg: 'rgba(255, 255, 255, 0.05)',
+          borderColor: colors.border,
+        }}
+        {...props}
+      >
+        <Flex align="center" gap={1.5}>
+          {icon && (
+            <Box color={colors.text} flexShrink={0}>
+              {icon}
+            </Box>
+          )}
+          <Box>
+            <Text fontSize="2xs" color="gray.500" textTransform="uppercase" letterSpacing="wider" fontWeight="500" lineHeight="1">
+              {label}
+            </Text>
+            <Flex align="baseline" gap={1}>
+              <Text fontSize="sm" fontWeight="700" color={colors.text} fontFamily="mono" lineHeight="1.2">
+                {value}
+              </Text>
+              {subValue && (
+                <Text fontSize="2xs" color="gray.500">
+                  {subValue}
+                </Text>
+              )}
+            </Flex>
+          </Box>
+        </Flex>
+      </Box>
+    )
+  }
 
   return (
     <Box
@@ -165,8 +210,24 @@ export function StatCard({
 }
 
 // Skeleton loading state for StatCard
-export function StatCardSkeleton({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+export function StatCardSkeleton({ size = 'md', compact = false }: { size?: 'sm' | 'md' | 'lg'; compact?: boolean }) {
   const sizes = sizeMap[size]
+
+  if (compact) {
+    return (
+      <Box
+        px={2.5}
+        py={1.5}
+        bg="rgba(255, 255, 255, 0.03)"
+        borderRadius="8px"
+        borderWidth="1px"
+        borderColor="rgba(255, 255, 255, 0.08)"
+      >
+        <Box h="8px" w="40px" bg="rgba(255, 255, 255, 0.05)" borderRadius="2px" mb={1} className="animate-shimmer" />
+        <Box h="14px" w="50px" bg="rgba(255, 255, 255, 0.05)" borderRadius="2px" className="animate-shimmer" />
+      </Box>
+    )
+  }
 
   return (
     <Box

@@ -8,6 +8,7 @@ interface SectionHeaderProps {
   badge?: string | number
   badgeColor?: 'cyan' | 'orange' | 'green' | 'purple'
   action?: React.ReactNode
+  compact?: boolean
 }
 
 const badgeColors = {
@@ -22,14 +23,15 @@ export function SectionHeader({
   badge,
   badgeColor = 'cyan',
   action,
+  compact = false,
 }: SectionHeaderProps) {
   const colors = badgeColors[badgeColor]
 
   return (
-    <Flex justify="space-between" align="center" mb={4}>
-      <Flex align="center" gap={3}>
+    <Flex justify="space-between" align="center" mb={compact ? 2 : 4}>
+      <Flex align="center" gap={compact ? 2 : 3}>
         <Text
-          fontSize="sm"
+          fontSize={compact ? 'xs' : 'sm'}
           fontWeight="600"
           color="gray.300"
           textTransform="uppercase"
@@ -39,14 +41,14 @@ export function SectionHeader({
         </Text>
         {badge !== undefined && (
           <Box
-            px={2}
+            px={compact ? 1.5 : 2}
             py={0.5}
             bg={colors.bg}
             borderRadius="full"
             borderWidth="1px"
             borderColor={colors.border}
           >
-            <Text fontSize="xs" color={colors.text} fontFamily="mono" fontWeight="600">
+            <Text fontSize={compact ? '2xs' : 'xs'} color={colors.text} fontFamily="mono" fontWeight="600">
               {badge}
             </Text>
           </Box>
