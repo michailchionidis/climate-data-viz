@@ -152,6 +152,18 @@ docker compose run --rm frontend-test
 
 ### Local Development
 
+#### Setup Pre-commit Hooks (Recommended)
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install hooks (runs automatically before each commit)
+pre-commit install
+
+# Run manually on all files
+pre-commit run --all-files
+```
+
 #### Backend
 ```bash
 cd backend
@@ -162,6 +174,10 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
 pip install -e ".[dev]"
+
+# Run linting
+ruff check app tests
+ruff format app tests
 
 # Run tests with coverage
 pytest --cov=app --cov-report=term-missing
@@ -316,4 +332,3 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 Built with ❤️ for Tesla's Full Stack Engineering assessment.
-

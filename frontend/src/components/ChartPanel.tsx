@@ -88,7 +88,7 @@ export function ChartPanel({
   if (mode === 'monthly' && monthlyData) {
     monthlyData.stations.forEach((station, idx) => {
       const color = STATION_COLORS[idx % STATION_COLORS.length]
-      
+
       // Convert to x-axis labels (year-month)
       const x = station.data.map((d) => `${d.year}-${String(d.month).padStart(2, '0')}`)
       const y = station.data.map((d) => d.temperature ?? NaN)
@@ -106,7 +106,7 @@ export function ChartPanel({
   } else if (mode === 'annual' && annualData) {
     annualData.stations.forEach((station, idx) => {
       const color = STATION_COLORS[idx % STATION_COLORS.length]
-      
+
       const x = station.data.map((d) => d.year)
       const yMean = station.data.map((d) => d.mean)
       const yUpper = station.data.map((d) => d.upper_bound)
@@ -125,7 +125,7 @@ export function ChartPanel({
           showlegend: false,
           hoverinfo: 'skip',
         })
-        
+
         // Lower bound with fill to previous trace
         traces.push({
           type: 'scatter',
@@ -219,13 +219,13 @@ export function ChartPanel({
           {showSigmaBounds && mode === 'annual' && ' (with ±1σ)'}
         </Text>
         <Text fontSize="xs" color="gray.500">
-          {mode === 'monthly' 
+          {mode === 'monthly'
             ? `${monthlyData?.total_points.toLocaleString()} data points`
             : `${annualData?.total_years} years`
           }
         </Text>
       </Flex>
-      
+
       <Box h="450px" p={2}>
         <Plot
           data={traces}
@@ -238,4 +238,3 @@ export function ChartPanel({
     </Box>
   )
 }
-

@@ -228,4 +228,3 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations }: Analy
     </Box>
   )
 }
-

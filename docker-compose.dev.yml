@@ -26,8 +26,7 @@ services:
 
   # Note: For frontend development, run `npm run dev` locally
   # This provides better hot reload experience with Vite
-  
+
 networks:
   default:
     name: climate-viz-network-dev
-

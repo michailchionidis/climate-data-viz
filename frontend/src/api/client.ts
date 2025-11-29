@@ -60,7 +60,7 @@ export async function getMonthlyData(
   const queryParams = new URLSearchParams({
     stations: params.stations.join(','),
   })
-  
+
   if (params.yearFrom) {
     queryParams.set('year_from', params.yearFrom.toString())
   }
@@ -80,7 +80,7 @@ export async function getAnnualData(
   const queryParams = new URLSearchParams({
     stations: params.stations.join(','),
   })
-  
+
   if (params.yearFrom) {
     queryParams.set('year_from', params.yearFrom.toString())
   }
@@ -100,7 +100,7 @@ export async function getAnalytics(
   const queryParams = new URLSearchParams({
     stations: params.stations.join(','),
   })
-  
+
   if (params.yearFrom) {
     queryParams.set('year_from', params.yearFrom.toString())
   }
@@ -118,4 +118,3 @@ export async function healthCheck(): Promise<{ status: string }> {
   const response = await apiClient.get<{ status: string }>('/health')
   return response.data
 }
-

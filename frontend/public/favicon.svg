@@ -8,4 +8,3 @@
   <circle cx="50" cy="50" r="45" fill="url(#grad)"/>
   <text x="50" y="65" font-size="45" text-anchor="middle" fill="white">🌡️</text>
 </svg>
-
