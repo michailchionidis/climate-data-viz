@@ -237,6 +237,25 @@ function App() {
                     title="Weather Stations"
                     badge={`${selectedStations.length}/${stations?.length || 0}`}
                     defaultOpen={true}
+                    action={
+                      <Text
+                        fontSize="2xs"
+                        color={cyanAccent}
+                        cursor="pointer"
+                        onClick={() => {
+                          if (selectedStations.length === (stations?.length || 0)) {
+                            handleStationChange([])
+                          } else {
+                            handleStationChange(stations?.map((s) => s.id) || [])
+                          }
+                        }}
+                        _hover={{ opacity: 0.8 }}
+                        transition="opacity 0.15s"
+                        fontWeight="500"
+                      >
+                        {selectedStations.length === (stations?.length || 0) ? 'Clear' : 'All'}
+                      </Text>
+                    }
                   >
                     <Box maxH="250px" overflow="auto">
                       <StationSelector
