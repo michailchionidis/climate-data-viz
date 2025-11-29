@@ -14,12 +14,13 @@ Tests cover:
 
 import pytest
 
-from app.services.analytics import (
+from app.domains.analytics import (
     analytics_service,
     compute_annual_mean,
     compute_annual_std,
     compute_sigma_bounds,
 )
+from app.domains.climate_data import climate_data_service
 
 
 class TestComputeAnnualMean:
@@ -132,12 +133,14 @@ class TestComputeSigmaBounds:
         assert upper == -7.0
 
 
-class TestAnalyticsServiceMonthly:
-    """Tests for AnalyticsService.get_monthly_data method."""
+class TestClimateDataServiceMonthly:
+    """Tests for ClimateDataService.get_monthly_data method."""
 
     def test_monthly_data_single_station(self, valid_station_ids: list[str]) -> None:
         """Should return monthly data for a single station."""
-        result = analytics_service.get_monthly_data(station_ids=[valid_station_ids[0]])
+        result = climate_data_service.get_monthly_data(
+            station_ids=[valid_station_ids[0]]
+        )
 
         assert len(result.stations) == 1
         assert result.stations[0].station_id == valid_station_ids[0]
@@ -146,13 +149,13 @@ class TestAnalyticsServiceMonthly:
 
     def test_monthly_data_multiple_stations(self, valid_station_ids: list[str]) -> None:
         """Should return monthly data for multiple stations."""
-        result = analytics_service.get_monthly_data(station_ids=valid_station_ids)
+        result = climate_data_service.get_monthly_data(station_ids=valid_station_ids)
 
         assert len(result.stations) == len(valid_station_ids)
 
     def test_monthly_data_with_year_filter(self, valid_station_ids: list[str]) -> None:
         """Should filter data by year range."""
-        result = analytics_service.get_monthly_data(
+        result = climate_data_service.get_monthly_data(
             station_ids=[valid_station_ids[0]],
             year_from=2000,
             year_to=2010,
@@ -164,7 +167,7 @@ class TestAnalyticsServiceMonthly:
 
     def test_monthly_data_point_structure(self, valid_station_ids: list[str]) -> None:
         """Should return properly structured data points."""
-        result = analytics_service.get_monthly_data(
+        result = climate_data_service.get_monthly_data(
             station_ids=[valid_station_ids[0]],
             year_from=2000,
             year_to=2000,
@@ -182,12 +185,12 @@ class TestAnalyticsServiceMonthly:
         )
 
 
-class TestAnalyticsServiceAnnual:
-    """Tests for AnalyticsService.get_annual_data method."""
+class TestClimateDataServiceAnnual:
+    """Tests for ClimateDataService.get_annual_data method."""
 
     def test_annual_data_structure(self, valid_station_ids: list[str]) -> None:
         """Should return properly structured annual data."""
-        result = analytics_service.get_annual_data(
+        result = climate_data_service.get_annual_data(
             station_ids=[valid_station_ids[0]],
             year_from=2000,
             year_to=2010,
@@ -205,7 +208,7 @@ class TestAnalyticsServiceAnnual:
 
     def test_annual_data_sigma_bounds(self, valid_station_ids: list[str]) -> None:
         """Should compute correct ±1σ bounds."""
-        result = analytics_service.get_annual_data(
+        result = climate_data_service.get_annual_data(
             station_ids=[valid_station_ids[0]],
             year_from=2000,
             year_to=2000,
@@ -220,12 +223,12 @@ class TestAnalyticsServiceAnnual:
 
     def test_annual_data_reduces_points(self, valid_station_ids: list[str]) -> None:
         """Annual data should have ~12x fewer points than monthly."""
-        monthly = analytics_service.get_monthly_data(
+        monthly = climate_data_service.get_monthly_data(
             station_ids=[valid_station_ids[0]],
             year_from=2000,
             year_to=2010,
         )
-        annual = analytics_service.get_annual_data(
+        annual = climate_data_service.get_annual_data(
             station_ids=[valid_station_ids[0]],
             year_from=2000,
             year_to=2010,

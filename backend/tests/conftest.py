@@ -3,8 +3,8 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from app.domains.shared import data_service
 from app.main import app
-from app.services.data_loader import data_service
 
 
 @pytest.fixture(scope="session", autouse=True)
