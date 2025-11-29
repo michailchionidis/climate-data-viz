@@ -23,6 +23,8 @@ interface ChartPanelProps {
   isLoading: boolean
   selectedStations: string[]
   fillHeight?: boolean
+  /** Used to trigger chart resize when container changes */
+  containerKey?: string | number
 }
 
 export function ChartPanel({
@@ -33,10 +35,29 @@ export function ChartPanel({
   isLoading,
   selectedStations,
   fillHeight = false,
+  containerKey,
 }: ChartPanelProps) {
   const { colorMode, colors } = useTheme()
   const chartTheme = getChartTheme(colorMode)
   const chartContainerRef = useRef<HTMLDivElement>(null)
+  const [revision, setRevision] = useState(0)
+  const [isResizing, setIsResizing] = useState(false)
+  const prevContainerKey = useRef(containerKey)
+
+  // Trigger chart re-render when container changes (e.g., sidebar collapse)
+  useEffect(() => {
+    if (containerKey !== undefined && prevContainerKey.current !== containerKey) {
+      prevContainerKey.current = containerKey
+      // Show brief loading state to force chart re-render with correct dimensions
+      setIsResizing(true)
+      const timer = setTimeout(() => {
+        setIsResizing(false)
+        setRevision((r) => r + 1)
+        window.dispatchEvent(new Event('resize'))
+      }, 350) // Match sidebar transition duration
+      return () => clearTimeout(timer)
+    }
+  }, [containerKey])
 
   const cardHeight = fillHeight ? '100%' : 'auto'
   const chartMinHeight = fillHeight ? '200px' : '450px'
@@ -70,13 +91,13 @@ export function ChartPanel({
     )
   }
 
-  // Loading state
-  if (isLoading) {
+  // Loading state (data loading or resizing)
+  if (isLoading || isResizing) {
     return (
       <Card h={cardHeight} display="flex" flexDirection="column">
         <CardBody p={0} flex={1} display="flex">
           <LoadingState
-            message="Loading temperature data..."
+            message={isResizing ? 'Adjusting layout...' : 'Loading temperature data...'}
             minHeight={chartMinHeight}
             size="lg"
           />
@@ -303,10 +324,11 @@ export function ChartPanel({
       <Box ref={chartContainerRef} flex={1} minH={chartMinHeight} p={1}>
         <Plot
           data={traces}
-          layout={layout}
+          layout={{ ...layout, datarevision: revision }}
           config={config}
           style={{ width: '100%', height: '100%' }}
           useResizeHandler
+          revision={revision}
         />
       </Box>
 
