@@ -68,17 +68,42 @@ export function AnalyticsPanel({
   const { colors, colorMode } = useTheme()
   const warningColor = colorMode === 'light' ? 'orange.600' : 'orange.300'
 
+  // Empty state - show skeleton structure matching final layout
   if (selectedStations.length === 0) {
     return (
       <Card>
         <CardBody py={compact ? 2 : 4}>
-          <EmptyState
-            icon={<BarChartIcon size={compact ? 'lg' : 'xl'} color="#71717a" />}
-            title="No stations selected"
-            description="Select one or more weather stations to view analytics summary"
-            minHeight={compact ? '60px' : '120px'}
+          <SectionHeader
+            title="Analytics Summary"
+            badge="—"
             compact={compact}
           />
+          <Flex gap={6} flexWrap="wrap">
+            {['Min', 'Max', 'Avg', 'Hottest', 'Coldest'].map((label) => (
+              <Box key={label} flex="1" minW="80px">
+                <Text
+                  fontSize="10px"
+                  fontWeight="500"
+                  color={colors.textMuted}
+                  textTransform="uppercase"
+                  letterSpacing="0.05em"
+                  mb={0.5}
+                >
+                  {label}
+                </Text>
+                <Text
+                  fontSize="18px"
+                  fontWeight="600"
+                  color={colors.textMuted}
+                  fontFamily="mono"
+                  letterSpacing="-0.02em"
+                  opacity={0.3}
+                >
+                  —
+                </Text>
+              </Box>
+            ))}
+          </Flex>
         </CardBody>
       </Card>
     )
