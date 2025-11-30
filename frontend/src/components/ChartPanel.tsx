@@ -252,7 +252,7 @@ export function ChartPanel({
   }
 
   const config = {
-    displayModeBar: true,
+    displayModeBar: !isMobile, // Hide modebar on mobile to save space
     displaylogo: false,
     modeBarButtonsToRemove: [
       'toImage', // Hide camera button - we have our own Export PNG in dropdown
