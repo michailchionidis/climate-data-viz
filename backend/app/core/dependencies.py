@@ -8,6 +8,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from app.domains.ai.service import AIService, ai_service
 from app.domains.analytics.service import AnalyticsService, analytics_service
 from app.domains.climate_data.service import ClimateDataService, climate_data_service
 from app.domains.shared.data_service import DataService, data_service
@@ -34,8 +35,14 @@ def get_analytics_service() -> AnalyticsService:
     return analytics_service
 
 
+def get_ai_service() -> AIService:
+    """Get the AIService instance."""
+    return ai_service
+
+
 # Type aliases for dependency injection
 DataServiceDep = Annotated[DataService, Depends(get_data_service)]
 StationsServiceDep = Annotated[StationsService, Depends(get_stations_service)]
 ClimateDataServiceDep = Annotated[ClimateDataService, Depends(get_climate_data_service)]
 AnalyticsServiceDep = Annotated[AnalyticsService, Depends(get_analytics_service)]
+AIServiceDep = Annotated[AIService, Depends(get_ai_service)]

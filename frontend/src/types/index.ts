@@ -105,3 +105,25 @@ export interface PlotlyTrace {
   fillcolor?: string
   hovertemplate?: string
 }
+
+// AI types
+export type InsightType = 'trend' | 'anomaly' | 'comparison' | 'summary' | 'prediction'
+
+export interface AIInsight {
+  type: InsightType
+  title: string
+  description: string
+  confidence: number
+  related_stations: string[]
+}
+
+export interface AIInsightsResponse {
+  insights: AIInsight[]
+  generated_at: string
+  model: string
+}
+
+export interface AIAskResponse {
+  answer: string
+  model: string
+}
