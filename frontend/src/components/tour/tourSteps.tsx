@@ -14,6 +14,8 @@ import {
   FiMaximize2,
   FiMoon,
   FiDownload,
+  FiZap,
+  FiMessageCircle,
 } from 'react-icons/fi'
 import { LuSigma } from 'react-icons/lu'
 import type { TourStep } from './TourContext'
@@ -143,6 +145,49 @@ export const tourSteps: TourStep[] = [
         <Text fontSize="xs" color="gray.400">
           Perfect for presentations or when you need a closer look at the data.
         </Text>
+      </Box>
+    ),
+  },
+  {
+    id: 'ai-insights',
+    target: 'ai-insights-panel',
+    title: <StepTitle icon={<FiZap size={18} />} title="AI-Powered Insights" />,
+    placement: 'left',
+    spotlight: true,
+    content: (
+      <Box>
+        <Text mb="3">
+          Get AI-generated insights about your climate data powered by Grok.
+        </Text>
+        <FeatureList
+          items={[
+            { icon: <FiZap size={14} />, text: 'Click "Generate" for automatic analysis' },
+            { icon: <FiBarChart2 size={14} />, text: 'Discover trends and anomalies' },
+            { icon: <FiMessageCircle size={14} />, text: 'Ask follow-up questions' },
+          ]}
+        />
+      </Box>
+    ),
+  },
+  {
+    id: 'grok-chat',
+    target: 'ask-grok-button',
+    title: <StepTitle icon={<FiMessageCircle size={18} />} title="Chat with Grok" />,
+    placement: 'bottom',
+    spotlight: true,
+    content: (
+      <Box>
+        <Text mb="3">
+          Click "Ask Grok" to open the chat sidebar and ask questions about your data.
+        </Text>
+        <Text fontSize="sm" color="gray.400">
+          Try questions like "What's the warmest year?" or "Compare these stations"
+        </Text>
+        <Flex align="center" gap="2" mt="2">
+          <Text fontSize="xs" color="gray.400">Keyboard shortcut:</Text>
+          <Kbd>G</Kbd>
+          <Text fontSize="xs" color="gray.400">to toggle chat</Text>
+        </Flex>
       </Box>
     ),
   },

@@ -111,11 +111,15 @@ function AppContent() {
         setYearTo(null)
         setZoom({ centerYear: null, windowSize: 10 })
       }
+      // Toggle Grok chat with 'G' key
+      if (e.key === 'g' && !e.metaKey && !e.ctrlKey && selectedStations.length > 0) {
+        setIsChatOpen((prev) => !prev)
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [mode])
+  }, [mode, selectedStations.length])
 
   return (
     <Box
@@ -206,6 +210,7 @@ function AppContent() {
                 {[
                   { key: 'M', label: 'Mode' },
                   { key: 'S', label: '±σ' },
+                  { key: 'G', label: 'Grok' },
                   { key: 'R', label: 'Reset' },
                 ].map(({ key, label }) => (
                   <Box

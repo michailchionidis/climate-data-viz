@@ -19,24 +19,26 @@ interface TargetRect {
 }
 
 function getTargetRect(target: string): TargetRect | null {
-  // Try ID first, then CSS selector
-  let element = document.getElementById(target)
-  if (!element) {
-    element = document.querySelector(target)
-  }
-  if (!element) return null
+  // Find all elements with this ID (there might be duplicates for mobile/desktop)
+  // and return the first one that's visible
+  const elements = document.querySelectorAll(`#${target}, ${target}`)
 
-  // Use getBoundingClientRect for viewport-relative coordinates
-  // This works correctly with position: fixed overlays
-  const rect = element.getBoundingClientRect()
-  return {
-    top: rect.top,
-    left: rect.left,
-    width: rect.width,
-    height: rect.height,
-    bottom: rect.bottom,
-    right: rect.right,
+  for (const element of elements) {
+    const rect = element.getBoundingClientRect()
+    // Check if element is visible (has width and height)
+    if (rect.width > 0 && rect.height > 0) {
+      return {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+        bottom: rect.bottom,
+        right: rect.right,
+      }
+    }
   }
+
+  return null
 }
 
 function getTooltipPosition(
@@ -207,15 +209,26 @@ export function TourTooltip() {
       const tooltipHeight = tooltipRef.current?.offsetHeight || 200
       const pos = getTooltipPosition(rect, step.placement, 360, tooltipHeight, mobile)
       setTooltipPos(pos)
-
-      // Scroll target into view if needed (only on desktop)
-      if (!mobile && rect && step.spotlight !== false) {
-        const element = document.getElementById(step.target) || document.querySelector(step.target)
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
     }
 
+    // Initial update
     updatePosition()
+
+    // Scroll target into view if needed (only on desktop)
+    // Do this after initial position update, then update again after scroll
+    const mobile = window.innerWidth < 768
+    if (!mobile && step.spotlight !== false) {
+      const elements = document.querySelectorAll(`#${step.target}, ${step.target}`)
+      for (const el of elements) {
+        const elRect = el.getBoundingClientRect()
+        if (elRect.width > 0 && elRect.height > 0) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          // Update position again after scroll animation
+          setTimeout(updatePosition, 350)
+          break
+        }
+      }
+    }
 
     // Update on resize
     window.addEventListener('resize', updatePosition)
