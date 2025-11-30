@@ -9,7 +9,7 @@ import type {
   AnalyticsResponse,
   AIInsightsResponse,
   AIAskResponse,
-} from '../types'
+} from '@/shared/types'
 
 // API base URL - uses Vite proxy in development
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1'

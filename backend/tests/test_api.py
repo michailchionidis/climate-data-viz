@@ -271,3 +271,89 @@ class TestErrorHandling:
         assert response.status_code == 422
         data = response.json()
         assert "detail" in data
+
+
+class TestAIInsightsEndpoint:
+    """Tests for /api/v1/ai/insights endpoint."""
+
+    def test_insights_requires_stations(self, client: TestClient) -> None:
+        """Should return 422 when station_ids is empty."""
+        response = client.post("/api/v1/ai/insights", json={"station_ids": []})
+        assert response.status_code == 422
+
+    def test_insights_validates_station_ids(self, client: TestClient) -> None:
+        """Should return 404 for non-existent stations."""
+        response = client.post(
+            "/api/v1/ai/insights", json={"station_ids": ["NONEXISTENT_STATION"]}
+        )
+        assert response.status_code == 404
+
+    def test_insights_validates_year_range(
+        self, client: TestClient, valid_station_ids: list[str]
+    ) -> None:
+        """Should return 400 when year_from > year_to."""
+        response = client.post(
+            "/api/v1/ai/insights",
+            json={
+                "station_ids": [valid_station_ids[0]],
+                "year_from": 2010,
+                "year_to": 2000,
+            },
+        )
+        assert response.status_code == 400
+
+    def test_insights_accepts_valid_request(
+        self, client: TestClient, valid_station_ids: list[str]
+    ) -> None:
+        """Should accept valid request (may return 503 if API key not set)."""
+        response = client.post(
+            "/api/v1/ai/insights", json={"station_ids": [valid_station_ids[0]]}
+        )
+        # 200 = success, 503 = API key not configured (expected in tests)
+        assert response.status_code in [200, 503]
+
+
+class TestAIAskEndpoint:
+    """Tests for /api/v1/ai/ask endpoint."""
+
+    def test_ask_requires_question(
+        self, client: TestClient, valid_station_ids: list[str]
+    ) -> None:
+        """Should return 422 when question is missing."""
+        response = client.post(
+            "/api/v1/ai/ask", json={"station_ids": [valid_station_ids[0]]}
+        )
+        assert response.status_code == 422
+
+    def test_ask_requires_stations(self, client: TestClient) -> None:
+        """Should return 422 when station_ids is empty."""
+        response = client.post(
+            "/api/v1/ai/ask", json={"question": "What is the trend?", "station_ids": []}
+        )
+        assert response.status_code == 422
+
+    def test_ask_validates_station_ids(self, client: TestClient) -> None:
+        """Should return 404 for non-existent stations."""
+        response = client.post(
+            "/api/v1/ai/ask",
+            json={
+                "question": "What is the trend?",
+                "station_ids": ["NONEXISTENT_STATION"],
+            },
+        )
+        assert response.status_code == 404
+
+    def test_ask_validates_year_range(
+        self, client: TestClient, valid_station_ids: list[str]
+    ) -> None:
+        """Should return 400 when year_from > year_to."""
+        response = client.post(
+            "/api/v1/ai/ask",
+            json={
+                "question": "What is the trend?",
+                "station_ids": [valid_station_ids[0]],
+                "year_from": 2010,
+                "year_to": 2000,
+            },
+        )
+        assert response.status_code == 400
