@@ -5,8 +5,6 @@
 import { Box, Text, Flex } from '@chakra-ui/react'
 import { Card, CardBody } from './ui/Card'
 import { SectionHeader } from './ui/SectionHeader'
-import { EmptyState } from './ui/EmptyState'
-import { BarChartIcon } from './ui/Icons'
 import { useTheme } from '../context/ThemeContext'
 import type { AnalyticsResponse } from '../types'
 

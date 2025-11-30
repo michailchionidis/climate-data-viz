@@ -167,6 +167,85 @@ class GrokClient:
                 provider="grok",
             ) from e
 
+    async def chat_with_history(
+        self,
+        system_prompt: str,
+        messages: list[dict[str, str]],
+        model: str | None = None,
+        temperature: float = 0.7,
+    ) -> str:
+        """Send a chat completion request with conversation history.
+
+        Args:
+            system_prompt: The system message defining AI behavior.
+            messages: List of previous messages (role/content dicts).
+            model: Model to use (defaults to grok-beta).
+            temperature: Creativity parameter (0.0-1.0).
+
+        Returns:
+            The AI's response text.
+
+        Raises:
+            LLMAuthenticationError: If API key is invalid.
+            LLMRateLimitError: If rate limit is exceeded.
+            LLMConnectionError: If connection fails.
+            LLMError: For other API errors.
+        """
+        if not self.api_key:
+            raise LLMAuthenticationError(
+                "Grok API key not configured",
+                provider="grok",
+            )
+
+        client = await self._get_client()
+
+        # Build messages array with system prompt first, then conversation history
+        all_messages = [{"role": "system", "content": system_prompt}]
+        all_messages.extend(messages)
+
+        payload = {
+            "model": model or self.default_model,
+            "messages": all_messages,
+            "temperature": temperature,
+            "stream": False,
+        }
+
+        logger.debug(
+            "Sending chat request with history to Grok",
+            extra={
+                "model": payload["model"],
+                "message_count": len(all_messages),
+                "temperature": temperature,
+            },
+        )
+
+        try:
+            response = await client.post("/chat/completions", json=payload)
+            self._handle_error_response(response)
+
+            data = response.json()
+            content = data["choices"][0]["message"]["content"]
+
+            logger.debug(
+                "Received Grok response",
+                extra={"response_length": len(content)},
+            )
+
+            return content
+
+        except httpx.ConnectError as e:
+            logger.error(f"Connection error to Grok API: {e}")
+            raise LLMConnectionError(
+                f"Failed to connect to Grok API: {e}",
+                provider="grok",
+            ) from e
+        except httpx.TimeoutException as e:
+            logger.error(f"Timeout connecting to Grok API: {e}")
+            raise LLMConnectionError(
+                f"Timeout connecting to Grok API: {e}",
+                provider="grok",
+            ) from e
+
     async def chat_stream(
         self,
         system_prompt: str,

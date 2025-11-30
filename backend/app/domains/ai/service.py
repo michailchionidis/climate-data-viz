@@ -12,12 +12,13 @@ from app.config import settings
 from app.domains.ai.prompts import INSIGHTS_SYSTEM_PROMPT, QA_SYSTEM_PROMPT
 from app.domains.ai.schemas import (
     AskResponse,
+    ChatMessage,
     Insight,
     InsightsResponse,
     InsightType,
 )
 from app.domains.analytics.service import analytics_service
-from app.services.llm.base import LLMClient
+from app.services.llm.base import ChatMessageDict, LLMClient
 from app.services.llm.grok import get_grok_client
 
 logger = logging.getLogger(__name__)
@@ -131,17 +132,20 @@ class AIService:
         station_ids: list[str],
         year_from: int | None = None,
         year_to: int | None = None,
+        conversation_history: list[ChatMessage] | None = None,
     ) -> AskResponse:
         """Answer a question about climate data.
 
         Provides the LLM with relevant data context and the user's
-        question to generate an informed response.
+        question to generate an informed response. Supports conversation
+        history for multi-turn conversations.
 
         Args:
             question: The user's question.
             station_ids: Station IDs for context.
             year_from: Optional start year context.
             year_to: Optional end year context.
+            conversation_history: Previous messages for context.
 
         Returns:
             AskResponse containing the AI's answer.
@@ -151,7 +155,12 @@ class AIService:
         """
         logger.info(
             "Processing AI question",
-            extra={"question_length": len(question)},
+            extra={
+                "question_length": len(question),
+                "history_length": len(conversation_history)
+                if conversation_history
+                else 0,
+            },
         )
 
         # Get analytics context
@@ -163,8 +172,41 @@ class AIService:
 
         context = self._build_context(analytics)
 
-        # Build the prompt with context and question
-        user_message = f"""Here is the climate data context:
+        # Build messages for the conversation
+        if conversation_history:
+            # Include data context in the first user message
+            messages: list[ChatMessageDict] = []
+
+            # Add context as first user message if not already in history
+            context_message = f"""Here is the climate data context:
+
+{context}
+
+I'll be asking questions about this data."""
+
+            messages.append(ChatMessageDict(role="user", content=context_message))
+            messages.append(
+                ChatMessageDict(
+                    role="assistant",
+                    content="I understand. I have the climate data context. Please ask your questions about the data.",
+                )
+            )
+
+            # Add conversation history
+            for msg in conversation_history:
+                messages.append(ChatMessageDict(role=msg.role, content=msg.content))
+
+            # Add current question
+            messages.append(ChatMessageDict(role="user", content=question))
+
+            response = await self.llm_client.chat_with_history(
+                system_prompt=QA_SYSTEM_PROMPT,
+                messages=messages,
+                temperature=0.5,
+            )
+        else:
+            # No history - use simple chat
+            user_message = f"""Here is the climate data context:
 
 {context}
 
@@ -172,11 +214,11 @@ User Question: {question}
 
 Please answer based on the data provided above."""
 
-        response = await self.llm_client.chat(
-            system_prompt=QA_SYSTEM_PROMPT,
-            user_message=user_message,
-            temperature=0.5,  # Lower temperature for factual answers
-        )
+            response = await self.llm_client.chat(
+                system_prompt=QA_SYSTEM_PROMPT,
+                user_message=user_message,
+                temperature=0.5,
+            )
 
         logger.info("Generated AI answer")
 

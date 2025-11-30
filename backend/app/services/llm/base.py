@@ -5,7 +5,14 @@ Using Protocol enables structural subtyping and easy mocking for tests.
 """
 
 from collections.abc import AsyncGenerator
-from typing import Protocol, runtime_checkable
+from typing import Protocol, TypedDict, runtime_checkable
+
+
+class ChatMessageDict(TypedDict):
+    """Type for chat message dictionaries."""
+
+    role: str
+    content: str
 
 
 @runtime_checkable
@@ -37,6 +44,29 @@ class LLMClient(Protocol):
         Args:
             system_prompt: The system message defining AI behavior.
             user_message: The user's message/query.
+            model: Optional model override.
+            temperature: Creativity parameter (0.0-1.0).
+
+        Returns:
+            The AI's response text.
+
+        Raises:
+            LLMError: If the API call fails.
+        """
+        ...
+
+    async def chat_with_history(
+        self,
+        system_prompt: str,
+        messages: list[ChatMessageDict],
+        model: str | None = None,
+        temperature: float = 0.7,
+    ) -> str:
+        """Send a chat completion request with conversation history.
+
+        Args:
+            system_prompt: The system message defining AI behavior.
+            messages: List of previous messages (role/content dicts).
             model: Optional model override.
             temperature: Creativity parameter (0.0-1.0).
 

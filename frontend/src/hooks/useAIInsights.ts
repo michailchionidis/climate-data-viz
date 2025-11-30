@@ -9,6 +9,7 @@ import {
   getAIInsights,
   askGrok,
   type AIInsightsParams,
+  type ChatMessage,
 } from '../api/client'
 import type { AIInsightsResponse, AIAskResponse } from '../types'
 
@@ -70,14 +71,14 @@ export function useGenerateInsights() {
 }
 
 /**
- * Hook for asking questions about the data
+ * Hook for asking questions about the data with conversation history
  *
  * Uses mutation pattern since each question is unique
  * and we want to track loading/error states per question.
  */
 export function useAskGrok(params: AIInsightsParams) {
-  return useMutation<AIAskResponse, Error, string>({
-    mutationFn: (question: string) => askGrok(question, params),
+  return useMutation<AIAskResponse, Error, { question: string; history?: ChatMessage[] }>({
+    mutationFn: ({ question, history }) => askGrok(question, params, history),
     retry: 1,
   })
 }
@@ -113,7 +114,8 @@ export function useAI(
     lastAnswer: askQuestion.data?.answer ?? null,
     isAskingQuestion: askQuestion.isPending,
     askError: askQuestion.error,
-    askQuestion: (question: string) => askQuestion.mutate(question),
+    askQuestion: (question: string, history?: ChatMessage[]) =>
+      askQuestion.mutate({ question, history }),
 
     // Combined state
     isLoading: generateInsights.isPending || askQuestion.isPending,
