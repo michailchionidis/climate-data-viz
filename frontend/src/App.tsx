@@ -52,6 +52,9 @@ function AppContent() {
     setIsChatOpen(false)
   }, [])
 
+  // Track AI Insights expansion state for chart re-render
+  const [isAIInsightsExpanded, setIsAIInsightsExpanded] = useState(false)
+
   // Trigger entrance animation
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 100)
@@ -392,8 +395,9 @@ function AppContent() {
           />
 
           {/* Main Content Area - Scrollable */}
-          <Box
+          <Flex
             flex={1}
+            direction="column"
             overflow="auto"
             opacity={isLoaded ? 1 : 0}
             transform={isLoaded ? 'translateY(0)' : 'translateY(20px)'}
@@ -414,7 +418,7 @@ function AppContent() {
               },
             }}
           >
-            <Flex direction="column" gap={3} pb={3}>
+            <Flex direction="column" gap={3} flex={1}>
               {/* Analytics Summary */}
               <Box flexShrink={0}>
                 <ErrorBoundary>
@@ -435,12 +439,13 @@ function AppContent() {
                     yearFrom={yearFrom}
                     yearTo={yearTo}
                     onOpenChat={openChat}
+                    onExpandChange={setIsAIInsightsExpanded}
                   />
                 </ErrorBoundary>
               </Box>
 
-              {/* Chart - Fixed height when content overflows */}
-              <Box minH="500px" id="chart-section-desktop" tabIndex={-1}>
+              {/* Chart - Expands to fill available space */}
+              <Box flex={1} minH="400px" id="chart-section-desktop" tabIndex={-1}>
                 <ErrorBoundary>
                   <ChartPanel
                     monthlyData={monthlyData}
@@ -450,12 +455,12 @@ function AppContent() {
                     isLoading={isLoading}
                     selectedStations={selectedStations}
                     fillHeight
-                    containerKey={`desktop-${isSidebarCollapsed ? 'collapsed' : 'expanded'}-${isChatOpen ? 'chat' : 'nochat'}-${colorMode}-${mode}`}
+                    containerKey={`desktop-${isSidebarCollapsed ? 'collapsed' : 'expanded'}-${isChatOpen ? 'chat' : 'nochat'}-${colorMode}-${mode}-ai${isAIInsightsExpanded ? 'open' : 'closed'}`}
                   />
                 </ErrorBoundary>
               </Box>
             </Flex>
-          </Box>
+          </Flex>
 
           {/* Chat Sidebar - Right side */}
           <ChatSidebar

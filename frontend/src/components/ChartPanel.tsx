@@ -86,17 +86,46 @@ export function ChartPanel({
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Empty state
+  // Empty state - minimal, matches final layout structure
   if (selectedStations.length === 0) {
     return (
       <Card h={cardHeight} display="flex" flexDirection="column">
-        <CardBody p={0} flex={1} display="flex">
-          <EmptyState
-            icon={<LineChartIcon size="xl" color="#71717a" />}
-            title="Select stations to visualize"
-            description="Choose one or more weather stations from the panel on the left to see temperature trends"
-            minHeight={chartMinHeight}
-          />
+        <CardHeader showBorder={false}>
+          <Flex justify="space-between" align="center">
+            <Flex align="center" gap={2}>
+              <Box color={colors.textMuted}>
+                <FiChevronDown size={14} />
+              </Box>
+              <Text
+                fontSize={fillHeight ? 'xs' : 'sm'}
+                fontWeight="600"
+                color={colors.textSecondary}
+                textTransform="uppercase"
+                letterSpacing="wide"
+              >
+                Annual Averages
+              </Text>
+              <Text
+                fontSize="2xs"
+                color={colors.textMuted}
+                fontFamily="mono"
+                letterSpacing="0.02em"
+              >
+                —
+              </Text>
+            </Flex>
+          </Flex>
+        </CardHeader>
+        <CardBody p={0} flex={1} display="flex" alignItems="center" justifyContent="center">
+          <Flex direction="column" align="center" textAlign="center" py={8}>
+            <LineChartIcon size="lg" color={colors.textMuted} />
+            <Text fontSize="13px" fontWeight="500" color={colors.textSecondary} mt={3}>
+              Select stations to visualize
+            </Text>
+            <Text fontSize="12px" color={colors.textMuted} mt={1}>
+              Choose weather stations from the sidebar
+            </Text>
+          </Flex>
         </CardBody>
       </Card>
     )

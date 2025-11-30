@@ -19,6 +19,7 @@ interface AIInsightsPanelProps {
   yearFrom: number | null
   yearTo: number | null
   onOpenChat?: () => void
+  onExpandChange?: (expanded: boolean) => void
 }
 
 export function AIInsightsPanel({
@@ -26,6 +27,7 @@ export function AIInsightsPanel({
   yearFrom,
   yearTo,
   onOpenChat,
+  onExpandChange,
 }: AIInsightsPanelProps) {
   const { colors } = useTheme()
   const [isExpanded, setIsExpanded] = useState(false)
@@ -44,8 +46,12 @@ export function AIInsightsPanel({
   }, [generateInsights])
 
   const toggleExpanded = useCallback(() => {
-    setIsExpanded((prev) => !prev)
-  }, [])
+    setIsExpanded((prev) => {
+      const newValue = !prev
+      onExpandChange?.(newValue)
+      return newValue
+    })
+  }, [onExpandChange])
 
   // Don't render if no stations selected
   if (stations.length === 0) {
@@ -155,37 +161,19 @@ export function AIInsightsPanel({
           {/* Empty state */}
           {!hasInsights && !isGeneratingInsights && !insightsError && (
             <Box textAlign="center" py={6}>
-              <Box
-                position="relative"
+              <Flex
                 w="48px"
                 h="48px"
                 mx="auto"
                 mb={3}
+                align="center"
+                justify="center"
+                borderRadius="full"
+                border="1px solid"
+                borderColor={colors.border}
               >
-                {/* Glow ring */}
-                <Box
-                  position="absolute"
-                  inset={0}
-                  borderRadius="full"
-                  bg={`${colors.accentCyan}08`}
-                  border="1px solid"
-                  borderColor={`${colors.accentCyan}20`}
-                />
-                {/* Inner circle with icon */}
-                <Flex
-                  position="absolute"
-                  inset="6px"
-                  align="center"
-                  justify="center"
-                  borderRadius="full"
-                  bg={`${colors.accentCyan}15`}
-                  border="1px solid"
-                  borderColor={`${colors.accentCyan}30`}
-                  color={colors.accentCyan}
-                >
-                  <FiZap size={16} />
-                </Flex>
-              </Box>
+                <FiZap size={18} color={colors.textMuted} />
+              </Flex>
               <Text fontSize="13px" fontWeight="500" color={colors.text} mb={1}>
                 Get AI-powered insights
               </Text>

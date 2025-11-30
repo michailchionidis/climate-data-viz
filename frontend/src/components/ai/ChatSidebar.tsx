@@ -4,7 +4,7 @@
  */
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { Box, Flex, Text, Textarea, Spinner } from '@chakra-ui/react'
-import { FiSend, FiX } from 'react-icons/fi'
+import { FiSend, FiChevronRight } from 'react-icons/fi'
 import { useTheme } from '../../context/ThemeContext'
 import { GrokIcon } from '../ui/GrokIcon'
 import { useAskGrok } from '../../hooks/useAIInsights'
@@ -116,18 +116,13 @@ export function ChatSidebar({
     }
   }, [inputValue])
 
-  // Don't render anything if closed
-  if (!isOpen) {
-    return null
-  }
-
   return (
     <>
       {/* Sidebar Container - mirrors Filters sidebar structure */}
       <Box
         position="relative"
-        w="320px"
-        minW="320px"
+        w={isOpen ? '320px' : '0px'}
+        minW={isOpen ? '320px' : '0px'}
         h="100%"
         transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         overflow="hidden"
@@ -142,6 +137,9 @@ export function ChatSidebar({
           display="flex"
           flexDirection="column"
           overflow="hidden"
+          opacity={isOpen ? 1 : 0}
+          transform={isOpen ? 'translateX(0)' : 'translateX(20px)'}
+          transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         >
           {/* Sidebar Header */}
           <Flex
@@ -169,9 +167,8 @@ export function ChatSidebar({
             <Box
               as="button"
               onClick={onClose}
-              p={1.5}
-              borderRadius="6px"
-              bg={colors.buttonBg}
+              p={1}
+              borderRadius="4px"
               color={colors.textMuted}
               _hover={{
                 bg: colors.buttonHover,
@@ -179,9 +176,9 @@ export function ChatSidebar({
               }}
               transition="all 0.15s"
               cursor="pointer"
-              title="Close chat"
+              title="Collapse chat"
             >
-              <FiX size={14} />
+              <FiChevronRight size={14} />
             </Box>
           </Flex>
 
@@ -216,35 +213,18 @@ export function ChatSidebar({
                 textAlign="center"
                 py={8}
               >
-                <Box
-                  position="relative"
+                <Flex
                   w="48px"
                   h="48px"
                   mb={3}
+                  align="center"
+                  justify="center"
+                  borderRadius="full"
+                  border="1px solid"
+                  borderColor={colors.border}
                 >
-                  {/* Glow ring */}
-                  <Box
-                    position="absolute"
-                    inset={0}
-                    borderRadius="full"
-                    bg={`${colors.accentCyan}08`}
-                    border="1px solid"
-                    borderColor={`${colors.accentCyan}20`}
-                  />
-                  {/* Inner circle with Grok icon */}
-                  <Flex
-                    position="absolute"
-                    inset="6px"
-                    align="center"
-                    justify="center"
-                    borderRadius="full"
-                    bg={`${colors.accentCyan}15`}
-                    border="1px solid"
-                    borderColor={`${colors.accentCyan}30`}
-                  >
-                    <GrokIcon size={16} color={colors.accentCyan} />
-                  </Flex>
-                </Box>
+                  <GrokIcon size={18} color={colors.textMuted} />
+                </Flex>
                 <Text fontSize="sm" fontWeight="500" color={colors.text} mb={1}>
                   Ask anything about your data
                 </Text>

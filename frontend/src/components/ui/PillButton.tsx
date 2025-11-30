@@ -35,9 +35,14 @@ export function PillButton({
   title,
   fullWidth = false,
 }: PillButtonProps) {
-  const { colors } = useTheme()
+  const { colors, colorMode } = useTheme()
 
   const isDisabled = disabled || isLoading
+
+  // Monochromatic primary colors based on theme
+  const primaryBg = colorMode === 'light' ? '#1a1a1a' : 'rgba(255, 255, 255, 0.95)'
+  const primaryText = colorMode === 'light' ? 'white' : '#0a0a0a'
+  const primaryHoverBg = colorMode === 'light' ? '#333333' : 'rgba(255, 255, 255, 0.85)'
 
   const sizeStyles = {
     xs: {
@@ -69,11 +74,11 @@ export function PillButton({
       hoverBorderColor: colors.textMuted,
     },
     primary: {
-      color: isDisabled ? colors.textMuted : colors.text,
-      bg: `${colors.accentCyan}10`,
-      borderColor: `${colors.accentCyan}30`,
-      hoverBg: `${colors.accentCyan}20`,
-      hoverBorderColor: colors.accentCyan,
+      color: isDisabled ? colors.textMuted : primaryText,
+      bg: isDisabled ? 'transparent' : primaryBg,
+      borderColor: isDisabled ? colors.border : primaryBg,
+      hoverBg: primaryHoverBg,
+      hoverBorderColor: primaryHoverBg,
     },
     warning: {
       color: isDisabled ? colors.textMuted : '#fbbf24',

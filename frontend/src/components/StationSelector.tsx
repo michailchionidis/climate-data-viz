@@ -25,8 +25,13 @@ export function StationSelector({
   compact = false,
   hideHeader = false,
 }: StationSelectorProps) {
-  const { colors } = useTheme()
+  const { colors, colorMode } = useTheme()
   const spinnerColor = colors.accentCyan
+
+  // Checkbox colors based on theme
+  const checkboxBg = colorMode === 'light' ? '#1a1a1a' : 'rgba(255, 255, 255, 0.9)'
+  const checkboxBorder = colorMode === 'light' ? '#1a1a1a' : 'rgba(255, 255, 255, 0.9)'
+  const checkIconColor = colorMode === 'light' ? 'white' : colors.bg
   const { data: stations, isLoading, error } = useStations()
   const [searchQuery, setSearchQuery] = useState('')
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -297,14 +302,14 @@ export function StationSelector({
                     animationDelay: `${idx * 0.02}s`,
                   }}
                 >
-                  {/* Custom checkbox - minimal white style */}
+                  {/* Custom checkbox - theme-aware style */}
                   <Box
                     w={compact ? '14px' : '18px'}
                     h={compact ? '14px' : '18px'}
                     borderRadius="4px"
                     borderWidth="2px"
-                    borderColor={isSelected ? 'rgba(255, 255, 255, 0.9)' : colors.border}
-                    bg={isSelected ? 'rgba(255, 255, 255, 0.9)' : 'transparent'}
+                    borderColor={isSelected ? checkboxBorder : colors.border}
+                    bg={isSelected ? checkboxBg : 'transparent'}
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
@@ -313,7 +318,7 @@ export function StationSelector({
                     aria-hidden="true"
                   >
                     {isSelected && (
-                      <CheckIcon size="xs" color={colors.bg} />
+                      <CheckIcon size="xs" color={checkIconColor} />
                     )}
                   </Box>
 

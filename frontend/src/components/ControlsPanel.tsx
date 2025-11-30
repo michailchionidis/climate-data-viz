@@ -40,7 +40,13 @@ export function ControlsPanel({
   maxYear = 2019,
   compact = false,
 }: ControlsPanelProps) {
-  const { colors } = useTheme()
+  const { colors, colorMode } = useTheme()
+
+  // Slider colors based on theme
+  const sliderTrackActive = colorMode === 'light' ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.8)'
+  const sliderTrackInactive = colorMode === 'light' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.1)'
+  const sliderThumbBg = colorMode === 'light' ? '#1a1a1a' : 'white'
+  const sliderThumbBorder = colorMode === 'light' ? '2px solid #1a1a1a' : 'none'
 
   // Track the last applied zoom settings to know when Apply should be enabled
   const [appliedZoom, setAppliedZoom] = useState<ZoomState>({ centerYear: null, windowSize: 10 })
@@ -362,7 +368,44 @@ export function ControlsPanel({
                   fontFamily="mono"
                 />
               </Box>
-              <Box flex={1} opacity={zoom.centerYear ? 1 : 0.4}>
+              <Box
+                flex={1}
+                opacity={zoom.centerYear ? 1 : 0.4}
+                css={{
+                  '& input[type="range"]': {
+                    WebkitAppearance: 'none',
+                    appearance: 'none',
+                    width: '100%',
+                    height: '4px',
+                    borderRadius: '2px',
+                    marginTop: '8px',
+                    background: zoom.centerYear
+                      ? `linear-gradient(to right, ${sliderTrackActive} 0%, ${sliderTrackActive} ${sliderProgress}%, ${sliderTrackInactive} ${sliderProgress}%, ${sliderTrackInactive} 100%)`
+                      : sliderTrackInactive,
+                    cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
+                  },
+                  '& input[type="range"]::-webkit-slider-thumb': {
+                    WebkitAppearance: 'none',
+                    appearance: 'none',
+                    width: '14px',
+                    height: '14px',
+                    borderRadius: '50%',
+                    background: sliderThumbBg,
+                    border: sliderThumbBorder,
+                    cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                  },
+                  '& input[type="range"]::-moz-range-thumb': {
+                    width: '14px',
+                    height: '14px',
+                    borderRadius: '50%',
+                    background: sliderThumbBg,
+                    border: sliderThumbBorder,
+                    cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                  },
+                }}
+              >
                 <Flex justify="space-between" align="center" mb={0.5}>
                   <Text fontSize="2xs" color={colors.textMuted} fontWeight="500">
                     Window
@@ -384,16 +427,6 @@ export function ControlsPanel({
                       windowSize: parseInt(e.target.value),
                     })
                   }
-                  style={{
-                    width: '100%',
-                    height: '4px',
-                    borderRadius: '2px',
-                    marginTop: '8px',
-                    background: zoom.centerYear
-                      ? `linear-gradient(to right, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.8) ${sliderProgress}%, rgba(255,255,255,0.1) ${sliderProgress}%, rgba(255,255,255,0.1) 100%)`
-                      : 'rgba(255,255,255,0.1)',
-                    cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
-                  }}
                 />
               </Box>
             </Flex>
@@ -450,7 +483,42 @@ export function ControlsPanel({
                     </Text>
                   </Box>
                 </Flex>
-                <Box position="relative">
+                <Box
+                  position="relative"
+                  css={{
+                    '& input[type="range"]': {
+                      WebkitAppearance: 'none',
+                      appearance: 'none',
+                      width: '100%',
+                      height: '4px',
+                      borderRadius: '2px',
+                      background: zoom.centerYear
+                        ? `linear-gradient(to right, ${sliderTrackActive} 0%, ${sliderTrackActive} ${sliderProgress}%, ${sliderTrackInactive} ${sliderProgress}%, ${sliderTrackInactive} 100%)`
+                        : sliderTrackInactive,
+                      cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
+                    },
+                    '& input[type="range"]::-webkit-slider-thumb': {
+                      WebkitAppearance: 'none',
+                      appearance: 'none',
+                      width: '14px',
+                      height: '14px',
+                      borderRadius: '50%',
+                      background: sliderThumbBg,
+                      border: sliderThumbBorder,
+                      cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                    },
+                    '& input[type="range"]::-moz-range-thumb': {
+                      width: '14px',
+                      height: '14px',
+                      borderRadius: '50%',
+                      background: sliderThumbBg,
+                      border: sliderThumbBorder,
+                      cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                    },
+                  }}
+                >
                   <input
                     type="range"
                     min={5}
@@ -464,15 +532,6 @@ export function ControlsPanel({
                         windowSize: parseInt(e.target.value),
                       })
                     }
-                    style={{
-                      width: '100%',
-                      height: '4px',
-                      borderRadius: '2px',
-                      background: zoom.centerYear
-                        ? `linear-gradient(to right, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.8) ${sliderProgress}%, rgba(255,255,255,0.1) ${sliderProgress}%, rgba(255,255,255,0.1) 100%)`
-                        : 'rgba(255,255,255,0.1)',
-                      cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
-                    }}
                   />
                 </Box>
               </Box>

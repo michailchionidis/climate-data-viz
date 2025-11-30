@@ -11,9 +11,9 @@ interface LoadingStateProps {
 }
 
 const sizeMap = {
-  sm: { spinner: 'md', text: 'xs' },
-  md: { spinner: 'lg', text: 'sm' },
-  lg: { spinner: 'xl', text: 'md' },
+  sm: { spinner: 'sm', text: '11px' },
+  md: { spinner: 'sm', text: '12px' },
+  lg: { spinner: 'sm', text: '13px' },
 }
 
 export function LoadingState({
@@ -21,13 +21,8 @@ export function LoadingState({
   minHeight = '200px',
   size = 'md',
 }: LoadingStateProps) {
-  const { colors, colorMode } = useTheme()
+  const { colors } = useTheme()
   const sizes = sizeMap[size]
-
-  // Dynamic colors based on theme (WCAG AA compliant)
-  const spinnerColor = colors.accentCyan
-  const trackColor = colorMode === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)'
-  const glowOpacity = colorMode === 'light' ? 0.4 : 0.3
 
   return (
     <Box
@@ -43,31 +38,12 @@ export function LoadingState({
       alignItems="center"
       justifyContent="center"
     >
-      <Flex direction="column" align="center" textAlign="center" p={6}>
-        <Box position="relative">
-          <Spinner
-            size={sizes.spinner as 'md' | 'lg' | 'xl'}
-            color={spinnerColor}
-            css={{
-              '--spinner-track-color': trackColor,
-            }}
-          />
-          {/* Glow effect */}
-          <Box
-            position="absolute"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            w="100%"
-            h="100%"
-            borderRadius="full"
-            bg={colors.accentCyan}
-            filter="blur(20px)"
-            opacity={glowOpacity}
-            animation="pulse 2s ease-in-out infinite"
-          />
-        </Box>
-        <Text color={colors.textMuted} fontSize={sizes.text} mt={4}>
+      <Flex direction="column" align="center" textAlign="center" py={4}>
+        <Spinner
+          size={sizes.spinner as 'sm'}
+          color={colors.accentCyan}
+        />
+        <Text color={colors.textMuted} fontSize={sizes.text} mt={3}>
           {message}
         </Text>
       </Flex>
