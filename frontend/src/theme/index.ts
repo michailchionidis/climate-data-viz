@@ -72,7 +72,7 @@ export const themeColors = {
     borderActive: 'rgba(6, 182, 212, 0.4)',
     text: '#e4e4e7',
     textSecondary: '#a1a1aa',
-    textMuted: '#71717a',
+    textMuted: '#7e7e87',  // WCAG AA compliant (4.91:1 contrast)
     headerBg: 'rgba(10, 10, 15, 0.95)',
     inputBg: 'rgba(255, 255, 255, 0.03)',
     buttonBg: 'rgba(255, 255, 255, 0.05)',
