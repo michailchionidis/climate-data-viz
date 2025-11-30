@@ -3,7 +3,8 @@
  * First-time visitor greeting with option to start tour or skip
  */
 import { Box, Flex, Text, Heading } from '@chakra-ui/react'
-import { FiPlay, FiX, FiThermometer } from 'react-icons/fi'
+import { FiPlay, FiX } from 'react-icons/fi'
+import { LuActivity } from 'react-icons/lu'
 import { useTour } from './TourContext'
 import { useTheme } from '../../context/ThemeContext'
 
@@ -47,10 +48,10 @@ export function WelcomeModal() {
         aria-modal="true"
         aria-labelledby="welcome-title"
       >
-        {/* Gradient accent line */}
+        {/* Accent line */}
         <Box
           h="3px"
-          bg={`linear-gradient(90deg, ${colors.accentCyan}, ${colors.accentPurple}, ${colors.accentOrange})`}
+          bg={`linear-gradient(90deg, ${colors.accentCyan}, ${colors.accentCyan})`}
         />
 
         {/* Content */}
@@ -69,7 +70,7 @@ export function WelcomeModal() {
             borderColor={colors.accentCyan}
             boxShadow={`0 0 30px ${colors.accentCyanGlow}`}
           >
-            <FiThermometer size={36} color={colors.accentCyan} />
+            <LuActivity size={36} color={colors.accentCyan} />
           </Flex>
 
           {/* Title */}
@@ -133,21 +134,27 @@ export function WelcomeModal() {
               justifyContent="center"
               gap="2"
               w="100%"
-              h="52px"
-              borderRadius="12px"
-              fontSize="md"
+              h="48px"
+              borderRadius="10px"
+              fontSize="sm"
               fontWeight="600"
-              bg={`linear-gradient(135deg, ${colors.accentCyan}, ${colors.accentPurple})`}
-              color="white"
+              bg="rgba(6, 182, 212, 0.15)"
+              color={colors.accentCyan}
+              borderWidth="1px"
+              borderColor="rgba(6, 182, 212, 0.3)"
               cursor="pointer"
               onClick={startTour}
               _hover={{
-                transform: 'translateY(-2px)',
-                boxShadow: `0 8px 30px ${colors.accentCyanGlow}`,
+                bg: 'rgba(6, 182, 212, 0.25)',
+                borderColor: 'rgba(6, 182, 212, 0.5)',
+                boxShadow: `0 0 20px ${colors.accentCyanGlow}`,
+              }}
+              _active={{
+                bg: 'rgba(6, 182, 212, 0.35)',
               }}
               transition="all 0.2s"
             >
-              <FiPlay />
+              <FiPlay size={16} />
               Take a Quick Tour
             </Box>
             <Box
@@ -167,7 +174,7 @@ export function WelcomeModal() {
               _hover={{ color: colors.text, bg: colors.buttonHover }}
               transition="all 0.15s"
             >
-              <FiX />
+              <FiX size={14} />
               Skip, I'll explore on my own
             </Box>
           </Flex>

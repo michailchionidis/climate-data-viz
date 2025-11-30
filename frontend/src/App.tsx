@@ -132,15 +132,15 @@ function AppContent() {
                 w={{ base: '28px', md: '32px' }}
                 h={{ base: '28px', md: '32px' }}
                 borderRadius="8px"
-                bg="linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)"
+                bg={colors.accentCyanGlow}
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 borderWidth="1px"
-                borderColor="rgba(6, 182, 212, 0.3)"
+                borderColor="rgba(6, 182, 212, 0.4)"
                 flexShrink={0}
               >
-                <ActivityIcon size="md" color="#06b6d4" />
+                <ActivityIcon size="md" color={colors.accentCyan} />
               </Box>
               <Box>
                 <Text
