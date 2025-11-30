@@ -6,7 +6,7 @@
  * "Ask Grok" button opens the chat sidebar.
  */
 import { useState, useCallback } from 'react'
-import { Box, Flex, Text, SimpleGrid, Spinner } from '@chakra-ui/react'
+import { Box, Flex, Text, Spinner } from '@chakra-ui/react'
 import { FiZap, FiRefreshCw, FiChevronDown, FiChevronRight } from 'react-icons/fi'
 import { useTheme } from '../../context/ThemeContext'
 import { useAI } from '../../hooks/useAIInsights'
@@ -209,9 +209,9 @@ export function AIInsightsPanel({
             </Box>
           )}
 
-          {/* Insights grid - 2 columns on larger screens */}
+          {/* Insights list - clean vertical layout */}
           {hasInsights && (
-            <SimpleGrid columns={{ base: 1, lg: 2 }} gap={2}>
+            <Box>
               {insights.map((insight, index) => (
                 <InsightCard
                   key={`${insight.type}-${index}`}
@@ -219,7 +219,7 @@ export function AIInsightsPanel({
                   index={index}
                 />
               ))}
-            </SimpleGrid>
+            </Box>
           )}
         </Box>
       )}
