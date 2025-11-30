@@ -139,18 +139,17 @@ export const getChartTheme = (mode: ColorMode) => {
       size: 12,
     },
     xaxis: {
-      gridcolor: colors.chartGrid,
+      showgrid: false,
       linecolor: colors.chartLine,
       tickfont: { size: 11, color: colors.textMuted },
       title: { font: { size: 12, color: colors.textSecondary } },
     },
     yaxis: {
-      gridcolor: colors.chartGrid,
+      showgrid: false,
       linecolor: colors.chartLine,
       tickfont: { size: 11, color: colors.textMuted },
       title: { font: { size: 12, color: colors.textSecondary } },
-      zeroline: true,
-      zerolinecolor: colors.chartLine,
+      zeroline: false,
     },
     legend: {
       font: { size: 11, color: colors.textSecondary },
@@ -450,18 +449,17 @@ export const chartTheme = {
     size: 12,
   },
   xaxis: {
-    gridcolor: 'rgba(255, 255, 255, 0.05)',
+    showgrid: false,
     linecolor: 'rgba(255, 255, 255, 0.1)',
     tickfont: { size: 11, color: '#71717a' },
     title: { font: { size: 12, color: '#a1a1aa' } },
   },
   yaxis: {
-    gridcolor: 'rgba(255, 255, 255, 0.05)',
+    showgrid: false,
     linecolor: 'rgba(255, 255, 255, 0.1)',
     tickfont: { size: 11, color: '#71717a' },
     title: { font: { size: 12, color: '#a1a1aa' } },
-    zeroline: true,
-    zerolinecolor: 'rgba(255, 255, 255, 0.15)',
+    zeroline: false,
   },
   legend: {
     font: { size: 11, color: '#a1a1aa' },

@@ -1,19 +1,12 @@
 /**
- * Analytics summary panel with premium styling
+ * Analytics summary panel with minimal x.ai styling
  * Shows key statistics for selected weather stations
  */
-import { Box, Text, Flex, SimpleGrid } from '@chakra-ui/react'
-import { StatCard, StatCardSkeleton } from './ui/StatCard'
+import { Box, Text, Flex } from '@chakra-ui/react'
 import { Card, CardBody } from './ui/Card'
 import { SectionHeader } from './ui/SectionHeader'
 import { EmptyState } from './ui/EmptyState'
-import {
-  TemperatureMinIcon,
-  TemperatureMaxIcon,
-  BarChartIcon,
-  FlameIcon,
-  SnowflakeIcon,
-} from './ui/Icons'
+import { BarChartIcon } from './ui/Icons'
 import { useTheme } from '../context/ThemeContext'
 import type { AnalyticsResponse } from '../types'
 
@@ -24,9 +17,57 @@ interface AnalyticsPanelProps {
   compact?: boolean
 }
 
-export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact = false }: AnalyticsPanelProps) {
+// Minimal stat display component
+function MinimalStat({
+  label,
+  value,
+  subValue,
+}: {
+  label: string
+  value: string
+  subValue?: string
+}) {
+  const { colors } = useTheme()
+
+  return (
+    <Box>
+      <Text
+        fontSize="10px"
+        fontWeight="500"
+        color={colors.textMuted}
+        textTransform="uppercase"
+        letterSpacing="0.05em"
+        mb={0.5}
+      >
+        {label}
+      </Text>
+      <Text
+        fontSize="18px"
+        fontWeight="600"
+        color={colors.text}
+        fontFamily="mono"
+        letterSpacing="-0.02em"
+      >
+        {value}
+      </Text>
+      {subValue && (
+        <Text fontSize="11px" color={colors.textMuted} mt={0.5}>
+          {subValue}
+        </Text>
+      )}
+    </Box>
+  )
+}
+
+export function AnalyticsPanel({
+  analytics,
+  isLoading,
+  selectedStations,
+  compact = false,
+}: AnalyticsPanelProps) {
   const { colors, colorMode } = useTheme()
   const warningColor = colorMode === 'light' ? 'orange.600' : 'orange.300'
+
   if (selectedStations.length === 0) {
     return (
       <Card>
@@ -48,12 +89,27 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
       <Card>
         <CardBody py={compact ? 2 : 4}>
           <SectionHeader title="Analytics Summary" compact={compact} />
-          <SimpleGrid columns={{ base: 2, lg: 4 }} gap={compact ? 2 : 3}>
-            <StatCardSkeleton compact={compact} />
-            <StatCardSkeleton compact={compact} />
-            <StatCardSkeleton compact={compact} />
-            <StatCardSkeleton compact={compact} />
-          </SimpleGrid>
+          <Flex gap={6} flexWrap="wrap">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Box key={i} flex="1" minW="80px">
+                <Box
+                  h="10px"
+                  w="40px"
+                  bg={colors.inputBg}
+                  borderRadius="sm"
+                  mb={1}
+                />
+                <Box
+                  h="20px"
+                  w="60px"
+                  bg={colors.inputBg}
+                  borderRadius="sm"
+                  mb={1}
+                />
+                <Box h="12px" w="80px" bg={colors.inputBg} borderRadius="sm" />
+              </Box>
+            ))}
+          </Flex>
         </CardBody>
       </Card>
     )
@@ -81,7 +137,9 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
   const maxStation = analytics.stations.reduce((prev, curr) =>
     curr.max_temp > prev.max_temp ? curr : prev
   )
-  const avgMean = analytics.stations.reduce((sum, s) => sum + s.mean_temp, 0) / analytics.stations.length
+  const avgMean =
+    analytics.stations.reduce((sum, s) => sum + s.mean_temp, 0) /
+    analytics.stations.length
 
   // Find hottest and coldest years across all stations
   const hottestStation = analytics.stations.reduce((prev, curr) =>
@@ -93,13 +151,26 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
 
   // Helper to format month name
   const getMonthName = (month: number): string => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ]
     return months[month - 1] || ''
   }
 
   return (
     <Card>
-      <CardBody py={compact ? 2 : 4}>
+      <CardBody py={compact ? 2 : 3}>
         <SectionHeader
           title="Analytics Summary"
           badge={`${analytics.year_range[0]} — ${analytics.year_range[1]}`}
@@ -107,203 +178,53 @@ export function AnalyticsPanel({ analytics, isLoading, selectedStations, compact
           compact={compact}
         />
 
-        {/* Main stats + Hottest/Coldest in one row when compact */}
-        {compact ? (
-          <>
-            <Flex gap={2} flexWrap="wrap" mb={2}>
-              <StatCard
-                icon={<TemperatureMinIcon size="md" />}
-                label="Min"
-                value={`${minStation.min_temp.toFixed(1)}°C`}
-                subValue={`${getMonthName(minStation.min_temp_month)} ${minStation.min_temp_year} @ ${minStation.station_id}`}
-                color="blue"
-                compact
-              />
-              <StatCard
-                icon={<TemperatureMaxIcon size="md" />}
-                label="Max"
-                value={`${maxStation.max_temp.toFixed(1)}°C`}
-                subValue={`${getMonthName(maxStation.max_temp_month)} ${maxStation.max_temp_year} @ ${maxStation.station_id}`}
-                color="orange"
-                compact
-              />
-              <StatCard
-                icon={<BarChartIcon size="md" />}
-                label="Avg"
-                value={`${avgMean.toFixed(1)}°C`}
-                color="cyan"
-                compact
-              />
-              <StatCard
-                icon={<FlameIcon size="md" />}
-                label="Hottest"
-                value={`${hottestStation.hottest_year}`}
-                subValue={`${hottestStation.hottest_year_temp.toFixed(1)}°C @ ${hottestStation.station_id}`}
-                color="orange"
-                compact
-              />
-              <StatCard
-                icon={<SnowflakeIcon size="md" />}
-                label="Coldest"
-                value={`${coldestStation.coldest_year}`}
-                subValue={`${coldestStation.coldest_year_temp.toFixed(1)}°C @ ${coldestStation.station_id}`}
-                color="blue"
-                compact
-              />
-            </Flex>
-            {/* Per-station stats in compact mode */}
-            {analytics.stations.length > 1 && (
-              <Flex gap={1.5} flexWrap="wrap">
-                {analytics.stations.map((station) => (
-                  <Box
-                    key={station.station_id}
-                    px={2}
-                    py={1}
-                    bg="rgba(255, 255, 255, 0.03)"
-                    borderRadius="6px"
-                    borderWidth="1px"
-                    borderColor="rgba(255, 255, 255, 0.08)"
-                  >
-                    <Text fontSize="2xs" color={colors.textSecondary} fontFamily="mono">
-                      {station.station_id}: {station.mean_temp.toFixed(1)}°C avg, σ={station.std_temp.toFixed(1)}
-                    </Text>
-                  </Box>
-                ))}
-              </Flex>
-            )}
-          </>
-        ) : (
-          <>
-            {/* Main stats grid */}
-            <SimpleGrid columns={{ base: 2, lg: 3 }} gap={3} mb={4}>
-              <StatCard
-                icon={<TemperatureMinIcon size="lg" />}
-                label="Min Temperature"
-                value={`${minStation.min_temp.toFixed(1)}°C`}
-                subValue={`${getMonthName(minStation.min_temp_month)} ${minStation.min_temp_year} @ ${minStation.station_id}`}
-                color="blue"
-                animate
-                animationDelay={0.1}
-              />
-              <StatCard
-                icon={<TemperatureMaxIcon size="lg" />}
-                label="Max Temperature"
-                value={`${maxStation.max_temp.toFixed(1)}°C`}
-                subValue={`${getMonthName(maxStation.max_temp_month)} ${maxStation.max_temp_year} @ ${maxStation.station_id}`}
-                color="orange"
-                animate
-                animationDelay={0.15}
-              />
-              <StatCard
-                icon={<BarChartIcon size="lg" />}
-                label="Avg Mean Temp"
-                value={`${avgMean.toFixed(1)}°C`}
-                color="cyan"
-                animate
-                animationDelay={0.2}
-              />
-            </SimpleGrid>
+        {/* Main stats row - minimal design */}
+        <Flex
+          gap={{ base: 4, md: 6, lg: 8 }}
+          flexWrap="wrap"
+          py={2}
+          borderBottom="1px solid"
+          borderColor={colors.border}
+        >
+          <MinimalStat
+            label="Min"
+            value={`${minStation.min_temp.toFixed(1)}°C`}
+            subValue={`${getMonthName(minStation.min_temp_month)} ${minStation.min_temp_year}`}
+          />
+          <MinimalStat
+            label="Max"
+            value={`${maxStation.max_temp.toFixed(1)}°C`}
+            subValue={`${getMonthName(maxStation.max_temp_month)} ${maxStation.max_temp_year}`}
+          />
+          <MinimalStat label="Avg" value={`${avgMean.toFixed(1)}°C`} />
+          <MinimalStat
+            label="Hottest"
+            value={String(hottestStation.hottest_year)}
+            subValue={`${hottestStation.hottest_year_temp.toFixed(1)}°C`}
+          />
+          <MinimalStat
+            label="Coldest"
+            value={String(coldestStation.coldest_year)}
+            subValue={`${coldestStation.coldest_year_temp.toFixed(1)}°C`}
+          />
+        </Flex>
 
-            {/* Hottest and Coldest Year cards */}
-            <SimpleGrid columns={{ base: 1, md: 2 }} gap={3} mb={4}>
-              <Box
-                p={4}
-                bg="linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%)"
-                borderRadius="12px"
-                borderWidth="1px"
-                borderColor="rgba(245, 158, 11, 0.3)"
-                transition="all 0.2s ease"
-                _hover={{
-                  borderColor: 'rgba(245, 158, 11, 0.5)',
-                  boxShadow: '0 0 20px rgba(245, 158, 11, 0.15)',
-                }}
+        {/* Per-station stats - subtle footer */}
+        {analytics.stations.length > 0 && (
+          <Flex gap={3} flexWrap="wrap" pt={2}>
+            {analytics.stations.map((station) => (
+              <Text
+                key={station.station_id}
+                fontSize="11px"
+                color={colors.textMuted}
+                fontFamily="mono"
+                letterSpacing="0.01em"
               >
-                <Flex align="center" gap={2} mb={2}>
-                  <FlameIcon size="md" color="#f59e0b" />
-                  <Text fontSize="xs" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" fontWeight="500">
-                    Hottest Year
-                  </Text>
-                </Flex>
-                <Text fontSize="2xl" fontWeight="700" color="orange.300" fontFamily="mono">
-                  {hottestStation.hottest_year}
-                </Text>
-                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
-                  <Text as="span" color="orange.400" fontWeight="600">
-                    {hottestStation.hottest_year_temp.toFixed(1)}°C
-                  </Text>
-                  {' '}at {hottestStation.station_name}
-                </Text>
-              </Box>
-
-              <Box
-                p={4}
-                bg="linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%)"
-                borderRadius="12px"
-                borderWidth="1px"
-                borderColor="rgba(6, 182, 212, 0.3)"
-                transition="all 0.2s ease"
-                _hover={{
-                  borderColor: 'rgba(6, 182, 212, 0.5)',
-                  boxShadow: '0 0 20px rgba(6, 182, 212, 0.15)',
-                }}
-              >
-                <Flex align="center" gap={2} mb={2}>
-                  <SnowflakeIcon size="md" color="#06b6d4" />
-                  <Text fontSize="xs" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" fontWeight="500">
-                    Coldest Year
-                  </Text>
-                </Flex>
-                <Text fontSize="2xl" fontWeight="700" color="blue.300" fontFamily="mono">
-                  {coldestStation.coldest_year}
-                </Text>
-                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
-                  <Text as="span" color="blue.400" fontWeight="600">
-                    {coldestStation.coldest_year_temp.toFixed(1)}°C
-                  </Text>
-                  {' '}at {coldestStation.station_name}
-                </Text>
-              </Box>
-            </SimpleGrid>
-
-            {/* Per-station statistics */}
-            {analytics.stations.length > 1 && (
-              <Box>
-                <Text fontSize="xs" color={colors.textMuted} textTransform="uppercase" letterSpacing="wide" mb={3} fontWeight="500">
-                  Per-Station Statistics
-                </Text>
-                <Flex gap={2} flexWrap="wrap">
-                  {analytics.stations.map((station, idx) => (
-                    <Box
-                      key={station.station_id}
-                      px={3}
-                      py={2}
-                      bg="rgba(255, 255, 255, 0.03)"
-                      borderRadius="8px"
-                      borderWidth="1px"
-                      borderColor="rgba(255, 255, 255, 0.08)"
-                      transition="all 0.2s ease"
-                      _hover={{
-                        bg: 'rgba(255, 255, 255, 0.06)',
-                        borderColor: 'rgba(255, 255, 255, 0.15)',
-                      }}
-                      style={{
-                        opacity: 0,
-                        animation: 'fadeInUp 0.3s ease-out forwards',
-                        animationDelay: `${0.3 + idx * 0.05}s`,
-                      }}
-                    >
-                      <Text fontSize="sm" fontWeight="600" color="gray.300" fontFamily="mono">
-                        {station.station_id}
-                      </Text>
-                      <Text fontSize="xs" color={colors.textMuted}>
-                        {station.mean_temp.toFixed(1)}°C avg, σ={station.std_temp.toFixed(1)}
-                      </Text>
-                    </Box>
-                  ))}
-                </Flex>
-              </Box>
-            )}
-          </>
+                {station.station_id}: {station.mean_temp.toFixed(1)}°C avg,
+                σ={station.std_temp.toFixed(1)}
+              </Text>
+            ))}
+          </Flex>
         )}
       </CardBody>
     </Card>
