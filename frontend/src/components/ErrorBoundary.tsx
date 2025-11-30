@@ -3,9 +3,7 @@
  */
 import { Component, type ReactNode, type ErrorInfo } from 'react'
 import { Box, Text, Flex } from '@chakra-ui/react'
-import { Card, CardBody } from './ui/Card'
-import { AlertIcon } from './ui/Icons'
-import { PillButton } from './ui/PillButton'
+import { Card, CardBody, AlertIcon, PillButton } from '@/shared/components/ui'
 
 interface Props {
   children: ReactNode
