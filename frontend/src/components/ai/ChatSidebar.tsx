@@ -138,8 +138,6 @@ export function ChatSidebar({
             align="center"
             justify="space-between"
             p={3}
-            borderBottomWidth="1px"
-            borderColor={colors.border}
             flexShrink={0}
           >
             <Flex align="center" gap={2}>
@@ -242,63 +240,86 @@ export function ChatSidebar({
             )}
 
             {/* Messages */}
-            <Flex direction="column" gap={3}>
+            <Flex direction="column" gap={4}>
               {messages.map((message) => (
                 <Box
                   key={message.id}
                   alignSelf={message.role === 'user' ? 'flex-end' : 'flex-start'}
-                  maxW="90%"
+                  maxW={message.role === 'user' ? '85%' : '100%'}
                 >
-                  <Box
-                    px={3}
-                    py={2}
-                    borderRadius="lg"
-                    bg={
-                      message.role === 'user'
-                        ? `${colors.accentCyan}15`
-                        : colors.inputBg
-                    }
-                    borderWidth="1px"
-                    borderColor={
-                      message.role === 'user'
-                        ? `${colors.accentCyan}30`
-                        : colors.border
-                    }
-                  >
-                    {message.role === 'assistant' && (
-                      <Flex align="center" gap={1} mb={1}>
-                        <LuBrain size={10} color={colors.accentCyan} />
-                        <Text fontSize="9px" fontWeight="600" color={colors.accentCyan} textTransform="uppercase">
-                          Grok
+                  {message.role === 'user' ? (
+                    // User message - pill style like Grok
+                    <>
+                      <Box
+                        px={4}
+                        py={2.5}
+                        borderRadius="full"
+                        bg={colorMode === 'light' ? '#e5e5e5' : '#333333'}
+                      >
+                        <Text
+                          fontSize="14px"
+                          color={colors.text}
+                          lineHeight="1.5"
+                        >
+                          {message.content}
+                        </Text>
+                      </Box>
+                      <Text
+                        fontSize="11px"
+                        color={colors.textMuted}
+                        mt={1}
+                        textAlign="right"
+                        px={2}
+                      >
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </Text>
+                    </>
+                  ) : (
+                    // Assistant message - clean, no border, like Grok
+                    <>
+                      <Flex align="center" gap={1.5} mb={2}>
+                        <Box
+                          w="18px"
+                          h="18px"
+                          borderRadius="full"
+                          bg={colorMode === 'light' ? 'cyan.100' : 'rgba(6, 182, 212, 0.2)'}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          <LuBrain size={10} color={colors.accentCyan} />
+                        </Box>
+                        <Text fontSize="11px" fontWeight="600" color={colors.accentCyan}>
+                          GROK
                         </Text>
                       </Flex>
-                    )}
-                    <Text
-                      fontSize="12px"
-                      color={colors.text}
-                      lineHeight="1.5"
-                      whiteSpace="pre-wrap"
-                    >
-                      {message.content}
-                    </Text>
-                  </Box>
-                  <Text
-                    fontSize="9px"
-                    color={colors.textMuted}
-                    mt={0.5}
-                    textAlign={message.role === 'user' ? 'right' : 'left'}
-                    px={1}
-                  >
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
+                      <Text
+                        fontSize="14px"
+                        color={colors.text}
+                        lineHeight="1.7"
+                        whiteSpace="pre-wrap"
+                        pl={0.5}
+                      >
+                        {message.content}
+                      </Text>
+                      <Text
+                        fontSize="11px"
+                        color={colors.textMuted}
+                        mt={2}
+                        pl={0.5}
+                      >
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </Text>
+                    </>
+                  )}
                 </Box>
               ))}
 
               {/* Loading indicator */}
               {isPending && (
-                <Flex align="center" gap={2} p={2}>
+                <Flex align="center" gap={2} py={2}>
                   <Spinner size="xs" color={colors.accentCyan} />
-                  <Text fontSize="11px" color={colors.textMuted}>
+                  <Text fontSize="12px" color={colors.textMuted}>
                     Grok is thinking...
                   </Text>
                 </Flex>
@@ -311,8 +332,6 @@ export function ChatSidebar({
           {/* Input Area */}
           <Box
             p={3}
-            borderTopWidth="1px"
-            borderColor={colors.border}
             flexShrink={0}
           >
             <Flex
@@ -321,9 +340,9 @@ export function ChatSidebar({
               bg={colors.inputBg}
               border="1px solid"
               borderColor={colors.border}
-              borderRadius="lg"
-              px={3}
-              py={2}
+              borderRadius="full"
+              px={4}
+              py={2.5}
               transition="all 0.2s"
               _focusWithin={{
                 borderColor: colors.accentCyan,

@@ -122,20 +122,20 @@ function AppContent() {
       flexDirection="column"
       overflow="hidden"
       transition="background-color 0.3s ease"
+      pt={{ base: 2, lg: 2 }}
     >
       {/* Skip Links for Accessibility */}
       <SkipLink targetId="main-content">Skip to main content</SkipLink>
       <SkipLink targetId="station-selector">Skip to station selector</SkipLink>
       <SkipLink targetId="chart-section">Skip to chart</SkipLink>
 
-      {/* Header - Compact */}
+      {/* Header - Compact with glossy blur effect on scroll */}
       <Box
         as="header"
         role="banner"
-        borderBottomWidth="1px"
-        borderColor={colors.border}
-        bg={colors.headerBg}
-        backdropFilter="blur(12px)"
+        bg={`${colors.bg}e6`}
+        backdropFilter="blur(20px) saturate(180%)"
+        WebkitBackdropFilter="blur(20px) saturate(180%)"
         flexShrink={0}
         zIndex={100}
         position={{ base: 'sticky', lg: 'relative' }}
@@ -143,6 +143,8 @@ function AppContent() {
         opacity={isLoaded ? 1 : 0}
         transform={isLoaded ? 'translateY(0)' : 'translateY(-10px)'}
         transition="all 0.5s ease-out"
+        mx={{ base: 3, md: 4 }}
+        borderRadius="xl"
       >
         <Container maxW="1800px" py={2} px={{ base: 3, md: 4 }} mx="auto">
           <Flex justify="space-between" align="center">
@@ -246,7 +248,8 @@ function AppContent() {
       {/* Main Content - Responsive layout */}
       <Container
         maxW={isSidebarCollapsed ? '100%' : '1800px'}
-        py={{ base: 2, lg: 3 }}
+        pt={0.5}
+        pb={0}
         px={{ base: 3, md: 4 }}
         mx="auto"
         flex={1}
@@ -480,9 +483,7 @@ function AppContent() {
 
       {/* Footer - Compact */}
       <Box
-        borderTopWidth="1px"
-        borderColor={colors.border}
-        py={2}
+        py={1.5}
         flexShrink={0}
         opacity={isLoaded ? 1 : 0}
         transition="opacity 0.5s ease-out 0.4s"
@@ -506,6 +507,36 @@ function AppContent() {
                   </Box>
                 ))}
               </Flex>
+            </Flex>
+            <Flex
+              as="a"
+              href="https://mikechionidis.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              align="center"
+              gap={1}
+              px={2}
+              py={0.5}
+              borderRadius="md"
+              color={colors.textMuted}
+              _hover={{
+                color: colors.accentCyan,
+                bg: `${colors.accentCyan}08`,
+              }}
+              transition="all 0.2s"
+              cursor="pointer"
+            >
+              <Text fontSize="2xs" letterSpacing="0.02em">
+                Crafted by
+              </Text>
+              <Text
+                fontSize="2xs"
+                fontWeight="500"
+                color={colors.text}
+                letterSpacing="-0.01em"
+              >
+                Mike Chionidis
+              </Text>
             </Flex>
             <Text fontSize="2xs" color={colors.textMuted} fontFamily="mono">
               Data: 1859–2019 • 10 Stations

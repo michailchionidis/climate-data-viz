@@ -8,7 +8,6 @@
 import { useState, useCallback } from 'react'
 import { Box, Flex, Text, Spinner, SimpleGrid } from '@chakra-ui/react'
 import { FiZap, FiRefreshCw, FiChevronDown, FiChevronRight, FiMessageCircle } from 'react-icons/fi'
-import { LuBrain } from 'react-icons/lu'
 import { useTheme } from '../../context/ThemeContext'
 import { useAI } from '../../hooks/useAIInsights'
 import { InsightCard } from './InsightCard'
@@ -26,7 +25,7 @@ export function AIInsightsPanel({
   yearTo,
   onOpenChat,
 }: AIInsightsPanelProps) {
-  const { colors, colorMode } = useTheme()
+  const { colors } = useTheme()
   const [isExpanded, setIsExpanded] = useState(false)
 
   const {
@@ -67,8 +66,6 @@ export function AIInsightsPanel({
         justify="space-between"
         px={4}
         py={2.5}
-        borderBottom={isExpanded ? '1px solid' : 'none'}
-        borderColor={colors.border}
         cursor="pointer"
         onClick={toggleExpanded}
         _hover={{ bg: `${colors.accentCyan}05` }}
@@ -84,48 +81,32 @@ export function AIInsightsPanel({
             )}
           </Box>
 
-          {/* Brain icon */}
-          <Flex
-            align="center"
-            justify="center"
-            w="26px"
-            h="26px"
-            borderRadius="md"
-            bg={colorMode === 'light' ? 'cyan.50' : 'rgba(6, 182, 212, 0.15)'}
-            color={colorMode === 'light' ? '#0891b2' : '#06b6d4'}
+          {/* Title - matching SectionHeader style */}
+          <Text
+            fontSize="xs"
+            fontWeight="600"
+            color={colors.textSecondary}
+            textTransform="uppercase"
+            letterSpacing="wide"
           >
-            <LuBrain size={14} />
-          </Flex>
+            AI Insights
+          </Text>
 
-          {/* Title and badges */}
-          <Flex align="center" gap={2}>
-            <Text fontSize="sm" fontWeight="600" color={colors.text}>
-              AI Insights
-            </Text>
-            <Text
-              fontSize="10px"
-              color={colors.textMuted}
-              bg={colors.inputBg}
+          {/* Badge - only show count when collapsed and has insights */}
+          {hasInsights && !isExpanded && (
+            <Box
               px={1.5}
               py={0.5}
-              borderRadius="sm"
+              bg="rgba(6, 182, 212, 0.15)"
+              borderRadius="full"
+              borderWidth="1px"
+              borderColor="rgba(6, 182, 212, 0.3)"
             >
-              Grok
-            </Text>
-            {hasInsights && !isExpanded && (
-              <Text
-                fontSize="10px"
-                color={colors.accentCyan}
-                bg={`${colors.accentCyan}15`}
-                px={1.5}
-                py={0.5}
-                borderRadius="sm"
-                fontWeight="500"
-              >
-                {insights.length} insights
+              <Text fontSize="2xs" color="#06b6d4" fontFamily="mono" fontWeight="600">
+                {insights.length}
               </Text>
-            )}
-          </Flex>
+            </Box>
+          )}
         </Flex>
 
         {/* Action buttons */}
