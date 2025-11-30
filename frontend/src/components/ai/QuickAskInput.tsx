@@ -3,10 +3,11 @@
  *
  * A compact input for asking quick questions about the data.
  * Shows the AI response inline.
+ * Uses consistent theme colors (cyan accent only).
  */
 import { useState, useCallback } from 'react'
 import { Box, Flex, Text, Input, Spinner } from '@chakra-ui/react'
-import { FiSend, FiMessageCircle } from 'react-icons/fi'
+import { FiSend, FiMessageCircle, FiX } from 'react-icons/fi'
 import { useTheme } from '../../context/ThemeContext'
 
 interface QuickAskInputProps {
@@ -24,11 +25,13 @@ export function QuickAskInput({
 }: QuickAskInputProps) {
   const { colors } = useTheme()
   const [question, setQuestion] = useState('')
+  const [showAnswer, setShowAnswer] = useState(true)
 
   const handleSubmit = useCallback(() => {
     if (question.trim() && !isLoading) {
       onAsk(question.trim())
-      // Don't clear the question - keep it visible while loading
+      setQuestion('')
+      setShowAnswer(true)
     }
   }, [question, isLoading, onAsk])
 
@@ -43,8 +46,9 @@ export function QuickAskInput({
     [handleSubmit]
   )
 
-  // Clear question only after we get an answer
-  const displayedQuestion = isLoading ? question : ''
+  const handleClearAnswer = useCallback(() => {
+    setShowAnswer(false)
+  }, [])
 
   return (
     <Box>
@@ -64,27 +68,28 @@ export function QuickAskInput({
           boxShadow: `0 0 0 1px ${colors.accentCyan}40`,
         }}
       >
-        <FiMessageCircle size={16} color={colors.textMuted} />
+        <FiMessageCircle size={14} color={colors.textMuted} />
         <Input
-          value={isLoading ? displayedQuestion : question}
-          onChange={(e) => !isLoading && setQuestion(e.target.value)}
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask Grok about this data..."
           variant="flushed"
-          fontSize="sm"
+          fontSize="13px"
           color={colors.text}
           flex={1}
-          readOnly={isLoading}
+          disabled={isLoading}
+          border="none"
+          _focus={{ boxShadow: 'none' }}
           _placeholder={{ color: colors.textMuted }}
           aria-label="Ask a question about the climate data"
         />
         {isLoading ? (
-          <Spinner size="sm" color={colors.accentCyan} />
+          <Spinner size="xs" color={colors.accentCyan} />
         ) : (
           <Box
             as="button"
             onClick={handleSubmit}
-            aria-disabled={!question.trim()}
             p={1}
             borderRadius="md"
             color={question.trim() ? colors.accentCyan : colors.textMuted}
@@ -93,30 +98,49 @@ export function QuickAskInput({
             _hover={question.trim() ? { bg: `${colors.accentCyan}15` } : {}}
             aria-label="Send question"
           >
-            <FiSend size={16} />
+            <FiSend size={14} />
           </Box>
         )}
       </Flex>
 
       {/* Answer display */}
-      {(answer || error) && !isLoading && (
+      {showAnswer && (answer || error) && (
         <Box
-          mt={3}
+          mt={2}
           p={3}
-          bg={error ? 'rgba(239, 68, 68, 0.1)' : `${colors.accentCyan}08`}
+          bg={colors.inputBg}
           border="1px solid"
-          borderColor={error ? '#ef4444' : `${colors.accentCyan}30`}
+          borderColor={error ? `${colors.accentCyan}50` : colors.border}
           borderRadius="lg"
+          position="relative"
         >
+          {/* Close button */}
+          <Box
+            as="button"
+            position="absolute"
+            top={2}
+            right={2}
+            p={1}
+            borderRadius="md"
+            color={colors.textMuted}
+            cursor="pointer"
+            transition="all 0.2s"
+            _hover={{ color: colors.text, bg: `${colors.accentCyan}10` }}
+            onClick={handleClearAnswer}
+            aria-label="Close answer"
+          >
+            <FiX size={12} />
+          </Box>
+
           {error ? (
-            <Text fontSize="sm" color="#ef4444">
+            <Text fontSize="12px" color={colors.textMuted} pr={6}>
               {error.message || 'Failed to get answer. Please try again.'}
             </Text>
           ) : (
             <>
-              <Flex align="center" gap={2} mb={2}>
+              <Flex align="center" gap={1.5} mb={1.5}>
                 <Text
-                  fontSize="xs"
+                  fontSize="10px"
                   fontWeight="600"
                   color={colors.accentCyan}
                   textTransform="uppercase"
@@ -126,34 +150,16 @@ export function QuickAskInput({
                 </Text>
               </Flex>
               <Text
-                fontSize="sm"
+                fontSize="12px"
                 color={colors.text}
                 lineHeight="1.6"
                 whiteSpace="pre-wrap"
+                pr={6}
               >
                 {answer}
               </Text>
             </>
           )}
-        </Box>
-      )}
-
-      {/* Loading indicator for answer */}
-      {isLoading && (
-        <Box
-          mt={3}
-          p={3}
-          bg={`${colors.accentCyan}08`}
-          border="1px solid"
-          borderColor={`${colors.accentCyan}30`}
-          borderRadius="lg"
-        >
-          <Flex align="center" gap={2}>
-            <Spinner size="sm" color={colors.accentCyan} />
-            <Text fontSize="sm" color={colors.textMuted}>
-              Grok is thinking...
-            </Text>
-          </Flex>
         </Box>
       )}
     </Box>
