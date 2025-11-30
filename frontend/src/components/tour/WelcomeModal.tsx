@@ -1,6 +1,7 @@
 /**
  * Welcome Modal Component
  * First-time visitor greeting with option to start tour or skip
+ * xAI-level minimal design
  */
 import { Box, Flex, Text, Heading } from '@chakra-ui/react'
 import { FiPlay, FiX, FiMapPin, FiCalendar, FiBarChart2 } from 'react-icons/fi'
@@ -9,29 +10,20 @@ import { useTour } from './TourContext'
 import { useTheme } from '../../context/ThemeContext'
 import { PillButton } from '../ui/PillButton'
 
-// Feature card component
-function FeatureCard({
+// Feature item component - minimal inline style
+function FeatureItem({
   icon,
   label,
   colors,
 }: {
   icon: React.ReactNode
   label: string
-  colors: { accentCyan: string; accentCyanGlow: string; textMuted: string; border: string }
+  colors: { text: string; textMuted: string; border: string }
 }) {
   return (
-    <Flex
-      direction="column"
-      align="center"
-      gap="2"
-      p="3"
-      borderRadius="12px"
-      bg="rgba(6, 182, 212, 0.05)"
-      border="1px solid"
-      borderColor="rgba(6, 182, 212, 0.1)"
-    >
-      <Box color={colors.accentCyan}>{icon}</Box>
-      <Text fontSize="xs" color={colors.textMuted} fontWeight="500">
+    <Flex align="center" gap="2">
+      <Box color={colors.textMuted}>{icon}</Box>
+      <Text fontSize="xs" color={colors.textMuted} fontWeight="500" letterSpacing="0.02em">
         {label}
       </Text>
     </Flex>
@@ -40,7 +32,7 @@ function FeatureCard({
 
 export function WelcomeModal() {
   const { showWelcome, startTour, skipTour } = useTour()
-  const { colors } = useTheme()
+  const { colors, colorMode } = useTheme()
 
   if (!showWelcome) return null
 
@@ -53,8 +45,8 @@ export function WelcomeModal() {
         left="0"
         right="0"
         bottom="0"
-        bg="rgba(0, 0, 0, 0.8)"
-        backdropFilter="blur(8px)"
+        bg="rgba(0, 0, 0, 0.85)"
+        backdropFilter="blur(12px)"
         zIndex={9998}
         onClick={skipTour}
       />
@@ -65,90 +57,81 @@ export function WelcomeModal() {
         top="50%"
         left="50%"
         transform="translate(-50%, -50%)"
-        width="440px"
+        width="400px"
         maxW="calc(100vw - 32px)"
         bg={colors.cardSolid}
-        borderRadius="24px"
+        borderRadius="16px"
         border="1px solid"
         borderColor={colors.border}
-        boxShadow={`0 40px 80px rgba(0, 0, 0, 0.6), 0 0 60px ${colors.accentCyanGlow}`}
+        boxShadow="0 25px 50px rgba(0, 0, 0, 0.5)"
         zIndex={9999}
         overflow="hidden"
         role="dialog"
         aria-modal="true"
         aria-labelledby="welcome-title"
       >
-        {/* Accent line */}
-        <Box
-          h="3px"
-          bg={`linear-gradient(90deg, ${colors.accentCyan}, ${colors.accentCyan})`}
-        />
-
         {/* Content */}
         <Box p="8" textAlign="center">
-          {/* Icon */}
+          {/* Icon - minimal white circle */}
           <Flex
-            w="80px"
-            h="80px"
+            w="64px"
+            h="64px"
             mx="auto"
             mb="6"
             align="center"
             justify="center"
             borderRadius="full"
-            bg={colors.accentCyanGlow}
-            border="2px solid"
-            borderColor={colors.accentCyan}
-            boxShadow={`0 0 30px ${colors.accentCyanGlow}`}
+            border="1px solid"
+            borderColor={colors.border}
           >
-            <LuActivity size={36} color={colors.accentCyan} />
+            <LuActivity size={28} color={colors.text} />
           </Flex>
 
           {/* Title */}
           <Heading
             id="welcome-title"
             as="h2"
-            fontSize="2xl"
-            fontWeight="700"
+            fontSize="xl"
+            fontWeight="600"
             color={colors.text}
             mb="3"
-            fontFamily="heading"
+            letterSpacing="-0.02em"
           >
-            Welcome to Climate Data Explorer
+            Climate Data Explorer
           </Heading>
 
           {/* Description */}
           <Text
-            fontSize="md"
-            color={colors.textSecondary}
+            fontSize="sm"
+            color={colors.textMuted}
             lineHeight="1.7"
-            mb="8"
-            maxW="340px"
+            mb="6"
+            maxW="300px"
             mx="auto"
           >
             Explore 160 years of temperature data from weather stations worldwide.
-            Compare trends, analyze patterns, and export insights.
           </Text>
 
-          {/* Features preview */}
+          {/* Features - minimal inline */}
           <Flex
             justify="center"
-            gap="4"
+            gap="6"
             mb="8"
             flexWrap="wrap"
           >
-            <FeatureCard
-              icon={<FiMapPin size={20} />}
+            <FeatureItem
+              icon={<FiMapPin size={14} />}
               label="10 Stations"
               colors={colors}
             />
-            <FeatureCard
-              icon={<FiCalendar size={20} />}
+            <FeatureItem
+              icon={<FiCalendar size={14} />}
               label="1859–2019"
               colors={colors}
             />
-            <FeatureCard
-              icon={<FiBarChart2 size={20} />}
-              label="Interactive Charts"
+            <FeatureItem
+              icon={<FiBarChart2 size={14} />}
+              label="Charts"
               colors={colors}
             />
           </Flex>
@@ -158,37 +141,50 @@ export function WelcomeModal() {
             <PillButton
               onClick={startTour}
               variant="primary"
-              icon={<FiPlay size={16} />}
+              icon={<FiPlay size={14} />}
               iconPosition="left"
             >
-              Take a Quick Tour
+              Start Tour
             </PillButton>
-            <PillButton
+            <Text
+              as="button"
               onClick={skipTour}
-              icon={<FiX size={14} />}
-              iconPosition="left"
+              fontSize="xs"
+              color={colors.textMuted}
+              cursor="pointer"
+              _hover={{ color: colors.text }}
+              transition="color 0.15s"
+              bg="transparent"
+              border="none"
+              letterSpacing="0.02em"
             >
-              Skip, I'll explore on my own
-            </PillButton>
+              Skip
+            </Text>
           </Flex>
         </Box>
 
-        {/* Footer hint */}
+        {/* Footer hint - subtle */}
         <Box
-          py="3"
+          py="2.5"
           px="6"
-          bg={colors.bg}
           borderTop="1px solid"
           borderColor={colors.border}
         >
-          <Flex align="center" justify="center" gap="2">
-            <Box color={colors.accentCyan} opacity={0.7}>
-              <FiPlay size={12} />
-            </Box>
-            <Text fontSize="xs" color={colors.textMuted}>
-              You can restart this tour anytime from the Help button
+          <Text fontSize="2xs" color={colors.textMuted} textAlign="center" letterSpacing="0.02em">
+            Press{' '}
+            <Text
+              as="span"
+              fontFamily="mono"
+              px="1"
+              py="0.5"
+              bg={colorMode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}
+              borderRadius="3px"
+              fontSize="2xs"
+            >
+              ?
             </Text>
-          </Flex>
+            {' '}anytime to restart
+          </Text>
         </Box>
       </Box>
     </>
