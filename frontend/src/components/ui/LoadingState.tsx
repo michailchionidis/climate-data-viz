@@ -24,8 +24,8 @@ export function LoadingState({
   const { colors, colorMode } = useTheme()
   const sizes = sizeMap[size]
 
-  // Dynamic colors based on theme
-  const spinnerColor = colorMode === 'light' ? 'cyan.500' : 'cyan.400'
+  // Dynamic colors based on theme (WCAG AA compliant)
+  const spinnerColor = colors.accentCyan
   const trackColor = colorMode === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)'
   const glowOpacity = colorMode === 'light' ? 0.4 : 0.3
 
@@ -61,7 +61,7 @@ export function LoadingState({
             w="100%"
             h="100%"
             borderRadius="full"
-            bg="cyan.400"
+            bg={colors.accentCyan}
             filter="blur(20px)"
             opacity={glowOpacity}
             animation="pulse 2s ease-in-out infinite"

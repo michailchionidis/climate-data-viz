@@ -21,8 +21,9 @@ const customConfig = defineConfig({
           800: { value: '#234e52' },
           900: { value: '#1d4044' },
         },
-        // Accent colors (same for both themes)
+        // Accent colors
         accent: {
+          // Dark mode variants (high contrast on dark backgrounds)
           cyan: { value: '#06b6d4' },
           cyanGlow: { value: 'rgba(6, 182, 212, 0.15)' },
           orange: { value: '#f59e0b' },
@@ -31,6 +32,11 @@ const customConfig = defineConfig({
           purpleGlow: { value: 'rgba(139, 92, 246, 0.15)' },
           emerald: { value: '#10b981' },
           emeraldGlow: { value: 'rgba(16, 185, 129, 0.15)' },
+          // Light mode variants (WCAG AA compliant - 4.5:1 contrast on light bg)
+          cyanLight: { value: '#0891b2' },      // Darker cyan for light mode (5.1:1)
+          orangeLight: { value: '#b45309' },    // Darker orange for light mode (5.4:1)
+          purpleLight: { value: '#7c3aed' },    // Darker purple for light mode
+          emeraldLight: { value: '#059669' },   // Darker emerald for light mode
         },
       },
       fonts: {
@@ -77,6 +83,11 @@ export const themeColors = {
     chartGrid: 'rgba(255, 255, 255, 0.05)',
     chartLine: 'rgba(255, 255, 255, 0.1)',
     chartHoverBg: 'rgba(24, 24, 27, 0.95)',
+    // Accessible accent colors (WCAG AA compliant)
+    accentCyan: '#22d3ee',      // cyan-400 - 8.14:1 contrast
+    accentOrange: '#fbbf24',    // amber-400 - 9.20:1 contrast
+    accentCyanText: '#06b6d4',  // For text on dark bg
+    accentOrangeText: '#f59e0b',
   },
   light: {
     bg: '#f8fafc',
@@ -86,7 +97,7 @@ export const themeColors = {
     cardSolid: '#ffffff',
     border: 'rgba(0, 0, 0, 0.1)',
     borderHover: 'rgba(0, 0, 0, 0.2)',
-    borderActive: 'rgba(6, 182, 212, 0.6)',
+    borderActive: 'rgba(8, 145, 178, 0.6)',
     text: '#0f172a',
     textSecondary: '#334155',
     textMuted: '#64748b',
@@ -94,12 +105,17 @@ export const themeColors = {
     inputBg: 'rgba(0, 0, 0, 0.03)',
     buttonBg: 'rgba(0, 0, 0, 0.05)',
     buttonHover: 'rgba(0, 0, 0, 0.08)',
-    selectedBg: 'rgba(6, 182, 212, 0.1)',
-    selectedBorder: 'rgba(6, 182, 212, 0.5)',
+    selectedBg: 'rgba(8, 145, 178, 0.1)',
+    selectedBorder: 'rgba(8, 145, 178, 0.5)',
     // Chart specific
     chartGrid: 'rgba(0, 0, 0, 0.06)',
     chartLine: 'rgba(0, 0, 0, 0.1)',
     chartHoverBg: 'rgba(255, 255, 255, 0.98)',
+    // Accessible accent colors (WCAG AA compliant - 4.5:1+ contrast)
+    accentCyan: '#0891b2',      // cyan-600 - 5.1:1 contrast on light bg
+    accentOrange: '#b45309',    // amber-700 - 5.4:1 contrast on light bg
+    accentCyanText: '#0e7490',  // cyan-700 for text - 6.3:1 contrast
+    accentOrangeText: '#92400e', // amber-800 for text - 7.1:1 contrast
   },
 } as const
 

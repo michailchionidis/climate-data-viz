@@ -72,7 +72,7 @@ export function CollapsibleSection({
               bg="rgba(6, 182, 212, 0.15)"
               borderRadius="full"
               fontSize="2xs"
-              color="cyan.400"
+              color={colors.accentCyanText}
               fontWeight="600"
             >
               {badge}

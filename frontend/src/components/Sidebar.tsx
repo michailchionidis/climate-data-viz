@@ -52,7 +52,7 @@ export function Sidebar({
 }: SidebarProps) {
   const { colors, colorMode } = useTheme()
 
-  const cyanAccent = colorMode === 'light' ? 'cyan.600' : 'cyan.300'
+  const cyanAccent = colors.accentCyanText
 
   return (
     <>
