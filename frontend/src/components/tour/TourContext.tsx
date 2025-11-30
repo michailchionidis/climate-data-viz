@@ -10,7 +10,7 @@ const STORAGE_VERSION = '1' // Increment to force re-show tour after major updat
 export interface TourStep {
   id: string
   target: string // CSS selector or element ID
-  title: string
+  title: string | React.ReactNode
   content: string | React.ReactNode
   placement?: 'top' | 'bottom' | 'left' | 'right' | 'center'
   spotlight?: boolean

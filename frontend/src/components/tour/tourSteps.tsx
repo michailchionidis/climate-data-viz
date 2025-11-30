@@ -3,7 +3,19 @@
  * Defines all steps for the onboarding tour
  */
 import { Box, Text, Flex } from '@chakra-ui/react'
-import { FiMousePointer, FiMove, FiZoomIn } from 'react-icons/fi'
+import {
+  FiMousePointer,
+  FiMove,
+  FiZoomIn,
+  FiMapPin,
+  FiSettings,
+  FiBarChart2,
+  FiCalendar,
+  FiMaximize2,
+  FiMoon,
+  FiDownload,
+} from 'react-icons/fi'
+import { LuSigma } from 'react-icons/lu'
 import type { TourStep } from './TourContext'
 
 // Helper component for keyboard shortcuts
@@ -40,11 +52,21 @@ function FeatureList({ items }: { items: { icon: React.ReactNode; text: string }
   )
 }
 
+// Step title component with icon
+function StepTitle({ icon, title }: { icon: React.ReactNode; title: string }) {
+  return (
+    <Flex align="center" gap="2">
+      <Box color="cyan.400">{icon}</Box>
+      <Text as="span">{title}</Text>
+    </Flex>
+  )
+}
+
 export const tourSteps: TourStep[] = [
   {
     id: 'stations',
-    target: 'station-selector-desktop',  // Desktop sidebar station selector
-    title: '📍 Select Weather Stations',
+    target: 'station-selector-desktop',
+    title: <StepTitle icon={<FiMapPin size={18} />} title="Select Weather Stations" />,
     placement: 'right',
     spotlight: true,
     content: (
@@ -52,16 +74,17 @@ export const tourSteps: TourStep[] = [
         <Text mb="3">
           Choose one or more weather stations to compare their temperature data over time.
         </Text>
-        <Text fontSize="xs" color="gray.400">
-          💡 Tip: Select multiple stations to see how temperatures differ across locations.
-        </Text>
+        <Flex align="center" gap="2" fontSize="xs" color="gray.400">
+          <Box color="cyan.400"><FiMousePointer size={12} /></Box>
+          <Text>Tip: Select multiple stations to compare locations</Text>
+        </Flex>
       </Box>
     ),
   },
   {
     id: 'viz-options',
-    target: 'visualization-options-desktop',  // Target the whole options container
-    title: '⚙️ Visualization Options',
+    target: 'visualization-options-desktop',
+    title: <StepTitle icon={<FiSettings size={18} />} title="Visualization Options" />,
     placement: 'right',
     spotlight: true,
     content: (
@@ -69,9 +92,9 @@ export const tourSteps: TourStep[] = [
         <Text mb="3" fontWeight="600">View Modes:</Text>
         <FeatureList
           items={[
-            { icon: '📅', text: 'Monthly — Data for each month' },
-            { icon: '📈', text: 'Annual — Yearly averages' },
-            { icon: '±σ', text: 'Overlay — Standard deviation bands' },
+            { icon: <FiCalendar size={14} />, text: 'Monthly — Data for each month' },
+            { icon: <FiBarChart2 size={14} />, text: 'Annual — Yearly averages' },
+            { icon: <LuSigma size={14} />, text: 'Overlay — Standard deviation bands' },
           ]}
         />
         <Text mt="3" mb="2" fontWeight="600">Time Filters:</Text>
@@ -83,8 +106,8 @@ export const tourSteps: TourStep[] = [
   },
   {
     id: 'chart-interactions',
-    target: 'chart-section-desktop',  // Desktop chart area
-    title: '🖱️ Navigate the Chart',
+    target: 'chart-section-desktop',
+    title: <StepTitle icon={<FiMousePointer size={18} />} title="Navigate the Chart" />,
     placement: 'left',
     spotlight: true,
     content: (
@@ -99,16 +122,17 @@ export const tourSteps: TourStep[] = [
             { icon: <FiMousePointer size={14} />, text: 'Hover over points for details' },
           ]}
         />
-        <Text fontSize="xs" color="gray.400" mt="3">
-          💡 Use the ⋮ menu to export data as CSV or PNG
-        </Text>
+        <Flex align="center" gap="2" fontSize="xs" color="gray.400" mt="3">
+          <Box color="cyan.400"><FiDownload size={12} /></Box>
+          <Text>Use the menu to export data as CSV or PNG</Text>
+        </Flex>
       </Box>
     ),
   },
   {
     id: 'sidebar-toggle',
     target: 'sidebar-toggle',
-    title: '📐 Maximize Chart Space',
+    title: <StepTitle icon={<FiMaximize2 size={18} />} title="Maximize Chart Space" />,
     placement: 'bottom',
     spotlight: true,
     content: (
@@ -125,7 +149,7 @@ export const tourSteps: TourStep[] = [
   {
     id: 'theme-toggle',
     target: 'theme-toggle',
-    title: '🌓 Light & Dark Mode',
+    title: <StepTitle icon={<FiMoon size={18} />} title="Light & Dark Mode" />,
     placement: 'bottom',
     spotlight: true,
     content: (
