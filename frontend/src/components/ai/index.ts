@@ -7,4 +7,4 @@
 
 export { AIInsightsPanel } from './AIInsightsPanel'
 export { InsightCard } from './InsightCard'
-export { QuickAskInput } from './QuickAskInput'
+export { ChatSidebar } from './ChatSidebar'

@@ -8,7 +8,7 @@ import { Box, Container, Text, Flex } from '@chakra-ui/react'
 import { StationSelector } from './components/StationSelector'
 import { ControlsPanel } from './components/ControlsPanel'
 import { AnalyticsPanel } from './components/AnalyticsPanel'
-import { AIInsightsPanel } from './components/ai'
+import { AIInsightsPanel, ChatSidebar } from './components/ai'
 import { ChartPanel } from './components/ChartPanel'
 import { Sidebar } from './components/Sidebar'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -36,10 +36,20 @@ function AppContent() {
   const [zoom, setZoom] = useState<ZoomState>({ centerYear: null, windowSize: 10 })
   const [isLoaded, setIsLoaded] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
   // Toggle sidebar
   const toggleSidebar = useCallback(() => {
     setIsSidebarCollapsed((prev) => !prev)
+  }, [])
+
+  // Toggle chat sidebar
+  const openChat = useCallback(() => {
+    setIsChatOpen(true)
+  }, [])
+
+  const closeChat = useCallback(() => {
+    setIsChatOpen(false)
   }, [])
 
   // Trigger entrance animation
@@ -106,12 +116,11 @@ function AppContent() {
 
   return (
     <Box
-      h={{ base: 'auto', lg: '100vh' }}
-      minH="100vh"
+      h="100vh"
       bg={colors.bg}
       display="flex"
       flexDirection="column"
-      overflow={{ base: 'auto', lg: 'hidden' }}
+      overflow="hidden"
       transition="background-color 0.3s ease"
     >
       {/* Skip Links for Accessibility */}
@@ -240,8 +249,8 @@ function AppContent() {
         py={{ base: 2, lg: 3 }}
         px={{ base: 3, md: 4 }}
         mx="auto"
-        flex={{ base: 'none', lg: 1 }}
-        overflow={{ base: 'visible', lg: 'hidden' }}
+        flex={1}
+        overflow="hidden"
         transition="max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
       >
         {/* Mobile Layout - Stacked sections */}
@@ -392,15 +401,30 @@ function AppContent() {
             onToggle={toggleSidebar}
           />
 
-          {/* Main Content Area */}
+          {/* Main Content Area - Scrollable */}
           <Box
             flex={1}
             overflow="auto"
             opacity={isLoaded ? 1 : 0}
             transform={isLoaded ? 'translateY(0)' : 'translateY(20px)'}
             transition="all 0.5s ease-out 0.2s"
+            css={{
+              '&::-webkit-scrollbar': {
+                width: '8px',
+              },
+              '&::-webkit-scrollbar-track': {
+                background: 'transparent',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: colors.border,
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                background: colors.textMuted,
+              },
+            }}
           >
-            <Flex direction="column" gap={3} minH="100%">
+            <Flex direction="column" gap={3} pb={3}>
               {/* Analytics Summary */}
               <Box flexShrink={0}>
                 <ErrorBoundary>
@@ -420,12 +444,13 @@ function AppContent() {
                     stations={selectedStations}
                     yearFrom={yearFrom}
                     yearTo={yearTo}
+                    onOpenChat={openChat}
                   />
                 </ErrorBoundary>
               </Box>
 
-              {/* Chart */}
-              <Box flex={1} minH="400px" id="chart-section-desktop" tabIndex={-1}>
+              {/* Chart - Fixed height when content overflows */}
+              <Box minH="500px" id="chart-section-desktop" tabIndex={-1}>
                 <ErrorBoundary>
                   <ChartPanel
                     monthlyData={monthlyData}
@@ -435,12 +460,21 @@ function AppContent() {
                     isLoading={isLoading}
                     selectedStations={selectedStations}
                     fillHeight
-                    containerKey={`desktop-${isSidebarCollapsed ? 'collapsed' : 'expanded'}-${colorMode}-${mode}`}
+                    containerKey={`desktop-${isSidebarCollapsed ? 'collapsed' : 'expanded'}-${isChatOpen ? 'chat' : 'nochat'}-${colorMode}-${mode}`}
                   />
                 </ErrorBoundary>
               </Box>
             </Flex>
           </Box>
+
+          {/* Chat Sidebar - Right side */}
+          <ChatSidebar
+            isOpen={isChatOpen}
+            onClose={closeChat}
+            stations={selectedStations}
+            yearFrom={yearFrom}
+            yearTo={yearTo}
+          />
         </Flex>
       </Container>
 

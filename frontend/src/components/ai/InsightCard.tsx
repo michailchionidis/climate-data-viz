@@ -3,6 +3,7 @@
  *
  * Displays a single AI-generated insight with type icon,
  * title, description, and confidence indicator.
+ * Uses consistent theme colors (cyan accent only).
  */
 import { Box, Flex, Text } from '@chakra-ui/react'
 import {
@@ -20,21 +21,27 @@ interface InsightCardProps {
   index: number
 }
 
-const insightConfig: Record<
-  InsightType,
-  { icon: React.ElementType; color: string; label: string }
-> = {
-  trend: { icon: FiTrendingUp, color: '#22d3ee', label: 'Trend' },
-  anomaly: { icon: FiAlertTriangle, color: '#f59e0b', label: 'Anomaly' },
-  comparison: { icon: FiRefreshCw, color: '#a855f7', label: 'Comparison' },
-  summary: { icon: FiFileText, color: '#10b981', label: 'Summary' },
-  prediction: { icon: FiTarget, color: '#ec4899', label: 'Prediction' },
+const insightIcons: Record<InsightType, React.ElementType> = {
+  trend: FiTrendingUp,
+  anomaly: FiAlertTriangle,
+  comparison: FiRefreshCw,
+  summary: FiFileText,
+  prediction: FiTarget,
+}
+
+const insightLabels: Record<InsightType, string> = {
+  trend: 'Trend',
+  anomaly: 'Anomaly',
+  comparison: 'Comparison',
+  summary: 'Summary',
+  prediction: 'Prediction',
 }
 
 export function InsightCard({ insight, index }: InsightCardProps) {
   const { colors } = useTheme()
-  const config = insightConfig[insight.type] || insightConfig.summary
-  const Icon = config.icon
+  const Icon = insightIcons[insight.type] || insightIcons.summary
+  const label = insightLabels[insight.type] || 'Insight'
+  const confidencePercent = Math.round(insight.confidence * 100)
 
   return (
     <Box
@@ -42,56 +49,58 @@ export function InsightCard({ insight, index }: InsightCardProps) {
       border="1px solid"
       borderColor={colors.border}
       borderRadius="lg"
-      p={4}
+      p={3}
       transition="all 0.2s"
       _hover={{
-        borderColor: config.color,
-        boxShadow: `0 0 0 1px ${config.color}20`,
+        borderColor: colors.accentCyan,
+        boxShadow: `0 0 0 1px ${colors.accentCyan}30`,
       }}
       role="article"
       aria-label={`Insight ${index + 1}: ${insight.title}`}
     >
-      {/* Header */}
-      <Flex align="center" gap={3} mb={3}>
+      {/* Header row */}
+      <Flex align="flex-start" gap={2.5} mb={2}>
+        {/* Icon */}
         <Flex
           align="center"
           justify="center"
-          w="32px"
-          h="32px"
+          w="28px"
+          h="28px"
           borderRadius="md"
-          bg={`${config.color}15`}
-          color={config.color}
+          bg={`${colors.accentCyan}15`}
+          color={colors.accentCyan}
           flexShrink={0}
         >
-          <Icon size={16} />
+          <Icon size={14} />
         </Flex>
+
+        {/* Content */}
         <Box flex={1} minW={0}>
+          {/* Type and confidence */}
           <Flex align="center" gap={2} mb={1}>
             <Text
-              fontSize="xs"
+              fontSize="10px"
               fontWeight="600"
-              color={config.color}
+              color={colors.accentCyan}
               textTransform="uppercase"
               letterSpacing="0.05em"
             >
-              {config.label}
+              {label}
             </Text>
-            <Box
-              h="4px"
-              w="4px"
-              borderRadius="full"
-              bg={colors.textMuted}
-            />
-            <Text fontSize="xs" color={colors.textMuted}>
-              {Math.round(insight.confidence * 100)}% confidence
+            <Text fontSize="10px" color={colors.textMuted}>
+              •
+            </Text>
+            <Text fontSize="10px" color={colors.textMuted}>
+              {confidencePercent}% confidence
             </Text>
           </Flex>
+
+          {/* Title */}
           <Text
-            fontSize="sm"
+            fontSize="13px"
             fontWeight="600"
             color={colors.text}
-            lineHeight="1.3"
-            lineClamp={2}
+            lineHeight="1.35"
           >
             {insight.title}
           </Text>
@@ -100,43 +109,31 @@ export function InsightCard({ insight, index }: InsightCardProps) {
 
       {/* Description */}
       <Text
-        fontSize="sm"
+        fontSize="12px"
         color={colors.textSecondary}
-        lineHeight="1.6"
-        pl="44px"
+        lineHeight="1.55"
+        pl="36px"
       >
         {insight.description}
       </Text>
 
       {/* Related stations */}
       {insight.related_stations.length > 0 && (
-        <Flex
-          gap={1}
-          mt={3}
-          pl="44px"
-          flexWrap="wrap"
-        >
-          {insight.related_stations.slice(0, 3).map((stationId) => (
+        <Flex gap={1} mt={2} pl="36px" flexWrap="wrap">
+          {insight.related_stations.map((stationId) => (
             <Text
               key={stationId}
-              fontSize="xs"
+              fontSize="10px"
               color={colors.textMuted}
               bg={colors.inputBg}
-              px={2}
+              px={1.5}
               py={0.5}
-              borderRadius="full"
+              borderRadius="sm"
+              fontFamily="mono"
             >
               {stationId}
             </Text>
           ))}
-          {insight.related_stations.length > 3 && (
-            <Text
-              fontSize="xs"
-              color={colors.textMuted}
-            >
-              +{insight.related_stations.length - 3} more
-            </Text>
-          )}
         </Flex>
       )}
     </Box>

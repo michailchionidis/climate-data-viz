@@ -2,8 +2,9 @@
  * Interactive chart panel using Plotly.js
  * Premium visualization with smooth animations and rich tooltips
  */
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Box, Text, Flex } from '@chakra-ui/react'
+import { FiChevronDown, FiChevronRight } from 'react-icons/fi'
 import Plot from 'react-plotly.js'
 import type { Data, Layout } from 'plotly.js'
 import { Card, CardHeader, CardBody } from './ui/Card'
@@ -42,7 +43,17 @@ export function ChartPanel({
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const [revision, setRevision] = useState(0)
   const [isResizing, setIsResizing] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true)
   const prevContainerKey = useRef(containerKey)
+
+  const toggleExpanded = useCallback(() => {
+    setIsExpanded((prev) => !prev)
+    // Trigger resize after animation
+    setTimeout(() => {
+      setRevision((r) => r + 1)
+      window.dispatchEvent(new Event('resize'))
+    }, 350)
+  }, [])
 
   // Trigger chart re-render when container changes (e.g., sidebar collapse)
   useEffect(() => {
@@ -60,7 +71,7 @@ export function ChartPanel({
   }, [containerKey])
 
   const cardHeight = fillHeight ? '100%' : 'auto'
-  const chartMinHeight = fillHeight ? '200px' : '450px'
+  const chartMinHeight = fillHeight ? '400px' : '450px'
 
   // Track window width for responsive legend positioning
   const [isMobile, setIsMobile] = useState(
@@ -278,10 +289,21 @@ export function ChartPanel({
     : `${annualData?.total_years} years`
 
   return (
-    <Card h={cardHeight} display="flex" flexDirection="column">
-      <CardHeader py={fillHeight ? 2 : 3} flexShrink={0}>
+    <Card h={isExpanded ? cardHeight : 'auto'} display="flex" flexDirection="column">
+      <CardHeader
+        py={fillHeight ? 2 : 3}
+        flexShrink={0}
+        cursor="pointer"
+        onClick={toggleExpanded}
+        _hover={{ bg: `${colors.accentCyan}05` }}
+        transition="background 0.2s"
+      >
         <Flex justify="space-between" align="center">
           <Flex align="center" gap={2}>
+            {/* Expand/Collapse icon */}
+            <Box color={colors.textMuted}>
+              {isExpanded ? <FiChevronDown size={14} /> : <FiChevronRight size={14} />}
+            </Box>
             <Text
               fontSize={fillHeight ? 'xs' : 'sm'}
               fontWeight="600"
@@ -306,7 +328,7 @@ export function ChartPanel({
               </Box>
             )}
           </Flex>
-          <Flex align="center" gap={2}>
+          <Flex align="center" gap={2} onClick={(e) => e.stopPropagation()}>
             <Text fontSize="2xs" color={colors.textMuted} fontFamily="mono">
               {dataPointCount}
             </Text>
@@ -321,40 +343,44 @@ export function ChartPanel({
         </Flex>
       </CardHeader>
 
-      <Box ref={chartContainerRef} flex={1} minH={chartMinHeight} p={1}>
-        <Plot
-          data={traces}
-          layout={{ ...layout, datarevision: revision }}
-          config={config}
-          style={{ width: '100%', height: '100%' }}
-          useResizeHandler
-          revision={revision}
-        />
-      </Box>
+      {isExpanded && (
+        <>
+          <Box ref={chartContainerRef} flex={1} minH={chartMinHeight} p={1}>
+            <Plot
+              data={traces}
+              layout={{ ...layout, datarevision: revision }}
+              config={config}
+              style={{ width: '100%', height: '100%' }}
+              useResizeHandler
+              revision={revision}
+            />
+          </Box>
 
-      {/* Chart footer with tips - compact */}
-      <Box
-        px={3}
-        py={1.5}
-        borderTopWidth="1px"
-        borderColor={colors.border}
-        bg={colors.inputBg}
-        flexShrink={0}
-      >
-        <Flex justify="space-between" align="center">
-          <Flex align="center" gap={1.5}>
-            <InfoIcon size="xs" color={colors.textMuted} />
-            <Text fontSize="2xs" color={colors.textMuted}>
-              Drag to pan • Scroll to zoom • Double-click to reset
-            </Text>
-          </Flex>
-          {selectedStations.length > 1 && (
-            <Text fontSize="2xs" color={colors.textMuted}>
-              Click legend to toggle
-            </Text>
-          )}
-        </Flex>
-      </Box>
+          {/* Chart footer with tips - compact */}
+          <Box
+            px={3}
+            py={1.5}
+            borderTopWidth="1px"
+            borderColor={colors.border}
+            bg={colors.inputBg}
+            flexShrink={0}
+          >
+            <Flex justify="space-between" align="center">
+              <Flex align="center" gap={1.5}>
+                <InfoIcon size="xs" color={colors.textMuted} />
+                <Text fontSize="2xs" color={colors.textMuted}>
+                  Drag to pan • Scroll to zoom • Double-click to reset
+                </Text>
+              </Flex>
+              {selectedStations.length > 1 && (
+                <Text fontSize="2xs" color={colors.textMuted}>
+                  Click legend to toggle
+                </Text>
+              )}
+            </Flex>
+          </Box>
+        </>
+      )}
     </Card>
   )
 }
