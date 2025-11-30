@@ -366,6 +366,7 @@ export function ChatSidebar({
             _focusVisible={{ boxShadow: 'none', outline: 'none', border: 'none' }}
             disabled={isPending || stations.length === 0}
             _placeholder={{ color: colors.textMuted }}
+            aria-label="Ask Grok a question about your climate data"
             css={{
               '&:focus': { outline: 'none', boxShadow: 'none' },
               '&::-webkit-scrollbar': { width: '3px' },

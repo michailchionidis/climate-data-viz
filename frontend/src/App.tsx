@@ -16,6 +16,7 @@ import { ActivityIcon, SidebarIcon } from './components/ui/Icons'
 import { ThemeToggle } from './components/ui/ThemeToggle'
 import { CollapsibleSection } from './components/ui/CollapsibleSection'
 import { SkipLink } from './components/ui/SkipLink'
+import { LiveRegionProvider } from './components/ui/LiveRegion'
 import { TourProvider, TourTooltip, WelcomeModal, HelpButton, tourSteps } from './components/tour'
 import { useClimateData, useStations } from './hooks/useClimateData'
 import { useTheme } from './context/ThemeContext'
@@ -161,12 +162,14 @@ function AppContent() {
               <ActivityIcon size="lg" color={colors.text} />
               <Box>
                 <Text
+                  as="h1"
                   fontSize={{ base: 'sm', md: 'md' }}
                   fontWeight="700"
                   color={colors.text}
                   letterSpacing="-0.02em"
                   fontFamily="'Outfit', sans-serif"
                   lineHeight="1.2"
+                  m={0}
                 >
                   Climate Data Explorer
                 </Text>
@@ -481,6 +484,8 @@ function AppContent() {
 
       {/* Footer - Compact */}
       <Box
+        as="footer"
+        role="contentinfo"
         py={1.5}
         flexShrink={0}
         opacity={isLoaded ? 1 : 0}
@@ -546,14 +551,16 @@ function AppContent() {
   )
 }
 
-// Main App wrapper with Tour Provider
+// Main App wrapper with Tour Provider and Live Region
 function App() {
   return (
-    <TourProvider steps={tourSteps}>
-      <AppContent />
-      <WelcomeModal />
-      <TourTooltip />
-    </TourProvider>
+    <LiveRegionProvider>
+      <TourProvider steps={tourSteps}>
+        <AppContent />
+        <WelcomeModal />
+        <TourTooltip />
+      </TourProvider>
+    </LiveRegionProvider>
   )
 }
 

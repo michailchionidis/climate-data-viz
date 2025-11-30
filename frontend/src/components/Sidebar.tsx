@@ -144,6 +144,7 @@ export function Sidebar({
                     transition="all 0.15s"
                     cursor="pointer"
                     title="Collapse sidebar"
+                    aria-label="Collapse sidebar"
                   >
                     <ChevronLeftIcon size="xs" />
                   </Box>

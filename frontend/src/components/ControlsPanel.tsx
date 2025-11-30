@@ -274,6 +274,7 @@ export function ControlsPanel({
                 boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
               }}
               fontFamily="mono"
+              aria-label="Year range start"
             />
           </Box>
           <Text color={colors.textMuted} pt={4} fontSize="sm">
@@ -304,6 +305,7 @@ export function ControlsPanel({
                 boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
               }}
               fontFamily="mono"
+              aria-label="Year range end"
             />
           </Box>
         </Flex>
@@ -366,6 +368,7 @@ export function ControlsPanel({
                     boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
                   }}
                   fontFamily="mono"
+                  aria-label="Zoom center year"
                 />
               </Box>
               <Box
@@ -427,6 +430,7 @@ export function ControlsPanel({
                       windowSize: parseInt(e.target.value),
                     })
                   }
+                  aria-label={`Zoom window size: plus or minus ${zoom.windowSize} years`}
                 />
               </Box>
             </Flex>
@@ -463,6 +467,7 @@ export function ControlsPanel({
                     boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
                   }}
                   fontFamily="mono"
+                  aria-label="Zoom center year"
                 />
               </Box>
 
@@ -532,6 +537,7 @@ export function ControlsPanel({
                         windowSize: parseInt(e.target.value),
                       })
                     }
+                    aria-label={`Zoom window size: plus or minus ${zoom.windowSize} years`}
                   />
                 </Box>
               </Box>
