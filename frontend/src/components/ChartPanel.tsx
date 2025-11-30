@@ -2,7 +2,7 @@
  * Interactive chart panel using Plotly.js
  * Premium visualization with smooth animations and rich tooltips
  */
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, memo } from 'react'
 import { Box, Text, Flex } from '@chakra-ui/react'
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi'
 import Plot from 'react-plotly.js'
@@ -27,7 +27,7 @@ interface ChartPanelProps {
   containerKey?: string | number
 }
 
-export function ChartPanel({
+export const ChartPanel = memo(function ChartPanel({
   monthlyData,
   annualData,
   mode,
@@ -398,4 +398,4 @@ export function ChartPanel({
       )}
     </Card>
   )
-}
+})

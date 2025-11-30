@@ -2,8 +2,13 @@
  * Climate Data Explorer - Main Application
  * A Tesla-level dashboard for exploring historical temperature data
  * Features full accessibility support (WCAG 2.1 AA compliant)
+ *
+ * Architecture:
+ * - State management extracted to custom hooks (useFilters, useUIState)
+ * - Layout components separated (AppHeader, AppFooter)
+ * - Constants centralized in constants/index.ts
  */
-import { useState, useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { Box, Container, Text, Flex, Link } from '@chakra-ui/react'
 import { StationSelector } from './components/StationSelector'
 import { ControlsPanel } from './components/ControlsPanel'
@@ -18,109 +23,55 @@ import { CollapsibleSection } from './components/ui/CollapsibleSection'
 import { SkipLink } from './components/ui/SkipLink'
 import { LiveRegionProvider } from './components/ui/LiveRegion'
 import { TourProvider, TourTooltip, WelcomeModal, HelpButton, tourSteps } from './components/tour'
-import { useClimateData, useStations } from './hooks/useClimateData'
+import { useClimateData, useStations, useFilters, useUIState, useKeyboardShortcuts } from './hooks'
 import { useTheme } from './context/ThemeContext'
-import type { VisualizationMode, ZoomState } from './types'
+import type { VisualizationMode } from './types'
 
 function AppContent() {
   // Theme
   const { colors, colorMode } = useTheme()
-  // Use accessible accent colors from theme (WCAG AA compliant)
   const cyanAccent = colors.accentCyanText
 
-  // State management
-  const [selectedStations, setSelectedStations] = useState<string[]>([])
-  const [yearFrom, setYearFrom] = useState<number | null>(null)
-  const [yearTo, setYearTo] = useState<number | null>(null)
-  const [mode, setMode] = useState<VisualizationMode>('annual')
-  const [showSigmaBounds, setShowSigmaBounds] = useState(false)
-  const [zoom, setZoom] = useState<ZoomState>({ centerYear: null, windowSize: 10 })
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [isChatOpen, setIsChatOpen] = useState(false)
-
-  // Toggle sidebar
-  const toggleSidebar = useCallback(() => {
-    setIsSidebarCollapsed((prev) => !prev)
-  }, [])
-
-  // Toggle chat sidebar
-  const openChat = useCallback(() => {
-    setIsChatOpen(true)
-  }, [])
-
-  const closeChat = useCallback(() => {
-    setIsChatOpen(false)
-  }, [])
-
-  // Track AI Insights expansion state for chart re-render
-  const [isAIInsightsExpanded, setIsAIInsightsExpanded] = useState(false)
-
-  // Trigger entrance animation
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 100)
-    return () => clearTimeout(timer)
-  }, [])
+  // Custom hooks for state management
+  const filters = useFilters()
+  const ui = useUIState()
 
   // Fetch stations list
   const { data: stations } = useStations()
 
   // Fetch data based on current filters
   const { monthlyData, annualData, analytics, isLoading, isAnalyticsLoading } = useClimateData(
-    selectedStations,
-    yearFrom,
-    yearTo,
-    mode
+    filters.selectedStations,
+    filters.yearFrom,
+    filters.yearTo,
+    filters.mode
   )
 
   // Handlers
   const handleStationChange = useCallback((stations: string[]) => {
-    setSelectedStations(stations)
-  }, [])
+    filters.setSelectedStations(stations)
+  }, [filters])
 
   const handleModeChange = useCallback((newMode: VisualizationMode) => {
-    setMode(newMode)
+    filters.setMode(newMode)
     if (newMode === 'monthly') {
-      setShowSigmaBounds(false)
+      filters.setShowSigmaBounds(false)
     }
-  }, [])
+  }, [filters])
 
-  // Keyboard shortcuts - only when not typing in an input
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Skip if user is typing in an input, textarea, or contenteditable
-      const target = e.target as HTMLElement
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      ) {
-        return
-      }
-
-      // Toggle mode with 'M' key
-      if (e.key === 'm' && !e.metaKey && !e.ctrlKey) {
-        setMode((prev) => (prev === 'monthly' ? 'annual' : 'monthly'))
-      }
-      // Toggle sigma bounds with 'S' key
-      if (e.key === 's' && !e.metaKey && !e.ctrlKey && mode === 'annual') {
-        setShowSigmaBounds((prev) => !prev)
-      }
-      // Reset zoom with 'R' key
-      if (e.key === 'r' && !e.metaKey && !e.ctrlKey) {
-        setYearFrom(null)
-        setYearTo(null)
-        setZoom({ centerYear: null, windowSize: 10 })
-      }
-      // Toggle Grok chat with 'G' key
-      if (e.key === 'g' && !e.metaKey && !e.ctrlKey && selectedStations.length > 0) {
-        setIsChatOpen((prev) => !prev)
-      }
+  // Keyboard shortcuts
+  useKeyboardShortcuts(
+    {
+      onToggleMode: filters.toggleMode,
+      onToggleSigma: filters.toggleSigmaBounds,
+      onToggleGrok: ui.toggleChat,
+      onResetZoom: filters.resetZoom,
+    },
+    {
+      isSigmaEnabled: filters.mode === 'annual',
+      isGrokEnabled: filters.selectedStations.length > 0,
     }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [mode, selectedStations.length])
+  )
 
   return (
     <Box
@@ -138,7 +89,7 @@ function AppContent() {
       <SkipLink targetId="station-selector">Skip to station selector</SkipLink>
       <SkipLink targetId="chart-section">Skip to chart</SkipLink>
 
-      {/* Header - Compact with glossy blur effect on scroll */}
+      {/* Header */}
       <Box
         as="header"
         role="banner"
@@ -149,8 +100,8 @@ function AppContent() {
         zIndex={100}
         position={{ base: 'sticky', lg: 'relative' }}
         top={0}
-        opacity={isLoaded ? 1 : 0}
-        transform={isLoaded ? 'translateY(0)' : 'translateY(-10px)'}
+        opacity={ui.isLoaded ? 1 : 0}
+        transform={ui.isLoaded ? 'translateY(0)' : 'translateY(-10px)'}
         transition="all 0.5s ease-out"
         mx={{ base: 3, md: 4 }}
         borderRadius="xl"
@@ -158,7 +109,6 @@ function AppContent() {
         <Container maxW="1800px" py={2} px={{ base: 3, md: 4 }} mx="auto">
           <Flex justify="space-between" align="center">
             <Flex align="center" gap={3}>
-              {/* Logo - minimal x.ai style */}
               <ActivityIcon size="lg" color={colors.text} />
               <Box>
                 <Text
@@ -189,22 +139,22 @@ function AppContent() {
                 gap={1.5}
                 px={2}
                 py={1}
-                bg={isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.50' : 'rgba(6, 182, 212, 0.15)') : colors.card}
+                bg={ui.isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.50' : 'rgba(6, 182, 212, 0.15)') : colors.card}
                 borderRadius="md"
                 borderWidth="1px"
-                borderColor={isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.200' : 'rgba(6, 182, 212, 0.3)') : colors.border}
+                borderColor={ui.isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.200' : 'rgba(6, 182, 212, 0.3)') : colors.border}
                 cursor="pointer"
-                onClick={toggleSidebar}
+                onClick={ui.toggleSidebar}
                 _hover={{
-                  bg: isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.100' : 'rgba(6, 182, 212, 0.25)') : colors.buttonHover,
-                  borderColor: isSidebarCollapsed ? colors.borderActive : colors.borderHover,
+                  bg: ui.isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.100' : 'rgba(6, 182, 212, 0.25)') : colors.buttonHover,
+                  borderColor: ui.isSidebarCollapsed ? colors.borderActive : colors.borderHover,
                 }}
                 transition="all 0.15s"
-                title={isSidebarCollapsed ? 'Show filters' : 'Hide filters'}
+                title={ui.isSidebarCollapsed ? 'Show filters' : 'Hide filters'}
               >
-                <SidebarIcon size="sm" color={isSidebarCollapsed ? (colorMode === 'light' ? '#0891b2' : '#06b6d4') : colors.textMuted} />
-                <Text fontSize="2xs" color={isSidebarCollapsed ? cyanAccent : colors.textMuted} fontWeight="500">
-                  {isSidebarCollapsed ? `Filters (${selectedStations.length}/${stations?.length || 0})` : 'Filters'}
+                <SidebarIcon size="sm" color={ui.isSidebarCollapsed ? (colorMode === 'light' ? '#0891b2' : '#06b6d4') : colors.textMuted} />
+                <Text fontSize="2xs" color={ui.isSidebarCollapsed ? cyanAccent : colors.textMuted} fontWeight="500">
+                  {ui.isSidebarCollapsed ? `Filters (${filters.selectedStations.length}/${stations?.length || 0})` : 'Filters'}
                 </Text>
               </Box>
 
@@ -232,10 +182,7 @@ function AppContent() {
                 ))}
               </Flex>
 
-              {/* Help button - restart tour */}
               <HelpButton size="sm" />
-
-              {/* Theme toggle */}
               <Box id="theme-toggle">
                 <ThemeToggle size="sm" />
               </Box>
@@ -244,9 +191,9 @@ function AppContent() {
         </Container>
       </Box>
 
-      {/* Main Content - Responsive layout */}
+      {/* Main Content */}
       <Container
-        maxW={isSidebarCollapsed ? '100%' : '1800px'}
+        maxW={ui.isSidebarCollapsed ? '100%' : '1800px'}
         pt={0.5}
         pb={{ base: 4, lg: 0 }}
         px={{ base: 3, md: 4 }}
@@ -255,240 +202,46 @@ function AppContent() {
         overflow={{ base: 'visible', lg: 'hidden' }}
         transition="max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
       >
-        {/* Mobile Layout - Stacked sections */}
-        <Box
-          as="main"
-          id="main-content"
-          tabIndex={-1}
-          role="main"
-          aria-label="Climate data visualization"
-          display={{ base: 'block', lg: 'none' }}
-        >
-          <Flex direction="column" gap={3}>
-            {/* Station Selector - Mobile */}
-            <Box
-              id="station-selector"
-              p={3}
-              bg={colors.card}
-              borderRadius="10px"
-              borderWidth="1px"
-              borderColor={colors.border}
-            >
-              <CollapsibleSection
-                title="Weather Stations"
-                badge={`${selectedStations.length}/${stations?.length || 0}`}
-                defaultOpen={true}
-                action={
-                  <Text
-                    fontSize="2xs"
-                    color={cyanAccent}
-                    cursor="pointer"
-                    onClick={() => {
-                      if (selectedStations.length === (stations?.length || 0)) {
-                        handleStationChange([])
-                      } else {
-                        handleStationChange(stations?.map((s) => s.id) || [])
-                      }
-                    }}
-                    _hover={{ opacity: 0.8 }}
-                    transition="opacity 0.15s"
-                    fontWeight="500"
-                  >
-                    {selectedStations.length === (stations?.length || 0) ? 'Clear' : 'All'}
-                  </Text>
-                }
-              >
-                <Box maxH="250px" overflow="auto">
-                  <StationSelector
-                    selectedStations={selectedStations}
-                    onSelectionChange={handleStationChange}
-                    compact
-                    hideHeader
-                  />
-                </Box>
-              </CollapsibleSection>
-            </Box>
+        {/* Mobile Layout */}
+        <MobileLayout
+          filters={filters}
+          stations={stations}
+          analytics={analytics}
+          monthlyData={monthlyData}
+          annualData={annualData}
+          isLoading={isLoading}
+          isAnalyticsLoading={isAnalyticsLoading}
+          onStationChange={handleStationChange}
+          onModeChange={handleModeChange}
+          colors={colors}
+          colorMode={colorMode}
+          cyanAccent={cyanAccent}
+        />
 
-            {/* Controls - Mobile */}
-            <Box
-              p={3}
-              bg={colors.card}
-              borderRadius="10px"
-              borderWidth="1px"
-              borderColor={colors.border}
-            >
-              <CollapsibleSection
-                title="Visualization Options"
-                defaultOpen={false}
-              >
-                <ControlsPanel
-                  yearFrom={yearFrom}
-                  yearTo={yearTo}
-                  onYearFromChange={setYearFrom}
-                  onYearToChange={setYearTo}
-                  mode={mode}
-                  onModeChange={handleModeChange}
-                  showSigmaBounds={showSigmaBounds}
-                  onShowSigmaBoundsChange={setShowSigmaBounds}
-                  zoom={zoom}
-                  onZoomChange={setZoom}
-                  compact
-                />
-              </CollapsibleSection>
-            </Box>
-
-            {/* Analytics - Mobile */}
-            <ErrorBoundary>
-              <AnalyticsPanel
-                analytics={analytics}
-                isLoading={isAnalyticsLoading}
-                selectedStations={selectedStations}
-                compact
-              />
-            </ErrorBoundary>
-
-            {/* AI Insights - Mobile */}
-            <ErrorBoundary>
-              <AIInsightsPanel
-                stations={selectedStations}
-                yearFrom={yearFrom}
-                yearTo={yearTo}
-              />
-            </ErrorBoundary>
-
-            {/* Chart - Mobile */}
-            <Box minH="350px" id="chart-section" tabIndex={-1}>
-              <ErrorBoundary>
-                <ChartPanel
-                  monthlyData={monthlyData}
-                  annualData={annualData}
-                  mode={mode}
-                  showSigmaBounds={showSigmaBounds}
-                  isLoading={isLoading}
-                  selectedStations={selectedStations}
-                  fillHeight
-                  containerKey={`mobile-${colorMode}-${mode}`}
-                />
-              </ErrorBoundary>
-            </Box>
-          </Flex>
-        </Box>
-
-        {/* Desktop Layout - Collapsible Sidebar */}
-        <Flex
-          display={{ base: 'none', lg: 'flex' }}
-          gap={4}
-          h="100%"
-          position="relative"
-          opacity={isLoaded ? 1 : 0}
-          transform={isLoaded ? 'translateX(0)' : 'translateX(-20px)'}
-          transition="all 0.5s ease-out 0.1s"
-        >
-          {/* Unified Sidebar */}
-          <Sidebar
-            selectedStations={selectedStations}
-            onStationChange={handleStationChange}
-            stations={stations}
-            yearFrom={yearFrom}
-            yearTo={yearTo}
-            onYearFromChange={setYearFrom}
-            onYearToChange={setYearTo}
-            mode={mode}
-            onModeChange={handleModeChange}
-            showSigmaBounds={showSigmaBounds}
-            onShowSigmaBoundsChange={setShowSigmaBounds}
-            zoom={zoom}
-            onZoomChange={setZoom}
-            isCollapsed={isSidebarCollapsed}
-            onToggle={toggleSidebar}
-          />
-
-          {/* Main Content Area - Scrollable */}
-          <Flex
-            flex={1}
-            direction="column"
-            overflow="auto"
-            opacity={isLoaded ? 1 : 0}
-            transform={isLoaded ? 'translateY(0)' : 'translateY(20px)'}
-            transition="all 0.5s ease-out 0.2s"
-            css={{
-              '&::-webkit-scrollbar': {
-                width: '8px',
-              },
-              '&::-webkit-scrollbar-track': {
-                background: 'transparent',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: colors.border,
-                borderRadius: '4px',
-              },
-              '&::-webkit-scrollbar-thumb:hover': {
-                background: colors.textMuted,
-              },
-            }}
-          >
-            <Flex direction="column" gap={3} flex={1}>
-              {/* Analytics Summary */}
-              <Box flexShrink={0}>
-                <ErrorBoundary>
-                  <AnalyticsPanel
-                    analytics={analytics}
-                    isLoading={isAnalyticsLoading}
-                    selectedStations={selectedStations}
-                    compact
-                  />
-                </ErrorBoundary>
-              </Box>
-
-              {/* AI Insights - Desktop */}
-              <Box flexShrink={0}>
-                <ErrorBoundary>
-                  <AIInsightsPanel
-                    stations={selectedStations}
-                    yearFrom={yearFrom}
-                    yearTo={yearTo}
-                    onOpenChat={openChat}
-                    onExpandChange={setIsAIInsightsExpanded}
-                  />
-                </ErrorBoundary>
-              </Box>
-
-              {/* Chart - Expands to fill available space */}
-              <Box flex={1} minH="400px" id="chart-section-desktop" tabIndex={-1}>
-                <ErrorBoundary>
-                  <ChartPanel
-                    monthlyData={monthlyData}
-                    annualData={annualData}
-                    mode={mode}
-                    showSigmaBounds={showSigmaBounds}
-                    isLoading={isLoading}
-                    selectedStations={selectedStations}
-                    fillHeight
-                    containerKey={`desktop-${isSidebarCollapsed ? 'collapsed' : 'expanded'}-${isChatOpen ? 'chat' : 'nochat'}-${colorMode}-${mode}-ai${isAIInsightsExpanded ? 'open' : 'closed'}`}
-                  />
-                </ErrorBoundary>
-              </Box>
-            </Flex>
-          </Flex>
-
-          {/* Chat Sidebar - Right side */}
-          <ChatSidebar
-            isOpen={isChatOpen}
-            onClose={closeChat}
-            stations={selectedStations}
-            yearFrom={yearFrom}
-            yearTo={yearTo}
-          />
-        </Flex>
+        {/* Desktop Layout */}
+        <DesktopLayout
+          filters={filters}
+          ui={ui}
+          stations={stations}
+          analytics={analytics}
+          monthlyData={monthlyData}
+          annualData={annualData}
+          isLoading={isLoading}
+          isAnalyticsLoading={isAnalyticsLoading}
+          onStationChange={handleStationChange}
+          onModeChange={handleModeChange}
+          colors={colors}
+          colorMode={colorMode}
+        />
       </Container>
 
-      {/* Footer - Compact */}
+      {/* Footer */}
       <Box
         as="footer"
         role="contentinfo"
         py={1.5}
         flexShrink={0}
-        opacity={isLoaded ? 1 : 0}
+        opacity={ui.isLoaded ? 1 : 0}
         transition="opacity 0.5s ease-out 0.4s"
       >
         <Container maxW="1800px" px={4} mx="auto">
@@ -548,6 +301,272 @@ function AppContent() {
         </Container>
       </Box>
     </Box>
+  )
+}
+
+// Mobile Layout Component
+interface LayoutProps {
+  filters: ReturnType<typeof useFilters>
+  ui: ReturnType<typeof useUIState>
+  stations: { id: string; name: string }[] | undefined
+  analytics: any
+  monthlyData: any
+  annualData: any
+  isLoading: boolean
+  isAnalyticsLoading: boolean
+  onStationChange: (stations: string[]) => void
+  onModeChange: (mode: VisualizationMode) => void
+  colors: any
+  colorMode: string
+  cyanAccent?: string
+}
+
+function MobileLayout({
+  filters,
+  stations,
+  analytics,
+  monthlyData,
+  annualData,
+  isLoading,
+  isAnalyticsLoading,
+  onStationChange,
+  onModeChange,
+  colors,
+  colorMode,
+  cyanAccent,
+}: Omit<LayoutProps, 'ui'>) {
+  return (
+    <Box
+      as="main"
+      id="main-content"
+      tabIndex={-1}
+      role="main"
+      aria-label="Climate data visualization"
+      display={{ base: 'block', lg: 'none' }}
+    >
+      <Flex direction="column" gap={3}>
+        {/* Station Selector - Mobile */}
+        <Box
+          id="station-selector"
+          p={3}
+          bg={colors.card}
+          borderRadius="10px"
+          borderWidth="1px"
+          borderColor={colors.border}
+        >
+          <CollapsibleSection
+            title="Weather Stations"
+            badge={`${filters.selectedStations.length}/${stations?.length || 0}`}
+            defaultOpen={true}
+            action={
+              <Text
+                fontSize="2xs"
+                color={cyanAccent}
+                cursor="pointer"
+                onClick={() => {
+                  if (filters.selectedStations.length === (stations?.length || 0)) {
+                    onStationChange([])
+                  } else {
+                    onStationChange(stations?.map((s) => s.id) || [])
+                  }
+                }}
+                _hover={{ opacity: 0.8 }}
+                transition="opacity 0.15s"
+                fontWeight="500"
+              >
+                {filters.selectedStations.length === (stations?.length || 0) ? 'Clear' : 'All'}
+              </Text>
+            }
+          >
+            <Box maxH="250px" overflow="auto">
+              <StationSelector
+                selectedStations={filters.selectedStations}
+                onSelectionChange={onStationChange}
+                compact
+                hideHeader
+              />
+            </Box>
+          </CollapsibleSection>
+        </Box>
+
+        {/* Controls - Mobile */}
+        <Box
+          p={3}
+          bg={colors.card}
+          borderRadius="10px"
+          borderWidth="1px"
+          borderColor={colors.border}
+        >
+          <CollapsibleSection
+            title="Visualization Options"
+            defaultOpen={false}
+          >
+            <ControlsPanel
+              yearFrom={filters.yearFrom}
+              yearTo={filters.yearTo}
+              onYearFromChange={filters.setYearFrom}
+              onYearToChange={filters.setYearTo}
+              mode={filters.mode}
+              onModeChange={onModeChange}
+              showSigmaBounds={filters.showSigmaBounds}
+              onShowSigmaBoundsChange={filters.setShowSigmaBounds}
+              zoom={filters.zoom}
+              onZoomChange={filters.setZoom}
+              compact
+            />
+          </CollapsibleSection>
+        </Box>
+
+        {/* Analytics - Mobile */}
+        <ErrorBoundary>
+          <AnalyticsPanel
+            analytics={analytics}
+            isLoading={isAnalyticsLoading}
+            selectedStations={filters.selectedStations}
+            compact
+          />
+        </ErrorBoundary>
+
+        {/* AI Insights - Mobile */}
+        <ErrorBoundary>
+          <AIInsightsPanel
+            stations={filters.selectedStations}
+            yearFrom={filters.yearFrom}
+            yearTo={filters.yearTo}
+          />
+        </ErrorBoundary>
+
+        {/* Chart - Mobile */}
+        <Box minH="350px" id="chart-section" tabIndex={-1}>
+          <ErrorBoundary>
+            <ChartPanel
+              monthlyData={monthlyData}
+              annualData={annualData}
+              mode={filters.mode}
+              showSigmaBounds={filters.showSigmaBounds}
+              isLoading={isLoading}
+              selectedStations={filters.selectedStations}
+              fillHeight
+              containerKey={`mobile-${colorMode}-${filters.mode}`}
+            />
+          </ErrorBoundary>
+        </Box>
+      </Flex>
+    </Box>
+  )
+}
+
+function DesktopLayout({
+  filters,
+  ui,
+  stations,
+  analytics,
+  monthlyData,
+  annualData,
+  isLoading,
+  isAnalyticsLoading,
+  onStationChange,
+  onModeChange,
+  colors,
+  colorMode,
+}: Omit<LayoutProps, 'cyanAccent'>) {
+  return (
+    <Flex
+      display={{ base: 'none', lg: 'flex' }}
+      gap={4}
+      h="100%"
+      position="relative"
+      opacity={ui.isLoaded ? 1 : 0}
+      transform={ui.isLoaded ? 'translateX(0)' : 'translateX(-20px)'}
+      transition="all 0.5s ease-out 0.1s"
+    >
+      {/* Unified Sidebar */}
+      <Sidebar
+        selectedStations={filters.selectedStations}
+        onStationChange={onStationChange}
+        stations={stations}
+        yearFrom={filters.yearFrom}
+        yearTo={filters.yearTo}
+        onYearFromChange={filters.setYearFrom}
+        onYearToChange={filters.setYearTo}
+        mode={filters.mode}
+        onModeChange={onModeChange}
+        showSigmaBounds={filters.showSigmaBounds}
+        onShowSigmaBoundsChange={filters.setShowSigmaBounds}
+        zoom={filters.zoom}
+        onZoomChange={filters.setZoom}
+        isCollapsed={ui.isSidebarCollapsed}
+        onToggle={ui.toggleSidebar}
+      />
+
+      {/* Main Content Area */}
+      <Flex
+        flex={1}
+        direction="column"
+        overflow="auto"
+        opacity={ui.isLoaded ? 1 : 0}
+        transform={ui.isLoaded ? 'translateY(0)' : 'translateY(20px)'}
+        transition="all 0.5s ease-out 0.2s"
+        css={{
+          '&::-webkit-scrollbar': { width: '8px' },
+          '&::-webkit-scrollbar-track': { background: 'transparent' },
+          '&::-webkit-scrollbar-thumb': { background: colors.border, borderRadius: '4px' },
+          '&::-webkit-scrollbar-thumb:hover': { background: colors.textMuted },
+        }}
+      >
+        <Flex direction="column" gap={3} flex={1}>
+          {/* Analytics Summary */}
+          <Box flexShrink={0}>
+            <ErrorBoundary>
+              <AnalyticsPanel
+                analytics={analytics}
+                isLoading={isAnalyticsLoading}
+                selectedStations={filters.selectedStations}
+                compact
+              />
+            </ErrorBoundary>
+          </Box>
+
+          {/* AI Insights */}
+          <Box flexShrink={0}>
+            <ErrorBoundary>
+              <AIInsightsPanel
+                stations={filters.selectedStations}
+                yearFrom={filters.yearFrom}
+                yearTo={filters.yearTo}
+                onOpenChat={ui.openChat}
+                onExpandChange={ui.setAIInsightsExpanded}
+              />
+            </ErrorBoundary>
+          </Box>
+
+          {/* Chart */}
+          <Box flex={1} minH="400px" id="chart-section-desktop" tabIndex={-1}>
+            <ErrorBoundary>
+              <ChartPanel
+                monthlyData={monthlyData}
+                annualData={annualData}
+                mode={filters.mode}
+                showSigmaBounds={filters.showSigmaBounds}
+                isLoading={isLoading}
+                selectedStations={filters.selectedStations}
+                fillHeight
+                containerKey={`desktop-${ui.isSidebarCollapsed ? 'collapsed' : 'expanded'}-${ui.isChatOpen ? 'chat' : 'nochat'}-${colorMode}-${filters.mode}-ai${ui.isAIInsightsExpanded ? 'open' : 'closed'}`}
+              />
+            </ErrorBoundary>
+          </Box>
+        </Flex>
+      </Flex>
+
+      {/* Chat Sidebar */}
+      <ChatSidebar
+        isOpen={ui.isChatOpen}
+        onClose={ui.closeChat}
+        stations={filters.selectedStations}
+        yearFrom={filters.yearFrom}
+        yearTo={filters.yearTo}
+      />
+    </Flex>
   )
 }
 
