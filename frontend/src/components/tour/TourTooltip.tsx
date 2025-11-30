@@ -56,7 +56,7 @@ function getTooltipPosition(
   }
 
   const padding = 16
-  const arrowOffset = 12
+  const arrowOffset = 20 // Increased for arrow space
 
   let top = 0
   let left = 0
@@ -90,8 +90,96 @@ function getTooltipPosition(
   return { top, left }
 }
 
+// Get arrow position based on placement
+function getArrowStyles(
+  placement: TourStep['placement'],
+  colors: { accentCyan: string; cardSolid: string; border: string }
+): React.CSSProperties {
+  const arrowSize = 10
+  const base: React.CSSProperties = {
+    position: 'absolute',
+    width: 0,
+    height: 0,
+    borderStyle: 'solid',
+  }
+
+  switch (placement) {
+    case 'top':
+      return {
+        ...base,
+        bottom: -arrowSize,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        borderWidth: `${arrowSize}px ${arrowSize}px 0 ${arrowSize}px`,
+        borderColor: `${colors.border} transparent transparent transparent`,
+      }
+    case 'bottom':
+      return {
+        ...base,
+        top: -arrowSize,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        borderWidth: `0 ${arrowSize}px ${arrowSize}px ${arrowSize}px`,
+        borderColor: `transparent transparent ${colors.border} transparent`,
+      }
+    case 'left':
+      return {
+        ...base,
+        right: -arrowSize,
+        top: '50%',
+        transform: 'translateY(-50%)',
+        borderWidth: `${arrowSize}px 0 ${arrowSize}px ${arrowSize}px`,
+        borderColor: `transparent transparent transparent ${colors.border}`,
+      }
+    case 'right':
+      return {
+        ...base,
+        left: -arrowSize,
+        top: '50%',
+        transform: 'translateY(-50%)',
+        borderWidth: `${arrowSize}px ${arrowSize}px ${arrowSize}px 0`,
+        borderColor: `transparent ${colors.border} transparent transparent`,
+      }
+    default:
+      return { display: 'none' }
+  }
+}
+
+// Step dot component
+function StepDot({
+  index,
+  isActive,
+  isCompleted,
+  onClick,
+  colors,
+}: {
+  index: number
+  isActive: boolean
+  isCompleted: boolean
+  onClick: () => void
+  colors: { accentCyan: string; textMuted: string; border: string }
+}) {
+  return (
+    <Box
+      as="button"
+      w="8px"
+      h="8px"
+      borderRadius="full"
+      bg={isActive ? colors.accentCyan : isCompleted ? 'rgba(6, 182, 212, 0.4)' : colors.border}
+      cursor="pointer"
+      transition="all 0.2s ease"
+      onClick={onClick}
+      aria-label={`Go to step ${index + 1}`}
+      _hover={{
+        transform: 'scale(1.3)',
+        bg: isActive ? colors.accentCyan : 'rgba(6, 182, 212, 0.6)',
+      }}
+    />
+  )
+}
+
 export function TourTooltip() {
-  const { isOpen, currentStep, steps, nextStep, prevStep, endTour } = useTour()
+  const { isOpen, currentStep, steps, nextStep, prevStep, endTour, goToStep } = useTour()
   const { colors } = useTheme()
   const [targetRect, setTargetRect] = useState<TargetRect | null>(null)
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 })
@@ -103,7 +191,6 @@ export function TourTooltip() {
   const step = steps[currentStep]
   const isFirstStep = currentStep === 0
   const isLastStep = currentStep === steps.length - 1
-  const progress = ((currentStep + 1) / steps.length) * 100
 
   // Update target rect and tooltip position
   useEffect(() => {
@@ -158,6 +245,8 @@ export function TourTooltip() {
   }, [isOpen, nextStep, prevStep, endTour])
 
   if (!isOpen || !step) return null
+
+  const showArrow = !isMobile && targetRect && step.spotlight !== false
 
   return (
     <>
@@ -233,134 +322,141 @@ export function TourTooltip() {
         borderColor={colors.border}
         boxShadow={`0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px ${colors.accentCyanGlow}`}
         zIndex={10000}
-        overflow="hidden"
+        overflow="visible"
         transition="top 0.3s ease, left 0.3s ease"
         role="dialog"
         aria-modal="true"
-        aria-label={`Tour step ${currentStep + 1} of ${steps.length}: ${step.title}`}
+        aria-label={`Tour step ${currentStep + 1} of ${steps.length}`}
       >
-        {/* Progress bar */}
-        <Box h="3px" bg={colors.bg}>
-          <Box
-            h="100%"
-            w={`${progress}%`}
-            bg={colors.accentCyan}
-            transition="width 0.3s ease"
-          />
-        </Box>
+        {/* Arrow pointer */}
+        {showArrow && (
+          <Box style={getArrowStyles(step.placement, colors)} />
+        )}
 
-        {/* Content */}
-        <Box p="5">
-          {/* Header */}
-          <Flex justify="space-between" align="center" mb="3">
-            <Text
-              fontSize="lg"
-              fontWeight="700"
-              color={colors.text}
-              fontFamily="heading"
-            >
-              {step.title}
-            </Text>
+        {/* Content wrapper with overflow hidden for rounded corners */}
+        <Box overflow="hidden" borderRadius="16px">
+          {/* Content */}
+          <Box p="5">
+            {/* Header */}
+            <Flex justify="space-between" align="center" mb="3">
+              <Box
+                fontSize="lg"
+                fontWeight="700"
+                color={colors.text}
+                fontFamily="heading"
+              >
+                {step.title}
+              </Box>
+              <Box
+                as="button"
+                p="1"
+                borderRadius="md"
+                color={colors.textMuted}
+                cursor="pointer"
+                onClick={() => endTour(false)}
+                _hover={{ color: colors.text, bg: colors.buttonHover }}
+                aria-label="Close tour"
+              >
+                <FiX size={18} />
+              </Box>
+            </Flex>
+
+            {/* Body */}
             <Box
-              as="button"
-              p="1"
-              borderRadius="md"
-              color={colors.textMuted}
-              cursor="pointer"
-              onClick={() => endTour(false)}
-              _hover={{ color: colors.text, bg: colors.buttonHover }}
-              aria-label="Close tour"
+              fontSize="sm"
+              color={colors.textSecondary}
+              lineHeight="1.7"
+              mb="4"
             >
-              <FiX size={18} />
+              {step.content}
             </Box>
-          </Flex>
 
-          {/* Body */}
-          <Box
-            fontSize="sm"
-            color={colors.textSecondary}
-            lineHeight="1.7"
-            mb="4"
-          >
-            {step.content}
-          </Box>
+            {/* Mobile hint */}
+            {isMobile && (
+              <Box
+                bg="rgba(6, 182, 212, 0.1)"
+                border="1px solid"
+                borderColor="rgba(6, 182, 212, 0.2)"
+                borderRadius="8px"
+                p="2"
+                mb="3"
+              >
+                <Text fontSize="xs" color={colors.textMuted} textAlign="center">
+                  For the best experience with interactive highlights, view this tour on a desktop device.
+                </Text>
+              </Box>
+            )}
 
-          {/* Mobile hint */}
-          {isMobile && (
-            <Box
-              bg="rgba(6, 182, 212, 0.1)"
-              border="1px solid"
-              borderColor="rgba(6, 182, 212, 0.2)"
-              borderRadius="8px"
-              p="2"
-              mb="3"
-            >
-              <Text fontSize="xs" color={colors.textMuted} textAlign="center">
-                💡 For the best experience with interactive highlights, view this tour on a desktop device.
-              </Text>
-            </Box>
-          )}
+            {/* Footer */}
+            <Flex justify="space-between" align="center">
+              {/* Step dots */}
+              <Flex gap="2" align="center">
+                {steps.map((_, index) => (
+                  <StepDot
+                    key={index}
+                    index={index}
+                    isActive={index === currentStep}
+                    isCompleted={index < currentStep}
+                    onClick={() => goToStep(index)}
+                    colors={colors}
+                  />
+                ))}
+              </Flex>
 
-          {/* Footer */}
-          <Flex justify="space-between" align="center">
-            {/* Step indicator */}
-            <Text fontSize="xs" color={colors.textMuted}>
-              {currentStep + 1} of {steps.length}
-            </Text>
-
-            {/* Navigation */}
-            <Flex gap="2">
-              {!isFirstStep && (
+              {/* Navigation */}
+              <Flex gap="2">
+                {!isFirstStep && (
+                  <Box
+                    as="button"
+                    display="flex"
+                    alignItems="center"
+                    gap="1"
+                    px="3"
+                    py="1.5"
+                    borderRadius="md"
+                    fontSize="sm"
+                    color={colors.textSecondary}
+                    cursor="pointer"
+                    onClick={prevStep}
+                    _hover={{ color: colors.text, bg: colors.buttonHover }}
+                    transition="all 0.15s"
+                  >
+                    <FiChevronLeft size={14} />
+                    Back
+                  </Box>
+                )}
                 <Box
                   as="button"
                   display="flex"
                   alignItems="center"
                   gap="1"
-                  px="3"
+                  px="4"
                   py="1.5"
-                  borderRadius="md"
+                  borderRadius="8px"
                   fontSize="sm"
-                  color={colors.textSecondary}
+                  fontWeight="600"
+                  bg="rgba(6, 182, 212, 0.15)"
+                  color={colors.accentCyan}
+                  borderWidth="1px"
+                  borderColor="rgba(6, 182, 212, 0.3)"
                   cursor="pointer"
-                  onClick={prevStep}
-                  _hover={{ color: colors.text, bg: colors.buttonHover }}
+                  onClick={nextStep}
+                  _hover={{
+                    bg: 'rgba(6, 182, 212, 0.25)',
+                    borderColor: 'rgba(6, 182, 212, 0.5)',
+                    boxShadow: `0 0 15px ${colors.accentCyanGlow}`,
+                  }}
+                  _active={{
+                    bg: 'rgba(6, 182, 212, 0.35)',
+                  }}
                   transition="all 0.15s"
                 >
-                  <FiChevronLeft size={14} />
-                  Back
+                  {isLastStep ? 'Finish' : 'Next'}
+                  {!isLastStep && <FiChevronRight size={14} />}
                 </Box>
-              )}
-              <Box
-                as="button"
-                display="flex"
-                alignItems="center"
-                gap="1"
-                px="4"
-                py="1.5"
-                borderRadius="8px"
-                fontSize="sm"
-                fontWeight="600"
-                bg="rgba(6, 182, 212, 0.15)"
-                color={colors.accentCyan}
-                borderWidth="1px"
-                borderColor="rgba(6, 182, 212, 0.3)"
-                cursor="pointer"
-                onClick={nextStep}
-                _hover={{
-                  bg: 'rgba(6, 182, 212, 0.25)',
-                  borderColor: 'rgba(6, 182, 212, 0.5)',
-                  boxShadow: `0 0 15px ${colors.accentCyanGlow}`,
-                }}
-                _active={{
-                  bg: 'rgba(6, 182, 212, 0.35)',
-                }}
-                transition="all 0.15s"
-              >
-                {isLastStep ? 'Finish' : 'Next'}
-                {!isLastStep && <FiChevronRight size={14} />}
-              </Box>
+              </Flex>
             </Flex>
-          </Flex>
+          </Box>
         </Box>
       </Box>
     </>
