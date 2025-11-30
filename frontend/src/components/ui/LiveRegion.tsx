@@ -2,13 +2,8 @@
  * Live Region Component for Screen Reader Announcements
  * Announces dynamic content changes to assistive technologies
  */
-import { useState, useEffect, createContext, useContext, useCallback } from 'react'
+import { useState, createContext, useContext, useCallback } from 'react'
 import { Box } from '@chakra-ui/react'
-
-interface Announcement {
-  message: string
-  priority: 'polite' | 'assertive'
-}
 
 interface LiveRegionContextType {
   announce: (message: string, priority?: 'polite' | 'assertive') => void

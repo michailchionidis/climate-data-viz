@@ -3,7 +3,6 @@
  * Allows keyboard users to skip navigation and jump to main content
  */
 import { Box, Link } from '@chakra-ui/react'
-import { useTheme } from '../../context/ThemeContext'
 
 interface SkipLinkProps {
   /** Target element ID to skip to */
@@ -13,7 +12,6 @@ interface SkipLinkProps {
 }
 
 export function SkipLink({ targetId, children }: SkipLinkProps) {
-  const { colors } = useTheme()
 
   return (
     <Link
