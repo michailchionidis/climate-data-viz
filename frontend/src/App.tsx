@@ -15,11 +15,12 @@ import { ActivityIcon, SidebarIcon } from './components/ui/Icons'
 import { ThemeToggle } from './components/ui/ThemeToggle'
 import { CollapsibleSection } from './components/ui/CollapsibleSection'
 import { SkipLink } from './components/ui/SkipLink'
+import { TourProvider, TourTooltip, WelcomeModal, HelpButton, tourSteps } from './components/tour'
 import { useClimateData, useStations } from './hooks/useClimateData'
 import { useTheme } from './context/ThemeContext'
 import type { VisualizationMode, ZoomState } from './types'
 
-function App() {
+function AppContent() {
   // Theme
   const { colors, colorMode } = useTheme()
   // Use accessible accent colors from theme (WCAG AA compliant)
@@ -161,6 +162,7 @@ function App() {
             <Flex align="center" gap={2}>
               {/* Sidebar toggle - desktop only */}
               <Box
+                id="sidebar-toggle"
                 as="button"
                 display={{ base: 'none', lg: 'flex' }}
                 alignItems="center"
@@ -209,8 +211,13 @@ function App() {
                 ))}
               </Flex>
 
+              {/* Help button - restart tour */}
+              <HelpButton size="sm" />
+
               {/* Theme toggle */}
-              <ThemeToggle size="sm" />
+              <Box id="theme-toggle">
+                <ThemeToggle size="sm" />
+              </Box>
             </Flex>
           </Flex>
         </Container>
@@ -442,6 +449,17 @@ function App() {
         </Container>
       </Box>
     </Box>
+  )
+}
+
+// Main App wrapper with Tour Provider
+function App() {
+  return (
+    <TourProvider steps={tourSteps}>
+      <AppContent />
+      <WelcomeModal />
+      <TourTooltip />
+    </TourProvider>
   )
 }
 
