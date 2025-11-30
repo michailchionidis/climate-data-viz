@@ -22,7 +22,8 @@ import type { VisualizationMode, ZoomState } from './types'
 function App() {
   // Theme
   const { colors, colorMode } = useTheme()
-  const cyanAccent = colorMode === 'light' ? 'cyan.600' : 'cyan.300'
+  // Use accessible accent colors from theme (WCAG AA compliant)
+  const cyanAccent = colors.accentCyanText
 
   // State management
   const [selectedStations, setSelectedStations] = useState<string[]>([])
@@ -174,7 +175,7 @@ function App() {
                 onClick={toggleSidebar}
                 _hover={{
                   bg: isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.100' : 'rgba(6, 182, 212, 0.25)') : colors.buttonHover,
-                  borderColor: isSidebarCollapsed ? (colorMode === 'light' ? 'cyan.300' : 'rgba(6, 182, 212, 0.4)') : colors.borderHover,
+                  borderColor: isSidebarCollapsed ? colors.borderActive : colors.borderHover,
                 }}
                 transition="all 0.15s"
                 title={isSidebarCollapsed ? 'Show filters' : 'Hide filters'}

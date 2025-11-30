@@ -39,8 +39,9 @@ export function ControlsPanel({
   maxYear = 2019,
   compact = false,
 }: ControlsPanelProps) {
-  const { colors, colorMode } = useTheme()
-  const cyanAccent = colorMode === 'light' ? 'cyan.600' : 'cyan.300'
+  const { colors } = useTheme()
+  // Use accessible accent colors from theme (WCAG AA compliant)
+  const cyanAccent = colors.accentCyanText
 
   // Track the last applied zoom settings to know when Apply should be enabled
   const [appliedZoom, setAppliedZoom] = useState<ZoomState>({ centerYear: null, windowSize: 10 })
@@ -127,7 +128,7 @@ export function ControlsPanel({
               <Text
                 fontSize="xs"
                 fontWeight="600"
-                color={mode === 'monthly' ? 'cyan.400' : colors.textMuted}
+                color={mode === 'monthly' ? colors.accentCyanText : colors.textMuted}
                 textAlign="center"
               >
                 Monthly
@@ -163,7 +164,7 @@ export function ControlsPanel({
               <Text
                 fontSize="xs"
                 fontWeight="600"
-                color={mode === 'annual' ? 'cyan.400' : colors.textMuted}
+                color={mode === 'annual' ? colors.accentCyanText : colors.textMuted}
                 textAlign="center"
               >
                 Annual Avg
@@ -228,7 +229,7 @@ export function ControlsPanel({
                 boxShadow="0 1px 3px rgba(0,0,0,0.3)"
               />
             </Box>
-            <Text fontSize="xs" color={showSigmaBounds ? 'cyan.400' : colors.textMuted} fontWeight="500">
+            <Text fontSize="xs" color={showSigmaBounds ? colors.accentCyanText : colors.textMuted} fontWeight="500">
               Show ±1σ Overlay
             </Text>
           </Flex>
@@ -381,7 +382,7 @@ export function ControlsPanel({
                   <Text fontSize="2xs" color={colors.textMuted} fontWeight="500">
                     Window
                   </Text>
-                  <Text fontSize="2xs" color={zoom.centerYear ? 'cyan.300' : colors.textMuted} fontFamily="mono" fontWeight="600">
+                  <Text fontSize="2xs" color={zoom.centerYear ? colors.accentCyanText : colors.textMuted} fontFamily="mono" fontWeight="600">
                     ±{zoom.windowSize}y
                   </Text>
                 </Flex>
@@ -459,7 +460,7 @@ export function ControlsPanel({
                     bg={zoom.centerYear ? 'rgba(6, 182, 212, 0.15)' : 'rgba(255, 255, 255, 0.05)'}
                     borderRadius="md"
                   >
-                    <Text fontSize="2xs" color={zoom.centerYear ? 'cyan.300' : colors.textMuted} fontFamily="mono" fontWeight="600">
+                    <Text fontSize="2xs" color={zoom.centerYear ? colors.accentCyanText : colors.textMuted} fontFamily="mono" fontWeight="600">
                       ±{zoom.windowSize}y
                     </Text>
                   </Box>

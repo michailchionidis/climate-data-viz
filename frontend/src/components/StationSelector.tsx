@@ -25,8 +25,8 @@ export function StationSelector({
   compact = false,
   hideHeader = false,
 }: StationSelectorProps) {
-  const { colors, colorMode } = useTheme()
-  const spinnerColor = colorMode === 'light' ? 'cyan.500' : 'cyan.400'
+  const { colors } = useTheme()
+  const spinnerColor = colors.accentCyan
   const { data: stations, isLoading, error } = useStations()
   const [searchQuery, setSearchQuery] = useState('')
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -169,11 +169,11 @@ export function StationSelector({
           action={
             <Text
               fontSize="2xs"
-              color="cyan.400"
+              color={colors.accentCyanText}
               cursor="pointer"
               onClick={handleSelectAll}
-              _hover={{ color: 'cyan.300' }}
-              transition="color 0.15s"
+              _hover={{ opacity: 0.8 }}
+              transition="opacity 0.15s"
               fontWeight="500"
             >
               {selectedStations.length === stations?.length ? 'Clear' : 'All'}
@@ -290,7 +290,7 @@ export function StationSelector({
                   borderWidth="1px"
                   borderColor={
                     isFocused
-                      ? 'cyan.400'
+                      ? colors.accentCyan
                       : isSelected
                         ? `${color}40`
                         : 'transparent'

@@ -300,7 +300,7 @@ export function ChartPanel({
                 borderWidth="1px"
                 borderColor={colors.selectedBorder}
               >
-                <Text fontSize="2xs" color="cyan.400" fontWeight="500">
+                <Text fontSize="2xs" color={colors.accentCyanText} fontWeight="500">
                   ±1σ
                 </Text>
               </Box>
