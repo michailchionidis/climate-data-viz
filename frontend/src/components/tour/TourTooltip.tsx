@@ -1,6 +1,7 @@
 /**
  * Tour Tooltip Component
  * Displays step content with spotlight effect on target element
+ * xAI-level minimal design
  */
 import { useEffect, useState, useRef } from 'react'
 import { Box, Flex, Text } from '@chakra-ui/react'
@@ -19,13 +20,10 @@ interface TargetRect {
 }
 
 function getTargetRect(target: string): TargetRect | null {
-  // Find all elements with this ID (there might be duplicates for mobile/desktop)
-  // and return the first one that's visible
   const elements = document.querySelectorAll(`#${target}, ${target}`)
 
   for (const element of elements) {
     const rect = element.getBoundingClientRect()
-    // Check if element is visible (has width and height)
     if (rect.width > 0 && rect.height > 0) {
       return {
         top: rect.top,
@@ -44,12 +42,10 @@ function getTargetRect(target: string): TargetRect | null {
 function getTooltipPosition(
   targetRect: TargetRect | null,
   placement: TourStep['placement'] = 'bottom',
-  tooltipWidth: number = 360,
-  tooltipHeight: number = 200,
+  tooltipWidth: number = 320,
+  tooltipHeight: number = 180,
   isMobile: boolean = false
 ): { top: number; left: number } {
-  // On mobile, always center the tooltip
-  // Also center if no target found or center placement
   if (isMobile || !targetRect || placement === 'center') {
     const actualWidth = isMobile ? Math.min(tooltipWidth, window.innerWidth - 32) : tooltipWidth
     return {
@@ -59,7 +55,7 @@ function getTooltipPosition(
   }
 
   const padding = 16
-  const arrowOffset = 20 // Increased for arrow space
+  const arrowOffset = 16
 
   let top = 0
   let left = 0
@@ -83,7 +79,6 @@ function getTooltipPosition(
       break
   }
 
-  // Keep tooltip within viewport
   const maxLeft = window.innerWidth - tooltipWidth - padding
   const maxTop = window.innerHeight - tooltipHeight - padding
 
@@ -93,62 +88,7 @@ function getTooltipPosition(
   return { top, left }
 }
 
-// Get arrow position based on placement
-function getArrowStyles(
-  placement: TourStep['placement'],
-  colors: { accentCyan: string; cardSolid: string; border: string }
-): React.CSSProperties {
-  const arrowSize = 10
-  const base: React.CSSProperties = {
-    position: 'absolute',
-    width: 0,
-    height: 0,
-    borderStyle: 'solid',
-  }
-
-  switch (placement) {
-    case 'top':
-      return {
-        ...base,
-        bottom: -arrowSize,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        borderWidth: `${arrowSize}px ${arrowSize}px 0 ${arrowSize}px`,
-        borderColor: `${colors.border} transparent transparent transparent`,
-      }
-    case 'bottom':
-      return {
-        ...base,
-        top: -arrowSize,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        borderWidth: `0 ${arrowSize}px ${arrowSize}px ${arrowSize}px`,
-        borderColor: `transparent transparent ${colors.border} transparent`,
-      }
-    case 'left':
-      return {
-        ...base,
-        right: -arrowSize,
-        top: '50%',
-        transform: 'translateY(-50%)',
-        borderWidth: `${arrowSize}px 0 ${arrowSize}px ${arrowSize}px`,
-        borderColor: `transparent transparent transparent ${colors.border}`,
-      }
-    case 'right':
-      return {
-        ...base,
-        left: -arrowSize,
-        top: '50%',
-        transform: 'translateY(-50%)',
-        borderWidth: `${arrowSize}px ${arrowSize}px ${arrowSize}px 0`,
-        borderColor: `transparent ${colors.border} transparent transparent`,
-      }
-    default:
-      return { display: 'none' }
-  }
-}
-
-// Step dot component
+// Step dot component - minimal monochrome
 function StepDot({
   index,
   isActive,
@@ -160,22 +100,22 @@ function StepDot({
   isActive: boolean
   isCompleted: boolean
   onClick: () => void
-  colors: { accentCyan: string; textMuted: string; border: string }
+  colors: { text: string; textMuted: string; border: string }
 }) {
   return (
     <Box
       as="button"
-      w="8px"
-      h="8px"
+      w="6px"
+      h="6px"
       borderRadius="full"
-      bg={isActive ? colors.accentCyan : isCompleted ? 'rgba(6, 182, 212, 0.4)' : colors.border}
+      bg={isActive ? colors.text : isCompleted ? colors.textMuted : colors.border}
       cursor="pointer"
       transition="all 0.2s ease"
       onClick={onClick}
       aria-label={`Go to step ${index + 1}`}
       _hover={{
-        transform: 'scale(1.3)',
-        bg: isActive ? colors.accentCyan : 'rgba(6, 182, 212, 0.6)',
+        transform: 'scale(1.4)',
+        bg: colors.text,
       }}
     />
   )
@@ -183,7 +123,7 @@ function StepDot({
 
 export function TourTooltip() {
   const { isOpen, currentStep, steps, nextStep, prevStep, endTour, goToStep } = useTour()
-  const { colors } = useTheme()
+  const { colors, colorMode } = useTheme()
   const [targetRect, setTargetRect] = useState<TargetRect | null>(null)
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 })
   const [isMobile, setIsMobile] = useState(
@@ -195,7 +135,6 @@ export function TourTooltip() {
   const isFirstStep = currentStep === 0
   const isLastStep = currentStep === steps.length - 1
 
-  // Update target rect and tooltip position
   useEffect(() => {
     if (!isOpen || !step) return
 
@@ -206,16 +145,13 @@ export function TourTooltip() {
       const rect = mobile ? null : getTargetRect(step.target)
       setTargetRect(rect)
 
-      const tooltipHeight = tooltipRef.current?.offsetHeight || 200
-      const pos = getTooltipPosition(rect, step.placement, 360, tooltipHeight, mobile)
+      const tooltipHeight = tooltipRef.current?.offsetHeight || 180
+      const pos = getTooltipPosition(rect, step.placement, 320, tooltipHeight, mobile)
       setTooltipPos(pos)
     }
 
-    // Initial update
     updatePosition()
 
-    // Scroll target into view if needed (only on desktop)
-    // Do this after initial position update, then update again after scroll
     const mobile = window.innerWidth < 768
     if (!mobile && step.spotlight !== false) {
       const elements = document.querySelectorAll(`#${step.target}, ${step.target}`)
@@ -223,19 +159,16 @@ export function TourTooltip() {
         const elRect = el.getBoundingClientRect()
         if (elRect.width > 0 && elRect.height > 0) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          // Update position again after scroll animation
           setTimeout(updatePosition, 350)
           break
         }
       }
     }
 
-    // Update on resize
     window.addEventListener('resize', updatePosition)
     return () => window.removeEventListener('resize', updatePosition)
   }, [isOpen, step, currentStep])
 
-  // Keyboard navigation
   useEffect(() => {
     if (!isOpen) return
 
@@ -260,8 +193,6 @@ export function TourTooltip() {
 
   if (!isOpen || !step) return null
 
-  const showArrow = !isMobile && targetRect && step.spotlight !== false
-
   return (
     <>
       {/* Overlay with spotlight cutout */}
@@ -273,9 +204,8 @@ export function TourTooltip() {
         bottom="0"
         zIndex={9998}
         pointerEvents="none"
-        bg="rgba(0, 0, 0, 0.75)"
+        bg="rgba(0, 0, 0, 0.8)"
         style={{
-          // Create spotlight cutout using clip-path
           clipPath: targetRect && step.spotlight !== false
             ? `polygon(
                 0% 0%,
@@ -293,7 +223,7 @@ export function TourTooltip() {
         }}
       />
 
-      {/* Spotlight border glow - only on desktop */}
+      {/* Spotlight border - minimal, no glow */}
       {!isMobile && targetRect && step.spotlight !== false && (
         <Box
           position="fixed"
@@ -302,16 +232,15 @@ export function TourTooltip() {
           width={`${targetRect.width + 16}px`}
           height={`${targetRect.height + 16}px`}
           borderRadius="12px"
-          border="2px solid"
-          borderColor={colors.accentCyan}
-          boxShadow={`0 0 20px ${colors.accentCyan}, 0 0 40px rgba(6, 182, 212, 0.3)`}
+          border="1px solid"
+          borderColor={colorMode === 'dark' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}
           zIndex={9999}
           pointerEvents="none"
           transition="all 0.3s ease"
         />
       )}
 
-      {/* Click blocker (allows clicking on spotlight area) */}
+      {/* Click blocker */}
       <Box
         position="fixed"
         top="0"
@@ -328,117 +257,113 @@ export function TourTooltip() {
         position="fixed"
         top={`${tooltipPos.top}px`}
         left={isMobile ? '16px' : `${tooltipPos.left}px`}
-        width={isMobile ? 'calc(100vw - 32px)' : '360px'}
+        width={isMobile ? 'calc(100vw - 32px)' : '320px'}
         maxW="calc(100vw - 32px)"
         bg={colors.cardSolid}
-        borderRadius="16px"
+        borderRadius="12px"
         border="1px solid"
         borderColor={colors.border}
-        boxShadow={`0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px ${colors.accentCyanGlow}`}
+        boxShadow="0 20px 50px rgba(0, 0, 0, 0.4)"
         zIndex={10000}
-        overflow="visible"
+        overflow="hidden"
         transition="top 0.3s ease, left 0.3s ease"
         role="dialog"
         aria-modal="true"
         aria-label={`Tour step ${currentStep + 1} of ${steps.length}`}
       >
-        {/* Arrow pointer */}
-        {showArrow && (
-          <Box style={getArrowStyles(step.placement, colors)} />
-        )}
-
-        {/* Content wrapper with overflow hidden for rounded corners */}
-        <Box overflow="hidden" borderRadius="16px">
-          {/* Content */}
-          <Box p="5">
-            {/* Header */}
-            <Flex justify="space-between" align="center" mb="3">
-              <Box
-                fontSize="lg"
-                fontWeight="700"
-                color={colors.text}
-                fontFamily="heading"
-              >
-                {step.title}
-              </Box>
-              <Box
-                as="button"
-                p="1"
-                borderRadius="md"
-                color={colors.textMuted}
-                cursor="pointer"
-                onClick={() => endTour(false)}
-                _hover={{ color: colors.text, bg: colors.buttonHover }}
-                aria-label="Close tour"
-              >
-                <FiX size={18} />
-              </Box>
-            </Flex>
-
-            {/* Body */}
-            <Box
+        {/* Content */}
+        <Box p="4">
+          {/* Header */}
+          <Flex justify="space-between" align="center" mb="3">
+            <Text
               fontSize="sm"
-              color={colors.textSecondary}
-              lineHeight="1.7"
-              mb="4"
+              fontWeight="600"
+              color={colors.text}
+              letterSpacing="-0.01em"
             >
-              {step.content}
+              {step.title}
+            </Text>
+            <Box
+              as="button"
+              p="1"
+              borderRadius="4px"
+              color={colors.textMuted}
+              cursor="pointer"
+              onClick={() => endTour(false)}
+              _hover={{ color: colors.text }}
+              aria-label="Close tour"
+            >
+              <FiX size={16} />
             </Box>
+          </Flex>
 
-            {/* Mobile hint */}
-            {isMobile && (
-              <Box
-                bg="rgba(6, 182, 212, 0.1)"
-                border="1px solid"
-                borderColor="rgba(6, 182, 212, 0.2)"
-                borderRadius="8px"
-                p="2"
-                mb="3"
-              >
-                <Text fontSize="xs" color={colors.textMuted} textAlign="center">
-                  For the best experience with interactive highlights, view this tour on a desktop device.
-                </Text>
-              </Box>
-            )}
-
-            {/* Footer */}
-            <Flex justify="space-between" align="center">
-              {/* Step dots */}
-              <Flex gap="2" align="center">
-                {steps.map((_, index) => (
-                  <StepDot
-                    key={index}
-                    index={index}
-                    isActive={index === currentStep}
-                    isCompleted={index < currentStep}
-                    onClick={() => goToStep(index)}
-                    colors={colors}
-                  />
-                ))}
-              </Flex>
-
-              {/* Navigation */}
-              <Flex gap="2">
-                {!isFirstStep && (
-                  <PillButton
-                    onClick={prevStep}
-                    icon={<FiChevronLeft size={14} />}
-                    iconPosition="left"
-                  >
-                    Back
-                  </PillButton>
-                )}
-                <PillButton
-                  onClick={nextStep}
-                  variant="primary"
-                  icon={!isLastStep ? <FiChevronRight size={14} /> : undefined}
-                  iconPosition="right"
-                >
-                  {isLastStep ? 'Finish' : 'Next'}
-                </PillButton>
-              </Flex>
-            </Flex>
+          {/* Body */}
+          <Box
+            fontSize="sm"
+            color={colors.textMuted}
+            lineHeight="1.6"
+            mb="4"
+          >
+            {step.content}
           </Box>
+
+          {/* Mobile hint */}
+          {isMobile && (
+            <Box
+              bg={colorMode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}
+              borderRadius="6px"
+              p="2"
+              mb="3"
+            >
+              <Text fontSize="2xs" color={colors.textMuted} textAlign="center">
+                View on desktop for interactive highlights
+              </Text>
+            </Box>
+          )}
+
+          {/* Footer */}
+          <Flex justify="space-between" align="center">
+            {/* Step dots */}
+            <Flex gap="1.5" align="center">
+              {steps.map((_, index) => (
+                <StepDot
+                  key={index}
+                  index={index}
+                  isActive={index === currentStep}
+                  isCompleted={index < currentStep}
+                  onClick={() => goToStep(index)}
+                  colors={colors}
+                />
+              ))}
+            </Flex>
+
+            {/* Navigation */}
+            <Flex gap="2">
+              {!isFirstStep && (
+                <Text
+                  as="button"
+                  fontSize="xs"
+                  color={colors.textMuted}
+                  cursor="pointer"
+                  onClick={prevStep}
+                  _hover={{ color: colors.text }}
+                  bg="transparent"
+                  border="none"
+                  px="2"
+                  letterSpacing="0.02em"
+                >
+                  Back
+                </Text>
+              )}
+              <PillButton
+                onClick={nextStep}
+                variant="primary"
+                size="xs"
+              >
+                {isLastStep ? 'Done' : 'Next'}
+              </PillButton>
+            </Flex>
+          </Flex>
         </Box>
       </Box>
     </>
