@@ -94,20 +94,16 @@ export function AIInsightsPanel({
             AI Insights
           </Text>
 
-          {/* Badge - only show count when collapsed and has insights */}
+          {/* Count - only show when collapsed and has insights */}
           {hasInsights && !isExpanded && (
-            <Box
-              px={1.5}
-              py={0.5}
-              bg="rgba(6, 182, 212, 0.15)"
-              borderRadius="full"
-              borderWidth="1px"
-              borderColor="rgba(6, 182, 212, 0.3)"
+            <Text
+              fontSize="2xs"
+              color={colors.textMuted}
+              fontFamily="mono"
+              letterSpacing="0.02em"
             >
-              <Text fontSize="2xs" color="#06b6d4" fontFamily="mono" fontWeight="600">
-                {insights.length}
-              </Text>
-            </Box>
+              {insights.length}
+            </Text>
           )}
         </Flex>
 

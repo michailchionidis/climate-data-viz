@@ -1,59 +1,48 @@
 /**
- * Section header component with title and optional badge
+ * Section header component with title and optional inline metadata
+ * Minimal x.ai style - no badges, just subtle inline text
  */
-import { Flex, Text, Box } from '@chakra-ui/react'
+import { Flex, Text } from '@chakra-ui/react'
 import { useTheme } from '../../context/ThemeContext'
 
 interface SectionHeaderProps {
   title: string
   badge?: string | number
-  badgeColor?: 'cyan' | 'orange' | 'green' | 'purple'
+  badgeColor?: 'cyan' | 'orange' | 'green' | 'purple' // kept for API compatibility
   action?: React.ReactNode
   compact?: boolean
-}
-
-const badgeColors = {
-  cyan: { bg: 'rgba(6, 182, 212, 0.15)', text: '#06b6d4', border: 'rgba(6, 182, 212, 0.3)' },
-  orange: { bg: 'rgba(245, 158, 11, 0.15)', text: '#f59e0b', border: 'rgba(245, 158, 11, 0.3)' },
-  green: { bg: 'rgba(16, 185, 129, 0.15)', text: '#10b981', border: 'rgba(16, 185, 129, 0.3)' },
-  purple: { bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6', border: 'rgba(139, 92, 246, 0.3)' },
 }
 
 export function SectionHeader({
   title,
   badge,
-  badgeColor = 'cyan',
+  badgeColor: _badgeColor = 'cyan', // unused now, kept for compatibility
   action,
   compact = false,
 }: SectionHeaderProps) {
-  const { colors: themeColors } = useTheme()
-  const colors = badgeColors[badgeColor]
+  const { colors } = useTheme()
 
   return (
     <Flex justify="space-between" align="center" mb={compact ? 2 : 4}>
-      <Flex align="center" gap={compact ? 2 : 3}>
+      <Flex align="center" gap={2}>
         <Text
           fontSize={compact ? 'xs' : 'sm'}
           fontWeight="600"
-          color={themeColors.textSecondary}
+          color={colors.textSecondary}
           textTransform="uppercase"
           letterSpacing="wide"
         >
           {title}
         </Text>
         {badge !== undefined && (
-          <Box
-            px={compact ? 1.5 : 2}
-            py={0.5}
-            bg={colors.bg}
-            borderRadius="full"
-            borderWidth="1px"
-            borderColor={colors.border}
+          <Text
+            fontSize={compact ? '2xs' : 'xs'}
+            color={colors.textMuted}
+            fontFamily="mono"
+            letterSpacing="0.02em"
           >
-            <Text fontSize={compact ? '2xs' : 'xs'} color={colors.text} fontFamily="mono" fontWeight="600">
-              {badge}
-            </Text>
-          </Box>
+            {badge}
+          </Text>
         )}
       </Flex>
       {action}

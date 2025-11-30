@@ -102,7 +102,7 @@ export function ControlsPanel({
               py={compact ? 1 : 2}
               px={2}
               borderRadius="6px"
-              bg={mode === 'monthly' ? colors.selectedBg : 'transparent'}
+              bg={mode === 'monthly' ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}
               cursor="pointer"
               onClick={() => onModeChange('monthly')}
               onKeyDown={(e) => {
@@ -113,10 +113,10 @@ export function ControlsPanel({
               }}
               transition="all 0.2s ease"
               _hover={{
-                bg: mode === 'monthly' ? colors.selectedBg : colors.buttonHover,
+                bg: mode === 'monthly' ? 'rgba(255, 255, 255, 0.08)' : colors.buttonHover,
               }}
               _focus={{
-                boxShadow: '0 0 0 2px rgba(6, 182, 212, 0.4)',
+                boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.1)',
                 outline: 'none',
               }}
               tabIndex={0}
@@ -127,7 +127,7 @@ export function ControlsPanel({
               <Text
                 fontSize="xs"
                 fontWeight="600"
-                color={mode === 'monthly' ? colors.accentCyanText : colors.textMuted}
+                color={mode === 'monthly' ? colors.text : colors.textMuted}
                 textAlign="center"
               >
                 Monthly
@@ -138,7 +138,7 @@ export function ControlsPanel({
               py={compact ? 1 : 2}
               px={2}
               borderRadius="6px"
-              bg={mode === 'annual' ? colors.selectedBg : 'transparent'}
+              bg={mode === 'annual' ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}
               cursor="pointer"
               onClick={() => onModeChange('annual')}
               onKeyDown={(e) => {
@@ -149,10 +149,10 @@ export function ControlsPanel({
               }}
               transition="all 0.2s ease"
               _hover={{
-                bg: mode === 'annual' ? colors.selectedBg : colors.buttonHover,
+                bg: mode === 'annual' ? 'rgba(255, 255, 255, 0.08)' : colors.buttonHover,
               }}
               _focus={{
-                boxShadow: '0 0 0 2px rgba(6, 182, 212, 0.4)',
+                boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.1)',
                 outline: 'none',
               }}
               tabIndex={0}
@@ -163,7 +163,7 @@ export function ControlsPanel({
               <Text
                 fontSize="xs"
                 fontWeight="600"
-                color={mode === 'annual' ? colors.accentCyanText : colors.textMuted}
+                color={mode === 'annual' ? colors.text : colors.textMuted}
                 textAlign="center"
               >
                 Annual Avg
@@ -178,9 +178,9 @@ export function ControlsPanel({
             mt={2}
             p={compact ? 2 : 3}
             borderRadius="6px"
-            bg={showSigmaBounds ? colors.selectedBg : colors.inputBg}
+            bg={colors.inputBg}
             borderWidth="1px"
-            borderColor={showSigmaBounds ? colors.selectedBorder : colors.border}
+            borderColor={colors.border}
             cursor="pointer"
             onClick={() => onShowSigmaBoundsChange(!showSigmaBounds)}
             onKeyDown={(e) => {
@@ -190,11 +190,10 @@ export function ControlsPanel({
               }
             }}
             _hover={{
-              bg: showSigmaBounds ? colors.selectedBg : colors.buttonHover,
-              borderColor: showSigmaBounds ? colors.selectedBorder : colors.borderHover,
+              bg: colors.buttonHover,
             }}
             _focus={{
-              boxShadow: '0 0 0 2px rgba(6, 182, 212, 0.4)',
+              boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.1)',
               outline: 'none',
             }}
             transition="all 0.2s ease"
@@ -205,12 +204,12 @@ export function ControlsPanel({
             aria-checked={showSigmaBounds}
             aria-label="Show plus or minus one standard deviation overlay on chart"
           >
-            {/* Toggle switch */}
+            {/* Toggle switch - white when on */}
             <Box
               w={compact ? '28px' : '36px'}
               h={compact ? '16px' : '20px'}
               borderRadius="full"
-              bg={showSigmaBounds ? '#06b6d4' : colors.buttonBg}
+              bg={showSigmaBounds ? 'rgba(255, 255, 255, 0.9)' : colors.buttonBg}
               position="relative"
               transition="all 0.2s ease"
               flexShrink={0}
@@ -220,7 +219,7 @@ export function ControlsPanel({
                 w={compact ? '12px' : '16px'}
                 h={compact ? '12px' : '16px'}
                 borderRadius="full"
-                bg="white"
+                bg={showSigmaBounds ? colors.bg : 'white'}
                 position="absolute"
                 top="2px"
                 left={showSigmaBounds ? (compact ? '14px' : '18px') : '2px'}
@@ -228,7 +227,7 @@ export function ControlsPanel({
                 boxShadow="0 1px 3px rgba(0,0,0,0.3)"
               />
             </Box>
-            <Text fontSize="xs" color={showSigmaBounds ? colors.accentCyanText : colors.textMuted} fontWeight="500">
+            <Text fontSize="xs" color={showSigmaBounds ? colors.text : colors.textMuted} fontWeight="500">
               Show ±1σ Overlay
             </Text>
           </Flex>
@@ -368,7 +367,7 @@ export function ControlsPanel({
                   <Text fontSize="2xs" color={colors.textMuted} fontWeight="500">
                     Window
                   </Text>
-                  <Text fontSize="2xs" color={zoom.centerYear ? colors.accentCyanText : colors.textMuted} fontFamily="mono" fontWeight="600">
+                  <Text fontSize="2xs" color={zoom.centerYear ? colors.text : colors.textMuted} fontFamily="mono" fontWeight="600">
                     ±{zoom.windowSize}y
                   </Text>
                 </Flex>
@@ -391,7 +390,7 @@ export function ControlsPanel({
                     borderRadius: '2px',
                     marginTop: '8px',
                     background: zoom.centerYear
-                      ? `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${sliderProgress}%, rgba(255,255,255,0.1) ${sliderProgress}%, rgba(255,255,255,0.1) 100%)`
+                      ? `linear-gradient(to right, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.8) ${sliderProgress}%, rgba(255,255,255,0.1) ${sliderProgress}%, rgba(255,255,255,0.1) 100%)`
                       : 'rgba(255,255,255,0.1)',
                     cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
                   }}
@@ -446,7 +445,7 @@ export function ControlsPanel({
                     bg={zoom.centerYear ? 'rgba(6, 182, 212, 0.15)' : 'rgba(255, 255, 255, 0.05)'}
                     borderRadius="md"
                   >
-                    <Text fontSize="2xs" color={zoom.centerYear ? colors.accentCyanText : colors.textMuted} fontFamily="mono" fontWeight="600">
+                    <Text fontSize="2xs" color={zoom.centerYear ? colors.text : colors.textMuted} fontFamily="mono" fontWeight="600">
                       ±{zoom.windowSize}y
                     </Text>
                   </Box>
@@ -470,7 +469,7 @@ export function ControlsPanel({
                       height: '4px',
                       borderRadius: '2px',
                       background: zoom.centerYear
-                        ? `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${sliderProgress}%, rgba(255,255,255,0.1) ${sliderProgress}%, rgba(255,255,255,0.1) 100%)`
+                        ? `linear-gradient(to right, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.8) ${sliderProgress}%, rgba(255,255,255,0.1) ${sliderProgress}%, rgba(255,255,255,0.1) 100%)`
                         : 'rgba(255,255,255,0.1)',
                       cursor: zoom.centerYear ? 'pointer' : 'not-allowed',
                     }}

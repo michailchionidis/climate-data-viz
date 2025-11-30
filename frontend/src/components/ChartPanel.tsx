@@ -313,25 +313,27 @@ export function ChartPanel({
             >
               {mode === 'monthly' ? 'Monthly Temperature Data' : 'Annual Averages'}
             </Text>
+            {/* Data count - inline with title */}
+            <Text
+              fontSize="2xs"
+              color={colors.textMuted}
+              fontFamily="mono"
+              letterSpacing="0.02em"
+            >
+              {dataPointCount}
+            </Text>
             {showSigmaBounds && mode === 'annual' && (
-              <Box
-                px={1.5}
-                py={0.5}
-                bg={colors.selectedBg}
-                borderRadius="full"
-                borderWidth="1px"
-                borderColor={colors.selectedBorder}
+              <Text
+                fontSize="2xs"
+                color={colors.textMuted}
+                fontFamily="mono"
+                letterSpacing="0.02em"
               >
-                <Text fontSize="2xs" color={colors.accentCyanText} fontWeight="500">
-                  ±1σ
-                </Text>
-              </Box>
+                ±1σ
+              </Text>
             )}
           </Flex>
           <Flex align="center" gap={2} onClick={(e) => e.stopPropagation()}>
-            <Text fontSize="2xs" color={colors.textMuted} fontFamily="mono">
-              {dataPointCount}
-            </Text>
             {/* Export menu */}
             <ExportMenu
               monthlyData={monthlyData}

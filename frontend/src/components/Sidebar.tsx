@@ -52,8 +52,6 @@ export function Sidebar({
 }: SidebarProps) {
   const { colors, colorMode } = useTheme()
 
-  const cyanAccent = colors.accentCyanText
-
   return (
     <>
       {/* Sidebar Container */}
@@ -107,21 +105,19 @@ export function Sidebar({
                   >
                     Weather Stations
                   </Text>
-                  <Box
-                    px={2}
-                    py={0.5}
-                    bg={colors.accentCyan}
-                    borderRadius="full"
+                  <Text
+                    fontSize="2xs"
+                    color={colors.textMuted}
+                    fontFamily="mono"
+                    letterSpacing="0.02em"
                   >
-                    <Text fontSize="2xs" fontWeight="600" color="white">
-                      {selectedStations.length}/{stations?.length || 0}
-                    </Text>
-                  </Box>
+                    {selectedStations.length}/{stations?.length || 0}
+                  </Text>
                 </Flex>
                 <Flex align="center" gap={2}>
                   <Text
                     fontSize="2xs"
-                    color={cyanAccent}
+                    color={colors.textMuted}
                     cursor="pointer"
                     onClick={() => {
                       if (selectedStations.length === (stations?.length || 0)) {
@@ -130,8 +126,8 @@ export function Sidebar({
                         onStationChange(stations?.map((s) => s.id) || [])
                       }
                     }}
-                    _hover={{ opacity: 0.8 }}
-                    transition="opacity 0.15s"
+                    _hover={{ color: colors.text }}
+                    transition="color 0.15s"
                     fontWeight="500"
                   >
                     {selectedStations.length === (stations?.length || 0) ? 'Clear' : 'All'}
@@ -222,25 +218,6 @@ export function Sidebar({
             </Box>
           </Box>
 
-          {/* Sidebar Footer - Summary */}
-          <Box
-            p={2}
-            bg={colorMode === 'light' ? 'gray.50' : 'rgba(0, 0, 0, 0.2)'}
-            flexShrink={0}
-          >
-            <Flex justify="space-between" align="center">
-              <Text fontSize="2xs" color={colors.textMuted}>
-                {selectedStations.length > 0
-                  ? `${selectedStations.length} station${selectedStations.length > 1 ? 's' : ''} • ${mode === 'monthly' ? 'Monthly' : 'Annual'}`
-                  : 'No stations selected'}
-              </Text>
-              {yearFrom && yearTo && (
-                <Text fontSize="2xs" color={colors.textMuted} fontFamily="mono">
-                  {yearFrom}–{yearTo}
-                </Text>
-              )}
-            </Flex>
-          </Box>
         </Box>
       </Box>
 
