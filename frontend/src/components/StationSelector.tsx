@@ -283,19 +283,10 @@ export function StationSelector({
                   p={compact ? 1.5 : 2.5}
                   borderRadius="6px"
                   cursor="pointer"
-                  bg={isSelected ? 'rgba(6, 182, 212, 0.1)' : 'transparent'}
-                  borderWidth="1px"
-                  borderColor={
-                    isFocused
-                      ? colors.accentCyan
-                      : isSelected
-                        ? 'rgba(6, 182, 212, 0.3)'
-                        : 'transparent'
-                  }
-                  boxShadow={isFocused ? '0 0 0 2px rgba(6, 182, 212, 0.3)' : 'none'}
+                  bg="transparent"
+                  boxShadow={isFocused ? '0 0 0 2px rgba(6, 182, 212, 0.2)' : 'none'}
                   _hover={{
-                    bg: isSelected ? 'rgba(6, 182, 212, 0.15)' : colors.buttonHover,
-                    borderColor: isSelected ? 'rgba(6, 182, 212, 0.4)' : colors.border,
+                    bg: colors.buttonHover,
                   }}
                   onClick={() => handleToggle(station.id)}
                   transition="all 0.15s ease"
@@ -358,9 +349,7 @@ export function StationSelector({
       {/* Selection count */}
       <Box
         mt={2}
-        pt={2}
-        borderTopWidth="1px"
-        borderColor="rgba(255, 255, 255, 0.06)"
+        pt={1}
         flexShrink={0}
       >
         <Text fontSize="2xs" color={colors.textMuted}>
