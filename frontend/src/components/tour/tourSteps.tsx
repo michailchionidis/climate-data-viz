@@ -175,6 +175,7 @@ export const tourSteps: TourStep[] = [
     title: <StepTitle icon={<FiMessageCircle size={18} />} title="Chat with Grok" />,
     placement: 'bottom',
     spotlight: true,
+    desktopOnly: true, // Grok chat sidebar is only available on desktop
     content: (
       <Box>
         <Text mb="3">
