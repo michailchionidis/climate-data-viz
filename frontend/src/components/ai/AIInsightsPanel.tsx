@@ -7,11 +7,12 @@
  */
 import { useState, useCallback } from 'react'
 import { Box, Flex, Text, SimpleGrid, Spinner } from '@chakra-ui/react'
-import { FiZap, FiRefreshCw, FiChevronDown, FiChevronRight, FiMessageCircle } from 'react-icons/fi'
+import { FiZap, FiRefreshCw, FiChevronDown, FiChevronRight } from 'react-icons/fi'
 import { useTheme } from '../../context/ThemeContext'
 import { useAI } from '../../hooks/useAIInsights'
 import { InsightCard } from './InsightCard'
 import { PillButton } from '../ui/PillButton'
+import { GrokIcon } from '../ui/GrokIcon'
 
 interface AIInsightsPanelProps {
   stations: string[]
@@ -115,7 +116,7 @@ export function AIInsightsPanel({
           {onOpenChat && (
             <PillButton
               onClick={onOpenChat}
-              icon={<FiMessageCircle size={11} />}
+              icon={<GrokIcon size={11} />}
               ariaLabel="Open chat with Grok"
               size="xs"
             >
@@ -157,24 +158,42 @@ export function AIInsightsPanel({
 
           {/* Empty state */}
           {!hasInsights && !isGeneratingInsights && !insightsError && (
-            <Box textAlign="center" py={4}>
-              <Flex
-                align="center"
-                justify="center"
-                w="36px"
-                h="36px"
+            <Box textAlign="center" py={6}>
+              <Box
+                position="relative"
+                w="48px"
+                h="48px"
                 mx="auto"
-                mb={2}
-                borderRadius="lg"
-                bg={`${colors.accentCyan}10`}
-                color={colors.accentCyan}
+                mb={3}
               >
-                <FiZap size={18} />
-              </Flex>
-              <Text fontSize="12px" fontWeight="500" color={colors.text} mb={0.5}>
+                {/* Glow ring */}
+                <Box
+                  position="absolute"
+                  inset={0}
+                  borderRadius="full"
+                  bg={`${colors.accentCyan}08`}
+                  border="1px solid"
+                  borderColor={`${colors.accentCyan}20`}
+                />
+                {/* Inner circle with icon */}
+                <Flex
+                  position="absolute"
+                  inset="6px"
+                  align="center"
+                  justify="center"
+                  borderRadius="full"
+                  bg={`${colors.accentCyan}15`}
+                  border="1px solid"
+                  borderColor={`${colors.accentCyan}30`}
+                  color={colors.accentCyan}
+                >
+                  <FiZap size={16} />
+                </Flex>
+              </Box>
+              <Text fontSize="13px" fontWeight="500" color={colors.text} mb={1}>
                 Get AI-powered insights
               </Text>
-              <Text fontSize="11px" color={colors.textMuted}>
+              <Text fontSize="11px" color={colors.textMuted} letterSpacing="-0.01em">
                 Click "Generate" to analyze your data
               </Text>
             </Box>
