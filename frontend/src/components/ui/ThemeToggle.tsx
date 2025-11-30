@@ -35,6 +35,13 @@ export function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
         bg: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)',
         borderColor: colors.borderHover,
       }}
+      _focus={{
+        outline: 'none',
+        boxShadow: '0 0 0 2px rgba(6, 182, 212, 0.4)',
+      }}
+      _focusVisible={{
+        boxShadow: '0 0 0 2px rgba(6, 182, 212, 0.4)',
+      }}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       role="switch"
       aria-checked={isDark}

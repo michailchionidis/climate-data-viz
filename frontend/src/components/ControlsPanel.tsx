@@ -93,6 +93,8 @@ export function ControlsPanel({
           borderRadius="8px"
           borderWidth="1px"
           borderColor={colors.border}
+          role="radiogroup"
+          aria-label="Visualization mode"
         >
           <Flex gap={0.5}>
             <Box
@@ -103,10 +105,24 @@ export function ControlsPanel({
               bg={mode === 'monthly' ? colors.selectedBg : 'transparent'}
               cursor="pointer"
               onClick={() => onModeChange('monthly')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onModeChange('monthly')
+                }
+              }}
               transition="all 0.2s ease"
               _hover={{
                 bg: mode === 'monthly' ? colors.selectedBg : colors.buttonHover,
               }}
+              _focus={{
+                boxShadow: '0 0 0 2px rgba(6, 182, 212, 0.4)',
+                outline: 'none',
+              }}
+              tabIndex={0}
+              role="radio"
+              aria-checked={mode === 'monthly'}
+              aria-label="Monthly view - show data by month"
             >
               <Text
                 fontSize="xs"
@@ -125,10 +141,24 @@ export function ControlsPanel({
               bg={mode === 'annual' ? colors.selectedBg : 'transparent'}
               cursor="pointer"
               onClick={() => onModeChange('annual')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onModeChange('annual')
+                }
+              }}
               transition="all 0.2s ease"
               _hover={{
                 bg: mode === 'annual' ? colors.selectedBg : colors.buttonHover,
               }}
+              _focus={{
+                boxShadow: '0 0 0 2px rgba(6, 182, 212, 0.4)',
+                outline: 'none',
+              }}
+              tabIndex={0}
+              role="radio"
+              aria-checked={mode === 'annual'}
+              aria-label="Annual average view - show yearly averages"
             >
               <Text
                 fontSize="xs"
@@ -153,13 +183,27 @@ export function ControlsPanel({
             borderColor={showSigmaBounds ? colors.selectedBorder : colors.border}
             cursor="pointer"
             onClick={() => onShowSigmaBoundsChange(!showSigmaBounds)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onShowSigmaBoundsChange(!showSigmaBounds)
+              }
+            }}
             _hover={{
               bg: showSigmaBounds ? colors.selectedBg : colors.buttonHover,
               borderColor: showSigmaBounds ? colors.selectedBorder : colors.borderHover,
             }}
+            _focus={{
+              boxShadow: '0 0 0 2px rgba(6, 182, 212, 0.4)',
+              outline: 'none',
+            }}
             transition="all 0.2s ease"
             align="center"
             gap={2}
+            tabIndex={0}
+            role="switch"
+            aria-checked={showSigmaBounds}
+            aria-label="Show plus or minus one standard deviation overlay on chart"
           >
             {/* Toggle switch */}
             <Box
@@ -170,6 +214,7 @@ export function ControlsPanel({
               position="relative"
               transition="all 0.2s ease"
               flexShrink={0}
+              aria-hidden="true"
             >
               <Box
                 w={compact ? '12px' : '16px'}

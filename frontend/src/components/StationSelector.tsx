@@ -1,12 +1,13 @@
 /**
  * Multi-select component for weather station selection
- * Premium UI with search and visual feedback
+ * Premium UI with search, visual feedback, and full accessibility support
  */
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useCallback } from 'react'
 import { Box, Text, Flex, Input, Spinner } from '@chakra-ui/react'
 import { useStations } from '../hooks/useClimateData'
 import { SectionHeader } from './ui/SectionHeader'
 import { CheckIcon, AlertIcon } from './ui/Icons'
+import { VisuallyHidden } from './ui/SkipLink'
 import { STATION_COLORS } from '../theme'
 import { useTheme } from '../context/ThemeContext'
 
@@ -28,6 +29,9 @@ export function StationSelector({
   const spinnerColor = colorMode === 'light' ? 'cyan.500' : 'cyan.400'
   const { data: stations, isLoading, error } = useStations()
   const [searchQuery, setSearchQuery] = useState('')
+  const [focusedIndex, setFocusedIndex] = useState(-1)
+  const listRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   // Filter stations based on search
   const filteredStations = useMemo(() => {
@@ -59,6 +63,46 @@ export function StationSelector({
       }
     }
   }
+
+  // Keyboard navigation handler
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!filteredStations.length) return
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        setFocusedIndex((prev) =>
+          prev < filteredStations.length - 1 ? prev + 1 : 0
+        )
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setFocusedIndex((prev) =>
+          prev > 0 ? prev - 1 : filteredStations.length - 1
+        )
+        break
+      case 'Enter':
+      case ' ':
+        e.preventDefault()
+        if (focusedIndex >= 0 && focusedIndex < filteredStations.length) {
+          handleToggle(filteredStations[focusedIndex].id)
+        }
+        break
+      case 'Home':
+        e.preventDefault()
+        setFocusedIndex(0)
+        break
+      case 'End':
+        e.preventDefault()
+        setFocusedIndex(filteredStations.length - 1)
+        break
+      case 'Escape':
+        e.preventDefault()
+        setSearchQuery('')
+        searchInputRef.current?.focus()
+        break
+    }
+  }, [filteredStations, focusedIndex, handleToggle])
 
   // Get color for station based on its position in selectedStations
   // This ensures colors match the chart which uses selectedStations order
@@ -141,10 +185,21 @@ export function StationSelector({
       {/* Search input */}
       <Box mb={compact ? 2 : 3} flexShrink={0}>
         <Input
+          ref={searchInputRef}
           size="sm"
           placeholder="Search..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value)
+            setFocusedIndex(-1)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault()
+              setFocusedIndex(0)
+              listRef.current?.focus()
+            }
+          }}
           bg={colors.inputBg}
           borderColor={colors.border}
           borderRadius="6px"
@@ -159,14 +214,37 @@ export function StationSelector({
             boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
           }}
           _placeholder={{ color: colors.textMuted }}
+          aria-label="Search weather stations"
+          aria-describedby="station-search-hint"
+          role="combobox"
+          aria-expanded="true"
+          aria-controls="station-listbox"
+          aria-autocomplete="list"
         />
+        <VisuallyHidden>
+          <span id="station-search-hint">
+            Type to filter stations. Use arrow keys to navigate, Enter or Space to select.
+          </span>
+        </VisuallyHidden>
       </Box>
 
       {/* Station list - flex grow to fill available space */}
       <Box
+        ref={listRef}
         flex={1}
         minH={0}
         overflowY="auto"
+        tabIndex={0}
+        role="listbox"
+        id="station-listbox"
+        aria-label="Weather stations"
+        aria-multiselectable="true"
+        aria-activedescendant={focusedIndex >= 0 ? `station-${filteredStations[focusedIndex]?.id}` : undefined}
+        onKeyDown={handleKeyDown}
+        onBlur={() => setFocusedIndex(-1)}
+        _focus={{
+          outline: 'none',
+        }}
         css={{
           '&::-webkit-scrollbar': {
             width: '4px',
@@ -184,7 +262,7 @@ export function StationSelector({
           },
         }}
       >
-        <Flex direction="column" gap={0.5}>
+        <Flex direction="column" gap={0.5} role="presentation">
           {filteredStations.length === 0 ? (
             <Box py={2} textAlign="center">
               <Text color={colors.textMuted} fontSize="xs">
@@ -194,11 +272,15 @@ export function StationSelector({
           ) : (
             filteredStations.map((station, idx) => {
               const isSelected = selectedStations.includes(station.id)
+              const isFocused = focusedIndex === idx
               const color = getStationColor(station.id)
 
               return (
                 <Flex
                   key={station.id}
+                  id={`station-${station.id}`}
+                  role="option"
+                  aria-selected={isSelected}
                   align="center"
                   gap={2}
                   p={compact ? 1.5 : 2.5}
@@ -206,7 +288,14 @@ export function StationSelector({
                   cursor="pointer"
                   bg={isSelected ? `${color}15` : 'transparent'}
                   borderWidth="1px"
-                  borderColor={isSelected ? `${color}40` : 'transparent'}
+                  borderColor={
+                    isFocused
+                      ? 'cyan.400'
+                      : isSelected
+                        ? `${color}40`
+                        : 'transparent'
+                  }
+                  boxShadow={isFocused ? '0 0 0 2px rgba(6, 182, 212, 0.3)' : 'none'}
                   _hover={{
                     bg: isSelected ? `${color}20` : colors.buttonHover,
                     borderColor: isSelected ? `${color}50` : colors.border,
@@ -232,6 +321,7 @@ export function StationSelector({
                     justifyContent="center"
                     transition="all 0.15s ease"
                     flexShrink={0}
+                    aria-hidden="true"
                   >
                     {isSelected && (
                       <CheckIcon size="xs" color="white" />
