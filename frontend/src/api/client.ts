@@ -7,6 +7,8 @@ import type {
   MonthlyDataResponse,
   AnnualDataResponse,
   AnalyticsResponse,
+  AIInsightsResponse,
+  AIAskResponse,
 } from '../types'
 
 // API base URL - uses Vite proxy in development
@@ -116,5 +118,37 @@ export async function getAnalytics(
 
 export async function healthCheck(): Promise<{ status: string }> {
   const response = await apiClient.get<{ status: string }>('/health')
+  return response.data
+}
+
+// AI API Methods
+
+export interface AIInsightsParams {
+  stations: string[]
+  yearFrom?: number | null
+  yearTo?: number | null
+}
+
+export async function getAIInsights(
+  params: AIInsightsParams
+): Promise<AIInsightsResponse> {
+  const response = await apiClient.post<AIInsightsResponse>('/ai/insights', {
+    station_ids: params.stations,
+    year_from: params.yearFrom,
+    year_to: params.yearTo,
+  })
+  return response.data
+}
+
+export async function askGrok(
+  question: string,
+  params: AIInsightsParams
+): Promise<AIAskResponse> {
+  const response = await apiClient.post<AIAskResponse>('/ai/ask', {
+    question,
+    station_ids: params.stations,
+    year_from: params.yearFrom,
+    year_to: params.yearTo,
+  })
   return response.data
 }

@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     # Data Configuration
     DATA_FILE_PATH: str = "data/climate_data.csv"
 
+    # AI Configuration (Grok/xAI)
+    GROK_API_KEY: str = ""
+    GROK_BASE_URL: str = "https://api.x.ai/v1"
+    GROK_BASE_MODEL: str = "grok-4-1-fast-non-reasoning"
+
 
 @lru_cache
 def get_settings() -> Settings:

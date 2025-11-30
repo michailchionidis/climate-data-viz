@@ -8,6 +8,7 @@ import { Box, Container, Text, Flex } from '@chakra-ui/react'
 import { StationSelector } from './components/StationSelector'
 import { ControlsPanel } from './components/ControlsPanel'
 import { AnalyticsPanel } from './components/AnalyticsPanel'
+import { AIInsightsPanel } from './components/ai'
 import { ChartPanel } from './components/ChartPanel'
 import { Sidebar } from './components/Sidebar'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -70,9 +71,19 @@ function AppContent() {
     }
   }, [])
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts - only when not typing in an input
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip if user is typing in an input, textarea, or contenteditable
+      const target = e.target as HTMLElement
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return
+      }
+
       // Toggle mode with 'M' key
       if (e.key === 'm' && !e.metaKey && !e.ctrlKey) {
         setMode((prev) => (prev === 'monthly' ? 'annual' : 'monthly'))
@@ -325,6 +336,15 @@ function AppContent() {
               />
             </ErrorBoundary>
 
+            {/* AI Insights - Mobile */}
+            <ErrorBoundary>
+              <AIInsightsPanel
+                stations={selectedStations}
+                yearFrom={yearFrom}
+                yearTo={yearTo}
+              />
+            </ErrorBoundary>
+
             {/* Chart - Mobile */}
             <Box minH="350px" id="chart-section" tabIndex={-1}>
               <ErrorBoundary>
@@ -373,43 +393,54 @@ function AppContent() {
           />
 
           {/* Main Content Area */}
-          <Flex
+          <Box
             flex={1}
-            direction="column"
-            gap={3}
-            overflow="hidden"
+            overflow="auto"
             opacity={isLoaded ? 1 : 0}
             transform={isLoaded ? 'translateY(0)' : 'translateY(20px)'}
             transition="all 0.5s ease-out 0.2s"
           >
-            {/* Analytics Summary */}
-            <Box flexShrink={0}>
-              <ErrorBoundary>
-                <AnalyticsPanel
-                  analytics={analytics}
-                  isLoading={isAnalyticsLoading}
-                  selectedStations={selectedStations}
-                  compact
-                />
-              </ErrorBoundary>
-            </Box>
+            <Flex direction="column" gap={3} minH="100%">
+              {/* Analytics Summary */}
+              <Box flexShrink={0}>
+                <ErrorBoundary>
+                  <AnalyticsPanel
+                    analytics={analytics}
+                    isLoading={isAnalyticsLoading}
+                    selectedStations={selectedStations}
+                    compact
+                  />
+                </ErrorBoundary>
+              </Box>
 
-            {/* Chart */}
-            <Box flex={1} minH={0} id="chart-section-desktop" tabIndex={-1}>
-              <ErrorBoundary>
-                <ChartPanel
-                  monthlyData={monthlyData}
-                  annualData={annualData}
-                  mode={mode}
-                  showSigmaBounds={showSigmaBounds}
-                  isLoading={isLoading}
-                  selectedStations={selectedStations}
-                  fillHeight
-                  containerKey={`desktop-${isSidebarCollapsed ? 'collapsed' : 'expanded'}-${colorMode}-${mode}`}
-                />
-              </ErrorBoundary>
-            </Box>
-          </Flex>
+              {/* AI Insights - Desktop */}
+              <Box flexShrink={0}>
+                <ErrorBoundary>
+                  <AIInsightsPanel
+                    stations={selectedStations}
+                    yearFrom={yearFrom}
+                    yearTo={yearTo}
+                  />
+                </ErrorBoundary>
+              </Box>
+
+              {/* Chart */}
+              <Box flex={1} minH="400px" id="chart-section-desktop" tabIndex={-1}>
+                <ErrorBoundary>
+                  <ChartPanel
+                    monthlyData={monthlyData}
+                    annualData={annualData}
+                    mode={mode}
+                    showSigmaBounds={showSigmaBounds}
+                    isLoading={isLoading}
+                    selectedStations={selectedStations}
+                    fillHeight
+                    containerKey={`desktop-${isSidebarCollapsed ? 'collapsed' : 'expanded'}-${colorMode}-${mode}`}
+                  />
+                </ErrorBoundary>
+              </Box>
+            </Flex>
+          </Box>
         </Flex>
       </Container>
 
