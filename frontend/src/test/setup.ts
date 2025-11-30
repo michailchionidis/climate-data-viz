@@ -13,6 +13,21 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 }
 
+// Mock window.matchMedia for theme detection
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: (query: string) => ({
+    matches: query === '(prefers-color-scheme: dark)',
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  }),
+})
+
 // Suppress CSS parsing errors from jsdom (Chakra UI v3 uses @layer and color-mix)
 // which are not supported by jsdom's CSS parser
 const originalConsoleError = console.error
