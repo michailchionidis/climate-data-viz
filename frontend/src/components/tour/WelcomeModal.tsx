@@ -7,6 +7,7 @@ import { FiPlay, FiX, FiMapPin, FiCalendar, FiBarChart2 } from 'react-icons/fi'
 import { LuActivity } from 'react-icons/lu'
 import { useTour } from './TourContext'
 import { useTheme } from '../../context/ThemeContext'
+import { PillButton } from '../ui/PillButton'
 
 // Feature card component
 function FeatureCard({
@@ -153,57 +154,22 @@ export function WelcomeModal() {
           </Flex>
 
           {/* Actions */}
-          <Flex direction="column" gap="3">
-            <Box
-              as="button"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              gap="2"
-              w="100%"
-              h="48px"
-              borderRadius="10px"
-              fontSize="sm"
-              fontWeight="600"
-              bg="rgba(6, 182, 212, 0.15)"
-              color={colors.accentCyan}
-              borderWidth="1px"
-              borderColor="rgba(6, 182, 212, 0.3)"
-              cursor="pointer"
+          <Flex direction="column" gap="3" align="center">
+            <PillButton
               onClick={startTour}
-              _hover={{
-                bg: 'rgba(6, 182, 212, 0.25)',
-                borderColor: 'rgba(6, 182, 212, 0.5)',
-                boxShadow: `0 0 20px ${colors.accentCyanGlow}`,
-              }}
-              _active={{
-                bg: 'rgba(6, 182, 212, 0.35)',
-              }}
-              transition="all 0.2s"
+              variant="primary"
+              icon={<FiPlay size={16} />}
+              iconPosition="left"
             >
-              <FiPlay size={16} />
               Take a Quick Tour
-            </Box>
-            <Box
-              as="button"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              gap="2"
-              w="100%"
-              py="2"
-              borderRadius="md"
-              fontSize="sm"
-              fontWeight="500"
-              color={colors.textMuted}
-              cursor="pointer"
+            </PillButton>
+            <PillButton
               onClick={skipTour}
-              _hover={{ color: colors.text, bg: colors.buttonHover }}
-              transition="all 0.15s"
+              icon={<FiX size={14} />}
+              iconPosition="left"
             >
-              <FiX size={14} />
               Skip, I'll explore on my own
-            </Box>
+            </PillButton>
           </Flex>
         </Box>
 

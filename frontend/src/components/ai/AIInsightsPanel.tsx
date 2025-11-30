@@ -6,11 +6,12 @@
  * "Ask Grok" button opens the chat sidebar.
  */
 import { useState, useCallback } from 'react'
-import { Box, Flex, Text, Spinner, SimpleGrid } from '@chakra-ui/react'
+import { Box, Flex, Text, SimpleGrid, Spinner } from '@chakra-ui/react'
 import { FiZap, FiRefreshCw, FiChevronDown, FiChevronRight, FiMessageCircle } from 'react-icons/fi'
 import { useTheme } from '../../context/ThemeContext'
 import { useAI } from '../../hooks/useAIInsights'
 import { InsightCard } from './InsightCard'
+import { PillButton } from '../ui/PillButton'
 
 interface AIInsightsPanelProps {
   stations: string[]
@@ -110,84 +111,27 @@ export function AIInsightsPanel({
         </Flex>
 
         {/* Action buttons */}
-        <Flex align="center" gap={2}>
-          {/* Ask Grok button */}
+        <Flex align="center" gap={2} onClick={(e) => e.stopPropagation()}>
           {onOpenChat && (
-            <Box
-              as="button"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation()
-                onOpenChat()
-              }}
-              display="flex"
-              alignItems="center"
-              gap={1.5}
-              px={2.5}
-              py={1.5}
-              borderRadius="md"
-              fontSize="12px"
-              fontWeight="500"
-              color={colors.accentCyan}
-              bg={`${colors.accentCyan}10`}
-              border="1px solid"
-              borderColor={`${colors.accentCyan}30`}
-              cursor="pointer"
-              transition="all 0.2s"
-              _hover={{
-                bg: `${colors.accentCyan}20`,
-                borderColor: colors.accentCyan,
-              }}
-              aria-label="Open chat with Grok"
+            <PillButton
+              onClick={onOpenChat}
+              icon={<FiMessageCircle size={11} />}
+              ariaLabel="Open chat with Grok"
+              size="xs"
             >
-              <FiMessageCircle size={12} />
-              <Text>Ask Grok</Text>
-            </Box>
+              Ask Grok
+            </PillButton>
           )}
 
-          {/* Generate/Refresh button */}
-          <Box
-            as="button"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation()
-              handleGenerateAndExpand()
-            }}
-            aria-disabled={isGeneratingInsights}
-            display="flex"
-            alignItems="center"
-            gap={1.5}
-            px={2.5}
-            py={1.5}
-            borderRadius="md"
-            fontSize="12px"
-            fontWeight="500"
-            color={isGeneratingInsights ? colors.textMuted : colors.accentCyan}
-            bg={`${colors.accentCyan}10`}
-            border="1px solid"
-            borderColor={`${colors.accentCyan}30`}
-            cursor={isGeneratingInsights ? 'not-allowed' : 'pointer'}
-            transition="all 0.2s"
-            _hover={
-              isGeneratingInsights
-                ? {}
-                : {
-                    bg: `${colors.accentCyan}20`,
-                    borderColor: colors.accentCyan,
-                  }
-            }
-            aria-label={hasInsights ? 'Refresh insights' : 'Generate insights'}
+          <PillButton
+            onClick={handleGenerateAndExpand}
+            isLoading={isGeneratingInsights}
+            icon={hasInsights ? <FiRefreshCw size={11} /> : <FiZap size={11} />}
+            ariaLabel={hasInsights ? 'Refresh insights' : 'Generate insights'}
+            size="xs"
           >
-            {isGeneratingInsights ? (
-              <>
-                <Spinner size="xs" />
-                <Text>Analyzing...</Text>
-              </>
-            ) : (
-              <>
-                {hasInsights ? <FiRefreshCw size={12} /> : <FiZap size={12} />}
-                <Text>{hasInsights ? 'Refresh' : 'Generate'}</Text>
-              </>
-            )}
-          </Box>
+            {hasInsights ? 'Refresh' : 'Generate'}
+          </PillButton>
         </Flex>
       </Flex>
 

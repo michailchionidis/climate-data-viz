@@ -40,9 +40,9 @@ const customConfig = defineConfig({
         },
       },
       fonts: {
-        heading: { value: '"Outfit", "Inter", system-ui, sans-serif' },
-        body: { value: '"Inter", system-ui, sans-serif' },
-        mono: { value: '"JetBrains Mono", "Fira Code", monospace' },
+        heading: { value: '"Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif' },
+        body: { value: '"Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif' },
+        mono: { value: '"SF Mono", "JetBrains Mono", "Fira Code", monospace' },
       },
       radii: {
         card: { value: '12px' },
@@ -166,7 +166,7 @@ export const getChartTheme = (mode: ColorMode) => {
 
 // Animation keyframes as CSS string
 export const globalStyles = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
   * {
     box-sizing: border-box;
@@ -179,9 +179,36 @@ export const globalStyles = `
   body {
     background: #0a0a0f;
     color: #e4e4e7;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.011em;
+  }
+
+  /* x.ai/Tesla typography system */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* Body text - slightly tighter */
+  p, span, div {
+    letter-spacing: -0.011em;
+  }
+
+  /* Labels and small text - x.ai style */
+  .label, [data-label], small {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  /* Buttons - x.ai style */
+  button {
+    font-weight: 500;
+    letter-spacing: 0.01em;
   }
 
   /* Accessibility: Focus styles */

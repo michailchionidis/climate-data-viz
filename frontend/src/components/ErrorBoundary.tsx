@@ -2,9 +2,10 @@
  * Error Boundary component for graceful error handling
  */
 import { Component, type ReactNode, type ErrorInfo } from 'react'
-import { Box, Text, Flex, Button } from '@chakra-ui/react'
+import { Box, Text, Flex } from '@chakra-ui/react'
 import { Card, CardBody } from './ui/Card'
 import { AlertIcon } from './ui/Icons'
+import { PillButton } from './ui/PillButton'
 
 interface Props {
   children: ReactNode
@@ -70,20 +71,15 @@ export class ErrorBoundary extends Component<Props, State> {
                   </Text>
                 </Box>
               )}
-              <Button
-                mt={4}
-                size="sm"
-                bg="rgba(245, 158, 11, 0.2)"
-                color="orange.300"
-                borderWidth="1px"
-                borderColor="rgba(245, 158, 11, 0.4)"
-                _hover={{
-                  bg: 'rgba(245, 158, 11, 0.3)',
-                }}
-                onClick={this.handleReset}
-              >
-                Try Again
-              </Button>
+              <Box mt={4}>
+                <PillButton
+                  onClick={this.handleReset}
+                  variant="warning"
+                  size="sm"
+                >
+                  Try Again
+                </PillButton>
+              </Box>
             </Flex>
           </CardBody>
         </Card>
@@ -122,19 +118,13 @@ export function ErrorDisplay({
             {errorMessage}
           </Text>
           {onRetry && (
-            <Button
-              size="sm"
-              bg="rgba(245, 158, 11, 0.2)"
-              color="orange.300"
-              borderWidth="1px"
-              borderColor="rgba(245, 158, 11, 0.4)"
-              _hover={{
-                bg: 'rgba(245, 158, 11, 0.3)',
-              }}
+            <PillButton
               onClick={onRetry}
+              variant="warning"
+              size="sm"
             >
               Retry
-            </Button>
+            </PillButton>
           )}
         </Flex>
       </CardBody>

@@ -7,6 +7,7 @@ import { Box, Flex, Text } from '@chakra-ui/react'
 import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi'
 import { useTour, TourStep } from './TourContext'
 import { useTheme } from '../../context/ThemeContext'
+import { PillButton } from '../ui/PillButton'
 
 interface TargetRect {
   top: number
@@ -406,54 +407,22 @@ export function TourTooltip() {
               {/* Navigation */}
               <Flex gap="2">
                 {!isFirstStep && (
-                  <Box
-                    as="button"
-                    display="flex"
-                    alignItems="center"
-                    gap="1"
-                    px="3"
-                    py="1.5"
-                    borderRadius="md"
-                    fontSize="sm"
-                    color={colors.textSecondary}
-                    cursor="pointer"
+                  <PillButton
                     onClick={prevStep}
-                    _hover={{ color: colors.text, bg: colors.buttonHover }}
-                    transition="all 0.15s"
+                    icon={<FiChevronLeft size={14} />}
+                    iconPosition="left"
                   >
-                    <FiChevronLeft size={14} />
                     Back
-                  </Box>
+                  </PillButton>
                 )}
-                <Box
-                  as="button"
-                  display="flex"
-                  alignItems="center"
-                  gap="1"
-                  px="4"
-                  py="1.5"
-                  borderRadius="8px"
-                  fontSize="sm"
-                  fontWeight="600"
-                  bg="rgba(6, 182, 212, 0.15)"
-                  color={colors.accentCyan}
-                  borderWidth="1px"
-                  borderColor="rgba(6, 182, 212, 0.3)"
-                  cursor="pointer"
+                <PillButton
                   onClick={nextStep}
-                  _hover={{
-                    bg: 'rgba(6, 182, 212, 0.25)',
-                    borderColor: 'rgba(6, 182, 212, 0.5)',
-                    boxShadow: `0 0 15px ${colors.accentCyanGlow}`,
-                  }}
-                  _active={{
-                    bg: 'rgba(6, 182, 212, 0.35)',
-                  }}
-                  transition="all 0.15s"
+                  variant="primary"
+                  icon={!isLastStep ? <FiChevronRight size={14} /> : undefined}
+                  iconPosition="right"
                 >
                   {isLastStep ? 'Finish' : 'Next'}
-                  {!isLastStep && <FiChevronRight size={14} />}
-                </Box>
+                </PillButton>
               </Flex>
             </Flex>
           </Box>
