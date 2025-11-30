@@ -112,15 +112,16 @@ function getAccentGlow(color?: string): string {
 // Card Header component
 interface CardHeaderProps extends BoxProps {
   children: ReactNode
+  showBorder?: boolean
 }
 
-export function CardHeader({ children, ...props }: CardHeaderProps) {
+export function CardHeader({ children, showBorder = false, ...props }: CardHeaderProps) {
   const { colors } = useTheme()
   return (
     <Box
       px={4}
       py={3}
-      borderBottomWidth="1px"
+      borderBottomWidth={showBorder ? '1px' : '0'}
       borderColor={colors.border}
       {...props}
     >

@@ -84,8 +84,6 @@ export function Sidebar({
             align="center"
             justify="space-between"
             p={3}
-            borderBottomWidth="1px"
-            borderColor={colors.border}
             flexShrink={0}
           >
             <Flex align="center" gap={2}>
