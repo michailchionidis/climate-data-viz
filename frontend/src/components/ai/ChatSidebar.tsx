@@ -3,12 +3,12 @@
  * Collapsible sidebar for Grok AI chat - mirrors the Filters sidebar design
  */
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { Box, Flex, Text, Input, Spinner } from '@chakra-ui/react'
-import { FiSend, FiX, FiMessageCircle } from 'react-icons/fi'
-import { LuBrain } from 'react-icons/lu'
+import { Box, Flex, Text, Textarea, Spinner } from '@chakra-ui/react'
+import { FiSend, FiX } from 'react-icons/fi'
 import { useTheme } from '../../context/ThemeContext'
+import { GrokIcon } from '../ui/GrokIcon'
 import { useAskGrok } from '../../hooks/useAIInsights'
-import type { AIInsightsParams } from '../../types'
+import type { AIInsightsParams } from '../../api/client'
 
 interface Message {
   id: string
@@ -36,7 +36,7 @@ export function ChatSidebar({
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const params: AIInsightsParams = {
     stations,
@@ -106,6 +106,16 @@ export function ChatSidebar({
     [handleSend, onClose]
   )
 
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = inputRef.current
+    if (textarea) {
+      textarea.style.height = '20px'
+      const newHeight = Math.min(textarea.scrollHeight, 80)
+      textarea.style.height = `${newHeight}px`
+    }
+  }, [inputValue])
+
   // Don't render anything if closed
   if (!isOpen) {
     return null
@@ -140,18 +150,8 @@ export function ChatSidebar({
             p={3}
             flexShrink={0}
           >
-            <Flex align="center" gap={2}>
-              <Box
-                w="24px"
-                h="24px"
-                borderRadius="6px"
-                bg={colorMode === 'light' ? 'cyan.50' : 'rgba(6, 182, 212, 0.15)'}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <LuBrain size={14} color={colorMode === 'light' ? '#0891b2' : '#06b6d4'} />
-              </Box>
+            <Flex align="center" gap={3}>
+              <GrokIcon size={20} color={colors.text} />
               <Box>
                 <Text
                   fontSize="sm"
@@ -217,16 +217,33 @@ export function ChatSidebar({
                 py={8}
               >
                 <Box
+                  position="relative"
                   w="48px"
                   h="48px"
-                  borderRadius="12px"
-                  bg={`${colors.accentCyan}10`}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
                   mb={3}
                 >
-                  <FiMessageCircle size={24} color={colors.accentCyan} />
+                  {/* Glow ring */}
+                  <Box
+                    position="absolute"
+                    inset={0}
+                    borderRadius="full"
+                    bg={`${colors.accentCyan}08`}
+                    border="1px solid"
+                    borderColor={`${colors.accentCyan}20`}
+                  />
+                  {/* Inner circle with Grok icon */}
+                  <Flex
+                    position="absolute"
+                    inset="6px"
+                    align="center"
+                    justify="center"
+                    borderRadius="full"
+                    bg={`${colors.accentCyan}15`}
+                    border="1px solid"
+                    borderColor={`${colors.accentCyan}30`}
+                  >
+                    <GrokIcon size={16} color={colors.accentCyan} />
+                  </Flex>
                 </Box>
                 <Text fontSize="sm" fontWeight="500" color={colors.text} mb={1}>
                   Ask anything about your data
@@ -253,19 +270,19 @@ export function ChatSidebar({
                       <Box
                         px={4}
                         py={2.5}
-                        borderRadius="full"
-                        bg={colorMode === 'light' ? '#e5e5e5' : '#333333'}
+                        borderRadius="2xl"
+                        bg={colorMode === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.08)'}
                       >
                         <Text
                           fontSize="14px"
                           color={colors.text}
-                          lineHeight="1.5"
+                          lineHeight="1.6"
                         >
                           {message.content}
                         </Text>
                       </Box>
                       <Text
-                        fontSize="11px"
+                        fontSize="10px"
                         color={colors.textMuted}
                         mt={1}
                         textAlign="right"
@@ -287,7 +304,7 @@ export function ChatSidebar({
                           alignItems="center"
                           justifyContent="center"
                         >
-                          <LuBrain size={10} color={colors.accentCyan} />
+                          <GrokIcon size={10} color={colors.accentCyan} />
                         </Box>
                         <Text fontSize="11px" fontWeight="600" color={colors.accentCyan}>
                           GROK
@@ -349,21 +366,33 @@ export function ChatSidebar({
                 boxShadow: `0 0 0 1px ${colors.accentCyan}40`,
               }}
             >
-          <Input
+          <Textarea
             ref={inputRef}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={stations.length === 0 ? 'Select stations first...' : 'Type your question...'}
-            variant="flushed"
             fontSize="13px"
             color={colors.text}
             bg="transparent"
             flex={1}
             border="none"
-            _focus={{ boxShadow: 'none' }}
+            outline="none"
+            resize="none"
+            minH="20px"
+            maxH="80px"
+            rows={1}
+            overflow="auto"
+            py={0}
+            _focus={{ boxShadow: 'none', outline: 'none', border: 'none' }}
+            _focusVisible={{ boxShadow: 'none', outline: 'none', border: 'none' }}
             disabled={isPending || stations.length === 0}
             _placeholder={{ color: colors.textMuted }}
+            css={{
+              '&:focus': { outline: 'none', boxShadow: 'none' },
+              '&::-webkit-scrollbar': { width: '3px' },
+              '&::-webkit-scrollbar-thumb': { background: colors.border, borderRadius: '2px' },
+            }}
           />
               <Box
                 as="button"
@@ -375,7 +404,7 @@ export function ChatSidebar({
                 transition="all 0.2s"
                 _hover={inputValue.trim() && !isPending ? { bg: `${colors.accentCyan}15` } : {}}
                 aria-label="Send message"
-                disabled={!inputValue.trim() || isPending || stations.length === 0}
+                data-disabled={!inputValue.trim() || isPending || stations.length === 0 || undefined}
               >
                 <FiSend size={14} />
               </Box>

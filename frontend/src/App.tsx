@@ -4,7 +4,7 @@
  * Features full accessibility support (WCAG 2.1 AA compliant)
  */
 import { useState, useCallback, useEffect } from 'react'
-import { Box, Container, Text, Flex } from '@chakra-ui/react'
+import { Box, Container, Text, Flex, Link } from '@chakra-ui/react'
 import { StationSelector } from './components/StationSelector'
 import { ControlsPanel } from './components/ControlsPanel'
 import { AnalyticsPanel } from './components/AnalyticsPanel'
@@ -135,7 +135,7 @@ function AppContent() {
         role="banner"
         bg={`${colors.bg}e6`}
         backdropFilter="blur(20px) saturate(180%)"
-        WebkitBackdropFilter="blur(20px) saturate(180%)"
+        css={{ WebkitBackdropFilter: 'blur(20px) saturate(180%)' }}
         flexShrink={0}
         zIndex={100}
         position={{ base: 'sticky', lg: 'relative' }}
@@ -148,22 +148,9 @@ function AppContent() {
       >
         <Container maxW="1800px" py={2} px={{ base: 3, md: 4 }} mx="auto">
           <Flex justify="space-between" align="center">
-            <Flex align="center" gap={2}>
-              {/* Logo */}
-              <Box
-                w={{ base: '28px', md: '32px' }}
-                h={{ base: '28px', md: '32px' }}
-                borderRadius="8px"
-                bg={colors.accentCyanGlow}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                borderWidth="1px"
-                borderColor="rgba(6, 182, 212, 0.4)"
-                flexShrink={0}
-              >
-                <ActivityIcon size="md" color={colors.accentCyan} />
-              </Box>
+            <Flex align="center" gap={3}>
+              {/* Logo - minimal x.ai style */}
+              <ActivityIcon size="lg" color={colors.text} />
               <Box>
                 <Text
                   fontSize={{ base: 'sm', md: 'md' }}
@@ -508,12 +495,12 @@ function AppContent() {
                 ))}
               </Flex>
             </Flex>
-            <Flex
-              as="a"
+            <Link
               href="https://mikechionidis.com"
               target="_blank"
               rel="noopener noreferrer"
-              align="center"
+              display="flex"
+              alignItems="center"
               gap={1}
               px={2}
               py={0.5}
@@ -522,9 +509,9 @@ function AppContent() {
               _hover={{
                 color: colors.accentCyan,
                 bg: `${colors.accentCyan}08`,
+                textDecoration: 'none',
               }}
               transition="all 0.2s"
-              cursor="pointer"
             >
               <Text fontSize="2xs" letterSpacing="0.02em">
                 Crafted by
@@ -537,7 +524,7 @@ function AppContent() {
               >
                 Mike Chionidis
               </Text>
-            </Flex>
+            </Link>
             <Text fontSize="2xs" color={colors.textMuted} fontFamily="mono">
               Data: 1859–2019 • 10 Stations
             </Text>
