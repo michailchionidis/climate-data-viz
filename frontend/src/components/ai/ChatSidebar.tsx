@@ -129,12 +129,16 @@ export function ChatSidebar({
     <>
       {/* Sidebar Container - mirrors Filters sidebar structure */}
       <Box
+        id="grok-chat-sidebar"
         position="relative"
         w={isOpen ? '320px' : '0px'}
         minW={isOpen ? '320px' : '0px'}
         h="100%"
         transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         overflow="hidden"
+        role="complementary"
+        aria-label="Grok AI Chat"
+        aria-hidden={!isOpen}
       >
         <Box
           w="320px"
@@ -185,6 +189,7 @@ export function ChatSidebar({
               }}
               transition="all 0.15s"
               cursor="pointer"
+              aria-label="Collapse chat"
               title="Collapse chat"
             >
               <FiChevronRight size={14} />

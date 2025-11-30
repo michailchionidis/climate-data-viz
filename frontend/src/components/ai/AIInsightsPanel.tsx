@@ -53,13 +53,11 @@ export function AIInsightsPanel({
     })
   }, [onExpandChange])
 
-  // Don't render if no stations selected
-  if (stations.length === 0) {
-    return null
-  }
+  const noStationsSelected = stations.length === 0
 
   return (
     <Box
+      id="ai-insights-panel"
       bg={colors.card}
       border="1px solid"
       borderColor={colors.border}
@@ -67,6 +65,9 @@ export function AIInsightsPanel({
       overflow="hidden"
       role="region"
       aria-label="AI Insights"
+      aria-expanded={isExpanded}
+      opacity={noStationsSelected ? 0.5 : 1}
+      transition="opacity 0.2s"
     >
       {/* Header - Always visible, clickable to expand/collapse */}
       <Flex
@@ -74,9 +75,9 @@ export function AIInsightsPanel({
         justify="space-between"
         px={4}
         py={2.5}
-        cursor="pointer"
-        onClick={toggleExpanded}
-        _hover={{ bg: `${colors.accentCyan}05` }}
+        cursor={noStationsSelected ? 'default' : 'pointer'}
+        onClick={noStationsSelected ? undefined : toggleExpanded}
+        _hover={noStationsSelected ? {} : { bg: `${colors.accentCyan}05` }}
         transition="background 0.2s"
       >
         <Flex align="center" gap={2}>
@@ -114,27 +115,33 @@ export function AIInsightsPanel({
         </Flex>
 
         {/* Action buttons */}
-        <Flex align="center" gap={2} onClick={(e) => e.stopPropagation()}>
+        <Flex id="ai-action-buttons" align="center" gap={2} onClick={(e) => e.stopPropagation()}>
           {onOpenChat && (
-            <PillButton
-              onClick={onOpenChat}
-              icon={<GrokIcon size={11} />}
-              ariaLabel="Open chat with Grok"
-              size="xs"
-            >
-              Ask Grok
-            </PillButton>
+            <Box id="ask-grok-button">
+              <PillButton
+                onClick={noStationsSelected ? undefined : onOpenChat}
+                icon={<GrokIcon size={11} />}
+                ariaLabel="Open chat with Grok"
+                size="xs"
+                disabled={noStationsSelected}
+              >
+                Ask Grok
+              </PillButton>
+            </Box>
           )}
 
-          <PillButton
-            onClick={handleGenerateAndExpand}
-            isLoading={isGeneratingInsights}
-            icon={hasInsights ? <FiRefreshCw size={11} /> : <FiZap size={11} />}
-            ariaLabel={hasInsights ? 'Refresh insights' : 'Generate insights'}
-            size="xs"
-          >
-            {hasInsights ? 'Refresh' : 'Generate'}
-          </PillButton>
+          <Box id="generate-insights-button">
+            <PillButton
+              onClick={noStationsSelected ? undefined : handleGenerateAndExpand}
+              isLoading={isGeneratingInsights}
+              icon={hasInsights ? <FiRefreshCw size={11} /> : <FiZap size={11} />}
+              ariaLabel={hasInsights ? 'Refresh insights' : 'Generate insights'}
+              size="xs"
+              disabled={noStationsSelected}
+            >
+              {hasInsights ? 'Refresh' : 'Generate'}
+            </PillButton>
+          </Box>
         </Flex>
       </Flex>
 
