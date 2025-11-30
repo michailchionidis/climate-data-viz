@@ -2,7 +2,7 @@
  * Multi-select component for weather station selection
  * Premium UI with search, visual feedback, and full accessibility support
  */
-import { useState, useMemo, useRef, useCallback } from 'react'
+import { useState, useMemo, useRef, useCallback, memo } from 'react'
 import { Box, Text, Flex, Input, Spinner } from '@chakra-ui/react'
 import { useStations } from '../hooks/useClimateData'
 import { SectionHeader } from './ui/SectionHeader'
@@ -19,7 +19,7 @@ interface StationSelectorProps {
   hideHeader?: boolean
 }
 
-export function StationSelector({
+export const StationSelector = memo(function StationSelector({
   selectedStations,
   onSelectionChange,
   compact = false,
@@ -354,4 +354,4 @@ export function StationSelector({
 
     </Box>
   )
-}
+})

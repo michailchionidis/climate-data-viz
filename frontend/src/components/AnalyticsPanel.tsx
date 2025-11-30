@@ -2,6 +2,7 @@
  * Analytics summary panel with minimal x.ai styling
  * Shows key statistics for selected weather stations
  */
+import { memo } from 'react'
 import { Box, Text, Flex } from '@chakra-ui/react'
 import { Card, CardBody } from './ui/Card'
 import { SectionHeader } from './ui/SectionHeader'
@@ -57,7 +58,7 @@ function MinimalStat({
   )
 }
 
-export function AnalyticsPanel({
+export const AnalyticsPanel = memo(function AnalyticsPanel({
   analytics,
   isLoading,
   selectedStations,
@@ -252,4 +253,4 @@ export function AnalyticsPanel({
       </CardBody>
     </Card>
   )
-}
+})
