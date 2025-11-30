@@ -119,11 +119,12 @@ function AppContent() {
 
   return (
     <Box
-      h="100vh"
+      minH="100vh"
+      h={{ base: 'auto', lg: '100vh' }}
       bg={colors.bg}
       display="flex"
       flexDirection="column"
-      overflow="hidden"
+      overflow={{ base: 'auto', lg: 'hidden' }}
       transition="background-color 0.3s ease"
       pt={{ base: 2, lg: 2 }}
     >
@@ -239,11 +240,11 @@ function AppContent() {
       <Container
         maxW={isSidebarCollapsed ? '100%' : '1800px'}
         pt={0.5}
-        pb={0}
+        pb={{ base: 4, lg: 0 }}
         px={{ base: 3, md: 4 }}
         mx="auto"
         flex={1}
-        overflow="hidden"
+        overflow={{ base: 'visible', lg: 'hidden' }}
         transition="max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
       >
         {/* Mobile Layout - Stacked sections */}
