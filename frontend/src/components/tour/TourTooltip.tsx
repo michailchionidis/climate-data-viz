@@ -42,13 +42,16 @@ function getTooltipPosition(
   targetRect: TargetRect | null,
   placement: TourStep['placement'] = 'bottom',
   tooltipWidth: number = 360,
-  tooltipHeight: number = 200
+  tooltipHeight: number = 200,
+  isMobile: boolean = false
 ): { top: number; left: number } {
-  // Center placement (for welcome-like steps)
-  if (!targetRect || placement === 'center') {
+  // On mobile, always center the tooltip
+  // Also center if no target found or center placement
+  if (isMobile || !targetRect || placement === 'center') {
+    const actualWidth = isMobile ? Math.min(tooltipWidth, window.innerWidth - 32) : tooltipWidth
     return {
-      top: window.innerHeight / 2 - tooltipHeight / 2,
-      left: window.innerWidth / 2 - tooltipWidth / 2,
+      top: Math.max(80, window.innerHeight / 2 - tooltipHeight / 2),
+      left: window.innerWidth / 2 - actualWidth / 2,
     }
   }
 
@@ -92,6 +95,9 @@ export function TourTooltip() {
   const { colors } = useTheme()
   const [targetRect, setTargetRect] = useState<TargetRect | null>(null)
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 })
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' && window.innerWidth < 768
+  )
   const tooltipRef = useRef<HTMLDivElement>(null)
 
   const step = steps[currentStep]
@@ -104,15 +110,18 @@ export function TourTooltip() {
     if (!isOpen || !step) return
 
     const updatePosition = () => {
-      const rect = getTargetRect(step.target)
+      const mobile = window.innerWidth < 768
+      setIsMobile(mobile)
+
+      const rect = mobile ? null : getTargetRect(step.target)
       setTargetRect(rect)
 
       const tooltipHeight = tooltipRef.current?.offsetHeight || 200
-      const pos = getTooltipPosition(rect, step.placement, 360, tooltipHeight)
+      const pos = getTooltipPosition(rect, step.placement, 360, tooltipHeight, mobile)
       setTooltipPos(pos)
 
-      // Scroll target into view if needed
-      if (rect && step.spotlight !== false) {
+      // Scroll target into view if needed (only on desktop)
+      if (!mobile && rect && step.spotlight !== false) {
         const element = document.getElementById(step.target) || document.querySelector(step.target)
         element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
@@ -181,8 +190,8 @@ export function TourTooltip() {
         }}
       />
 
-      {/* Spotlight border glow */}
-      {targetRect && step.spotlight !== false && (
+      {/* Spotlight border glow - only on desktop */}
+      {!isMobile && targetRect && step.spotlight !== false && (
         <Box
           position="fixed"
           top={`${targetRect.top - 8}px`}
@@ -215,8 +224,8 @@ export function TourTooltip() {
         ref={tooltipRef}
         position="fixed"
         top={`${tooltipPos.top}px`}
-        left={`${tooltipPos.left}px`}
-        width="360px"
+        left={isMobile ? '16px' : `${tooltipPos.left}px`}
+        width={isMobile ? 'calc(100vw - 32px)' : '360px'}
         maxW="calc(100vw - 32px)"
         bg={colors.cardSolid}
         borderRadius="16px"
@@ -235,7 +244,7 @@ export function TourTooltip() {
           <Box
             h="100%"
             w={`${progress}%`}
-            bg={`linear-gradient(90deg, ${colors.accentCyan}, ${colors.accentPurple})`}
+            bg={colors.accentCyan}
             transition="width 0.3s ease"
           />
         </Box>
@@ -276,6 +285,22 @@ export function TourTooltip() {
             {step.content}
           </Box>
 
+          {/* Mobile hint */}
+          {isMobile && (
+            <Box
+              bg="rgba(6, 182, 212, 0.1)"
+              border="1px solid"
+              borderColor="rgba(6, 182, 212, 0.2)"
+              borderRadius="8px"
+              p="2"
+              mb="3"
+            >
+              <Text fontSize="xs" color={colors.textMuted} textAlign="center">
+                💡 For the best experience with interactive highlights, view this tour on a desktop device.
+              </Text>
+            </Box>
+          )}
+
           {/* Footer */}
           <Flex justify="space-between" align="center">
             {/* Step indicator */}
@@ -312,14 +337,23 @@ export function TourTooltip() {
                 gap="1"
                 px="4"
                 py="1.5"
-                borderRadius="md"
+                borderRadius="8px"
                 fontSize="sm"
                 fontWeight="600"
-                bg={colors.accentCyan}
-                color="white"
+                bg="rgba(6, 182, 212, 0.15)"
+                color={colors.accentCyan}
+                borderWidth="1px"
+                borderColor="rgba(6, 182, 212, 0.3)"
                 cursor="pointer"
                 onClick={nextStep}
-                _hover={{ opacity: 0.9, transform: 'translateY(-1px)' }}
+                _hover={{
+                  bg: 'rgba(6, 182, 212, 0.25)',
+                  borderColor: 'rgba(6, 182, 212, 0.5)',
+                  boxShadow: `0 0 15px ${colors.accentCyanGlow}`,
+                }}
+                _active={{
+                  bg: 'rgba(6, 182, 212, 0.35)',
+                }}
                 transition="all 0.15s"
               >
                 {isLastStep ? 'Finish' : 'Next'}
