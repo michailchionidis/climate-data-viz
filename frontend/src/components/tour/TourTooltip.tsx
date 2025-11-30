@@ -5,7 +5,7 @@
  */
 import { useEffect, useState, useRef } from 'react'
 import { Box, Flex, Text } from '@chakra-ui/react'
-import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi'
+import { FiX } from 'react-icons/fi'
 import { useTour, TourStep } from './TourContext'
 import { useTheme } from '../../context/ThemeContext'
 import { PillButton } from '../ui/PillButton'

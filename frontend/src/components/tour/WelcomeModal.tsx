@@ -4,7 +4,7 @@
  * xAI-level minimal design
  */
 import { Box, Flex, Text, Heading } from '@chakra-ui/react'
-import { FiPlay, FiX, FiMapPin, FiCalendar, FiBarChart2 } from 'react-icons/fi'
+import { FiPlay, FiMapPin, FiCalendar, FiBarChart2 } from 'react-icons/fi'
 import { LuActivity } from 'react-icons/lu'
 import { useTour } from './TourContext'
 import { useTheme } from '../../context/ThemeContext'
