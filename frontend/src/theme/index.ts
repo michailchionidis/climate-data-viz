@@ -86,8 +86,11 @@ export const themeColors = {
     // Accessible accent colors (WCAG AA compliant)
     accentCyan: '#22d3ee',      // cyan-400 - 8.14:1 contrast
     accentOrange: '#fbbf24',    // amber-400 - 9.20:1 contrast
+    accentPurple: '#a78bfa',    // violet-400
     accentCyanText: '#06b6d4',  // For text on dark bg
     accentOrangeText: '#f59e0b',
+    accentCyanGlow: 'rgba(6, 182, 212, 0.15)',
+    accentPurpleGlow: 'rgba(139, 92, 246, 0.15)',
   },
   light: {
     bg: '#f8fafc',
@@ -114,8 +117,11 @@ export const themeColors = {
     // Accessible accent colors (WCAG AA compliant - 4.5:1+ contrast)
     accentCyan: '#0891b2',      // cyan-600 - 5.1:1 contrast on light bg
     accentOrange: '#b45309',    // amber-700 - 5.4:1 contrast on light bg
+    accentPurple: '#7c3aed',    // violet-600
     accentCyanText: '#0e7490',  // cyan-700 for text - 6.3:1 contrast
     accentOrangeText: '#92400e', // amber-800 for text - 7.1:1 contrast
+    accentCyanGlow: 'rgba(8, 145, 178, 0.15)',
+    accentPurpleGlow: 'rgba(124, 58, 237, 0.15)',
   },
 } as const
 

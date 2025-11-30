@@ -137,6 +137,7 @@ export function Sidebar({
           >
             {/* Weather Stations Section - Takes available space */}
             <Box
+              id="station-selector-desktop"
               p={3}
               flex={1}
               minH={0}
@@ -199,6 +200,7 @@ export function Sidebar({
 
             {/* Visualization Options Section - Fixed at bottom, scrollable if needed */}
             <Box
+              id="visualization-options-desktop"
               p={3}
               flexShrink={0}
               overflow="auto"

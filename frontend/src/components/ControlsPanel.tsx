@@ -84,7 +84,7 @@ export function ControlsPanel({
   return (
     <VStack gap={compact ? 3 : 6} align="stretch">
       {/* Visualization Mode */}
-      <Box>
+      <Box id="visualization-mode">
         <SectionHeader title="Visualization Mode" compact={compact} />
 
         {/* Mode toggle */}
@@ -237,7 +237,7 @@ export function ControlsPanel({
       </Box>
 
       {/* Year Range */}
-      <Box>
+      <Box id="year-range-controls">
         <SectionHeader
           title="Year Range"
           badge={yearFrom || yearTo ? `${yearFrom || minYear}–${yearTo || maxYear}` : undefined}
@@ -339,7 +339,7 @@ export function ControlsPanel({
       </Box>
 
       {/* Zoom Controls */}
-      <Box>
+      <Box id="zoom-controls">
         <SectionHeader title="Zoom Controls" compact={compact} />
         <VStack gap={compact ? 2 : 3}>
           {/* Center Year + Window Size in row for compact */}
