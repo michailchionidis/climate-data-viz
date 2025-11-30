@@ -109,6 +109,26 @@ class InsightsResponse(BaseModel):
     )
 
 
+class ChatMessage(BaseModel):
+    """A single message in the conversation history.
+
+    Attributes:
+        role: Either 'user' or 'assistant'.
+        content: The message content.
+    """
+
+    role: str = Field(
+        ...,
+        pattern="^(user|assistant)$",
+        description="Message role: 'user' or 'assistant'",
+    )
+    content: str = Field(
+        ...,
+        min_length=1,
+        description="Message content",
+    )
+
+
 class AskRequest(BaseModel):
     """Request for asking a question about climate data.
 
@@ -117,6 +137,7 @@ class AskRequest(BaseModel):
         station_ids: Context - which stations to consider.
         year_from: Optional start year context.
         year_to: Optional end year context.
+        conversation_history: Previous messages for context.
     """
 
     question: str = Field(
@@ -141,6 +162,11 @@ class AskRequest(BaseModel):
         ge=1800,
         le=2100,
         description="End year context",
+    )
+    conversation_history: list[ChatMessage] = Field(
+        default_factory=list,
+        max_length=20,
+        description="Previous messages for conversation context (max 20)",
     )
 
 

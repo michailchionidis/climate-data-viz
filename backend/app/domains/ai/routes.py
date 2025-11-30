@@ -149,6 +149,7 @@ async def ask_question(request: AskRequest) -> AskResponse:
             station_ids=request.station_ids,
             year_from=request.year_from,
             year_to=request.year_to,
+            conversation_history=request.conversation_history or None,
         )
     except LLMAuthenticationError as e:
         logger.error(f"AI authentication error: {e}")

@@ -68,30 +68,39 @@ export function ChatSidebar({
       timestamp: new Date(),
     }
 
+    // Build conversation history from previous messages (excluding the new one)
+    const history = messages.map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    }))
+
     setMessages((prev) => [...prev, userMessage])
     setInputValue('')
 
-    askGrok(inputValue.trim(), {
-      onSuccess: (data) => {
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          role: 'assistant',
-          content: data.answer,
-          timestamp: new Date(),
-        }
-        setMessages((prev) => [...prev, assistantMessage])
-      },
-      onError: (error) => {
-        const errorMessage: Message = {
-          id: `error-${Date.now()}`,
-          role: 'assistant',
-          content: `Error: ${error.message || 'Failed to get response'}`,
-          timestamp: new Date(),
-        }
-        setMessages((prev) => [...prev, errorMessage])
-      },
-    })
-  }, [inputValue, isPending, askGrok, stations.length])
+    askGrok(
+      { question: inputValue.trim(), history },
+      {
+        onSuccess: (data) => {
+          const assistantMessage: Message = {
+            id: `assistant-${Date.now()}`,
+            role: 'assistant',
+            content: data.answer,
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, assistantMessage])
+        },
+        onError: (error) => {
+          const errorMessage: Message = {
+            id: `error-${Date.now()}`,
+            role: 'assistant',
+            content: `Error: ${error.message || 'Failed to get response'}`,
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, errorMessage])
+        },
+      }
+    )
+  }, [inputValue, isPending, askGrok, stations.length, messages])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -272,24 +281,8 @@ export function ChatSidebar({
                       </Text>
                     </>
                   ) : (
-                    // Assistant message - clean, no border, like Grok
+                    // Assistant message - clean, minimal like Grok
                     <>
-                      <Flex align="center" gap={1.5} mb={2}>
-                        <Box
-                          w="18px"
-                          h="18px"
-                          borderRadius="full"
-                          bg={colorMode === 'light' ? 'cyan.100' : 'rgba(6, 182, 212, 0.2)'}
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                        >
-                          <GrokIcon size={10} color={colors.accentCyan} />
-                        </Box>
-                        <Text fontSize="11px" fontWeight="600" color={colors.accentCyan}>
-                          GROK
-                        </Text>
-                      </Flex>
                       <Text
                         fontSize="14px"
                         color={colors.text}

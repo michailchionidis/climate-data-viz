@@ -140,15 +140,22 @@ export async function getAIInsights(
   return response.data
 }
 
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 export async function askGrok(
   question: string,
-  params: AIInsightsParams
+  params: AIInsightsParams,
+  conversationHistory?: ChatMessage[]
 ): Promise<AIAskResponse> {
   const response = await apiClient.post<AIAskResponse>('/ai/ask', {
     question,
     station_ids: params.stations,
     year_from: params.yearFrom,
     year_to: params.yearTo,
+    conversation_history: conversationHistory || [],
   })
   return response.data
 }

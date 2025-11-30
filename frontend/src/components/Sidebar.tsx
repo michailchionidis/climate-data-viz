@@ -5,7 +5,6 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
 import { StationSelector } from './StationSelector'
 import { ControlsPanel } from './ControlsPanel'
-import { SectionHeader } from './ui/SectionHeader'
 import { ChevronLeftIcon } from './ui/Icons'
 import { useTheme } from '../context/ThemeContext'
 import type { VisualizationMode, ZoomState, Station } from '../types'
@@ -50,7 +49,7 @@ export function Sidebar({
   isCollapsed,
   onToggle,
 }: SidebarProps) {
-  const { colors, colorMode } = useTheme()
+  const { colors } = useTheme()
 
   return (
     <>

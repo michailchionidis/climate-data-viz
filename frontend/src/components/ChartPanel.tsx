@@ -8,7 +8,6 @@ import { FiChevronDown, FiChevronRight } from 'react-icons/fi'
 import Plot from 'react-plotly.js'
 import type { Data, Layout } from 'plotly.js'
 import { Card, CardHeader, CardBody } from './ui/Card'
-import { EmptyState } from './ui/EmptyState'
 import { LoadingState } from './ui/LoadingState'
 import { ExportMenu } from './ExportMenu'
 import { LineChartIcon, InfoIcon } from './ui/Icons'
@@ -292,25 +291,10 @@ export function ChartPanel({
   }
 
   const config = {
-    displayModeBar: !isMobile, // Hide modebar on mobile to save space
+    displayModeBar: false, // Hide modebar for cleaner xAI aesthetic
     displaylogo: false,
-    modeBarButtonsToRemove: [
-      'toImage', // Hide camera button - we have our own Export PNG in dropdown
-      'lasso2d',
-      'select2d',
-      'hoverClosestCartesian',
-      'hoverCompareCartesian',
-    ] as any,
-    modeBarButtonsToAdd: [] as any,
     responsive: true,
     scrollZoom: true,
-    toImageButtonOptions: {
-      format: 'png' as const,
-      filename: `climate_data_${mode}_${new Date().toISOString().split('T')[0]}`,
-      height: 800,
-      width: 1400,
-      scale: 2,
-    },
   }
 
   const dataPointCount = mode === 'monthly'
