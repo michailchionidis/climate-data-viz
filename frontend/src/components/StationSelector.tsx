@@ -163,14 +163,15 @@ export function StationSelector({
         <SectionHeader
           title="Weather Stations"
           compact={compact}
+          badge={`${selectedStations.length}/${stations?.length || 0}`}
           action={
             <Text
               fontSize="2xs"
-              color={colors.accentCyanText}
+              color={colors.textMuted}
               cursor="pointer"
               onClick={handleSelectAll}
-              _hover={{ opacity: 0.8 }}
-              transition="opacity 0.15s"
+              _hover={{ color: colors.text }}
+              transition="color 0.15s"
               fontWeight="500"
             >
               {selectedStations.length === stations?.length ? 'Clear' : 'All'}
@@ -296,14 +297,14 @@ export function StationSelector({
                     animationDelay: `${idx * 0.02}s`,
                   }}
                 >
-                  {/* Custom checkbox with cyan accent */}
+                  {/* Custom checkbox - minimal white style */}
                   <Box
                     w={compact ? '14px' : '18px'}
                     h={compact ? '14px' : '18px'}
                     borderRadius="4px"
                     borderWidth="2px"
-                    borderColor={isSelected ? colors.accentCyan : colors.border}
-                    bg={isSelected ? colors.accentCyan : 'transparent'}
+                    borderColor={isSelected ? 'rgba(255, 255, 255, 0.9)' : colors.border}
+                    bg={isSelected ? 'rgba(255, 255, 255, 0.9)' : 'transparent'}
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
@@ -312,7 +313,7 @@ export function StationSelector({
                     aria-hidden="true"
                   >
                     {isSelected && (
-                      <CheckIcon size="xs" color="white" />
+                      <CheckIcon size="xs" color={colors.bg} />
                     )}
                   </Box>
 
@@ -346,16 +347,6 @@ export function StationSelector({
         </Flex>
       </Box>
 
-      {/* Selection count */}
-      <Box
-        mt={2}
-        pt={1}
-        flexShrink={0}
-      >
-        <Text fontSize="2xs" color={colors.textMuted}>
-          {selectedStations.length}/{stations?.length || 0} selected
-        </Text>
-      </Box>
     </Box>
   )
 }
