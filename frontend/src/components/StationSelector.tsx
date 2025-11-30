@@ -104,17 +104,14 @@ export function StationSelector({
     }
   }, [filteredStations, focusedIndex, handleToggle])
 
-  // Get color for station based on its position in selectedStations
-  // This ensures colors match the chart which uses selectedStations order
-  const getStationColor = (stationId: string): string => {
+  // Get color for station - used only for the small color dot indicator
+  // Chart colors are based on selection order, so we match that here
+  const getStationChartColor = (stationId: string): string => {
     const selectedIndex = selectedStations.indexOf(stationId)
     if (selectedIndex !== -1) {
       return STATION_COLORS[selectedIndex % STATION_COLORS.length]
     }
-    // For unselected stations, use their position in the full list (grayed out anyway)
-    if (!stations) return STATION_COLORS[0]
-    const index = stations.findIndex((s) => s.id === stationId)
-    return STATION_COLORS[index % STATION_COLORS.length]
+    return STATION_COLORS[0]
   }
 
   if (isLoading) {
@@ -273,7 +270,7 @@ export function StationSelector({
             filteredStations.map((station, idx) => {
               const isSelected = selectedStations.includes(station.id)
               const isFocused = focusedIndex === idx
-              const color = getStationColor(station.id)
+              const chartColor = getStationChartColor(station.id)
 
               return (
                 <Flex
@@ -286,19 +283,19 @@ export function StationSelector({
                   p={compact ? 1.5 : 2.5}
                   borderRadius="6px"
                   cursor="pointer"
-                  bg={isSelected ? `${color}15` : 'transparent'}
+                  bg={isSelected ? 'rgba(6, 182, 212, 0.1)' : 'transparent'}
                   borderWidth="1px"
                   borderColor={
                     isFocused
                       ? colors.accentCyan
                       : isSelected
-                        ? `${color}40`
+                        ? 'rgba(6, 182, 212, 0.3)'
                         : 'transparent'
                   }
                   boxShadow={isFocused ? '0 0 0 2px rgba(6, 182, 212, 0.3)' : 'none'}
                   _hover={{
-                    bg: isSelected ? `${color}20` : colors.buttonHover,
-                    borderColor: isSelected ? `${color}50` : colors.border,
+                    bg: isSelected ? 'rgba(6, 182, 212, 0.15)' : colors.buttonHover,
+                    borderColor: isSelected ? 'rgba(6, 182, 212, 0.4)' : colors.border,
                   }}
                   onClick={() => handleToggle(station.id)}
                   transition="all 0.15s ease"
@@ -308,14 +305,14 @@ export function StationSelector({
                     animationDelay: `${idx * 0.02}s`,
                   }}
                 >
-                  {/* Custom checkbox */}
+                  {/* Custom checkbox with cyan accent */}
                   <Box
                     w={compact ? '14px' : '18px'}
                     h={compact ? '14px' : '18px'}
                     borderRadius="4px"
                     borderWidth="2px"
-                    borderColor={isSelected ? color : colors.border}
-                    bg={isSelected ? color : 'transparent'}
+                    borderColor={isSelected ? colors.accentCyan : colors.border}
+                    bg={isSelected ? colors.accentCyan : 'transparent'}
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
@@ -333,13 +330,24 @@ export function StationSelector({
                     <Text
                       fontSize={compact ? 'xs' : 'sm'}
                       fontWeight="600"
-                      color={isSelected ? color : colors.textSecondary}
+                      color={isSelected ? colors.text : colors.textSecondary}
                       css={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
                     >
                       {station.name}
                     </Text>
                   </Box>
 
+                  {/* Small color indicator matching chart color */}
+                  {isSelected && (
+                    <Box
+                      w="8px"
+                      h="8px"
+                      borderRadius="full"
+                      bg={chartColor}
+                      flexShrink={0}
+                      title={`Chart color for ${station.name}`}
+                    />
+                  )}
                 </Flex>
               )
             })
@@ -355,29 +363,9 @@ export function StationSelector({
         borderColor="rgba(255, 255, 255, 0.06)"
         flexShrink={0}
       >
-        <Flex justify="space-between" align="center">
-          <Text fontSize="2xs" color={colors.textMuted}>
-            {selectedStations.length}/{stations?.length || 0} selected
-          </Text>
-          {selectedStations.length > 0 && (
-            <Flex gap={0.5}>
-              {selectedStations.slice(0, 4).map((id) => (
-                <Box
-                  key={id}
-                  w="5px"
-                  h="5px"
-                  borderRadius="full"
-                  bg={getStationColor(id)}
-                />
-              ))}
-              {selectedStations.length > 4 && (
-                <Text fontSize="2xs" color={colors.textMuted}>
-                  +{selectedStations.length - 4}
-                </Text>
-              )}
-            </Flex>
-          )}
-        </Flex>
+        <Text fontSize="2xs" color={colors.textMuted}>
+          {selectedStations.length}/{stations?.length || 0} selected
+        </Text>
       </Box>
     </Box>
   )
