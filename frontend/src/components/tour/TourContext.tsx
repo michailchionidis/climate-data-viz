@@ -14,6 +14,7 @@ export interface TourStep {
   content: string | React.ReactNode
   placement?: 'top' | 'bottom' | 'left' | 'right' | 'center'
   spotlight?: boolean
+  desktopOnly?: boolean // Hide this step on mobile devices
 }
 
 interface TourContextType {
@@ -92,6 +93,22 @@ export function TourProvider({ children, steps }: TourProviderProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [showWelcome, setShowWelcome] = useState(false)
   const [hasCompletedTour, setHasCompletedTour] = useState(true) // Default true to prevent flash
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Filter steps based on device type
+  const filteredSteps = isMobile
+    ? steps.filter(step => !step.desktopOnly)
+    : steps
+
+  // Check if mobile on mount and on resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024) // lg breakpoint
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Initialize on mount
   useEffect(() => {
@@ -156,12 +173,12 @@ export function TourProvider({ children, steps }: TourProviderProps) {
   }, [])
 
   const nextStep = useCallback(() => {
-    if (currentStep < steps.length - 1) {
+    if (currentStep < filteredSteps.length - 1) {
       setCurrentStep(prev => prev + 1)
     } else {
       endTour(true)
     }
-  }, [currentStep, steps.length, endTour])
+  }, [currentStep, filteredSteps.length, endTour])
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) {
@@ -170,10 +187,10 @@ export function TourProvider({ children, steps }: TourProviderProps) {
   }, [currentStep])
 
   const goToStep = useCallback((step: number) => {
-    if (step >= 0 && step < steps.length) {
+    if (step >= 0 && step < filteredSteps.length) {
       setCurrentStep(step)
     }
-  }, [steps.length])
+  }, [filteredSteps.length])
 
   const resetTour = useCallback(() => {
     clearStoredCompletion()
@@ -188,7 +205,7 @@ export function TourProvider({ children, steps }: TourProviderProps) {
       value={{
         isOpen,
         currentStep,
-        steps,
+        steps: filteredSteps,
         startTour,
         endTour,
         nextStep,
