@@ -311,7 +311,7 @@ function App() {
                   isLoading={isLoading}
                   selectedStations={selectedStations}
                   fillHeight
-                  containerKey={`mobile-${colorMode}`}
+                  containerKey={`mobile-${colorMode}-${mode}`}
                 />
               </ErrorBoundary>
             </Box>
@@ -380,7 +380,7 @@ function App() {
                   isLoading={isLoading}
                   selectedStations={selectedStations}
                   fillHeight
-                  containerKey={`desktop-${isSidebarCollapsed ? 'collapsed' : 'expanded'}-${colorMode}`}
+                  containerKey={`desktop-${isSidebarCollapsed ? 'collapsed' : 'expanded'}-${colorMode}-${mode}`}
                 />
               </ErrorBoundary>
             </Box>
