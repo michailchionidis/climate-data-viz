@@ -3,8 +3,9 @@
  * Supports CSV and PNG export formats
  */
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { Box, Text, Button, Flex } from '@chakra-ui/react'
-import { DownloadIcon, ImageIcon, FileSpreadsheetIcon, ChevronDownIcon } from './ui/Icons'
+import { Box, Flex, Text } from '@chakra-ui/react'
+import { ImageIcon, FileSpreadsheetIcon, ChevronDownIcon } from './ui/Icons'
+import { PillButton } from './ui/PillButton'
 import { useTheme } from '../context/ThemeContext'
 import type { MonthlyDataResponse, AnnualDataResponse, VisualizationMode } from '../types'
 
@@ -217,32 +218,15 @@ export function ExportMenu({
 
   return (
     <Box position="relative" ref={menuRef}>
-      <Button
-        size="sm"
-        bg={colors.buttonBg}
-        color={colors.textSecondary}
-        borderWidth="1px"
-        borderColor={colors.border}
-        borderRadius="8px"
-        _hover={{
-          bg: colors.buttonHover,
-          borderColor: colors.borderHover,
-        }}
-        _active={{
-          bg: colors.buttonHover,
-        }}
+      <PillButton
         onClick={() => setIsOpen(!isOpen)}
-        disabled={disabled || !hasData || isExporting}
-        display="flex"
-        gap={1.5}
-        px={3}
+        disabled={disabled || !hasData}
+        isLoading={isExporting}
+        icon={<ChevronDownIcon size="xs" />}
+        size="xs"
       >
-        <DownloadIcon size="sm" />
-        <Text fontSize="xs">
-          {isExporting ? 'Exporting...' : 'Export'}
-        </Text>
-        <ChevronDownIcon size="xs" />
-      </Button>
+        Export
+      </PillButton>
 
       {/* Dropdown menu */}
       {isOpen && (
@@ -250,15 +234,16 @@ export function ExportMenu({
           position="absolute"
           top="100%"
           right={0}
-          mt={1}
-          bg={colorMode === 'dark' ? 'gray.800' : 'white'}
+          mt={2}
+          bg={colorMode === 'dark' ? '#1a1a24' : '#ffffff'}
           borderWidth="1px"
           borderColor={colors.border}
-          borderRadius="8px"
-          boxShadow="lg"
+          borderRadius="xl"
+          boxShadow="0 4px 20px rgba(0, 0, 0, 0.4)"
           zIndex={100}
-          minW="160px"
+          minW="140px"
           overflow="hidden"
+          py={1}
         >
           <Flex
             as="button"
@@ -269,13 +254,17 @@ export function ExportMenu({
             py={2}
             bg="transparent"
             color={colors.text}
-            fontSize="sm"
+            fontSize="xs"
+            fontWeight="500"
+            letterSpacing="0.02em"
+            textTransform="uppercase"
             cursor="pointer"
-            _hover={{ bg: colors.buttonHover }}
+            transition="all 0.15s"
+            _hover={{ bg: `${colors.text}08` }}
             onClick={exportToCSV}
           >
-            <FileSpreadsheetIcon size="sm" />
-            <Text>Export CSV</Text>
+            <FileSpreadsheetIcon size="xs" />
+            <Text>CSV</Text>
           </Flex>
           <Flex
             as="button"
@@ -286,13 +275,17 @@ export function ExportMenu({
             py={2}
             bg="transparent"
             color={colors.text}
-            fontSize="sm"
+            fontSize="xs"
+            fontWeight="500"
+            letterSpacing="0.02em"
+            textTransform="uppercase"
             cursor="pointer"
-            _hover={{ bg: colors.buttonHover }}
+            transition="all 0.15s"
+            _hover={{ bg: `${colors.text}08` }}
             onClick={exportToPNG}
           >
-            <ImageIcon size="sm" />
-            <Text>Export PNG</Text>
+            <ImageIcon size="xs" />
+            <Text>PNG</Text>
           </Flex>
         </Box>
       )}

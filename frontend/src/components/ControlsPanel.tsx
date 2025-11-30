@@ -3,8 +3,9 @@
  * Premium UI with smooth interactions
  */
 import { useState, useEffect } from 'react'
-import { Box, Text, Flex, Input, Button, VStack } from '@chakra-ui/react'
+import { Box, Text, Flex, Input, VStack } from '@chakra-ui/react'
 import { SectionHeader } from './ui/SectionHeader'
+import { PillButton } from './ui/PillButton'
 import { useTheme } from '../context/ThemeContext'
 import type { VisualizationMode, ZoomState } from '../types'
 
@@ -40,8 +41,6 @@ export function ControlsPanel({
   compact = false,
 }: ControlsPanelProps) {
   const { colors } = useTheme()
-  // Use accessible accent colors from theme (WCAG AA compliant)
-  const cyanAccent = colors.accentCyanText
 
   // Track the last applied zoom settings to know when Apply should be enabled
   const [appliedZoom, setAppliedZoom] = useState<ZoomState>({ centerYear: null, windowSize: 10 })
@@ -305,35 +304,22 @@ export function ControlsPanel({
         </Flex>
 
         {/* Quick presets - inline with year range in compact mode */}
-        <Flex gap={1} mt={2} flexWrap="wrap">
+        <Flex gap={2} mt={2} flexWrap="wrap">
           {[
             { label: 'Last 50y', from: 1970, to: 2019 },
             { label: '20th C', from: 1900, to: 1999 },
             { label: 'All', from: null, to: null },
           ].map((preset) => (
-            <Box
+            <PillButton
               key={preset.label}
-              px={1.5}
-              py={0.5}
-              bg={colors.inputBg}
-              borderRadius="4px"
-              borderWidth="1px"
-              borderColor={colors.border}
-              cursor="pointer"
-              _hover={{
-                bg: 'rgba(255, 255, 255, 0.06)',
-                borderColor: 'rgba(255, 255, 255, 0.15)',
-              }}
               onClick={() => {
                 onYearFromChange(preset.from)
                 onYearToChange(preset.to)
               }}
-              transition="all 0.15s ease"
+              size="xs"
             >
-              <Text fontSize="2xs" color={colors.textSecondary}>
-                {preset.label}
-              </Text>
-            </Box>
+              {preset.label}
+            </PillButton>
           ))}
         </Flex>
       </Box>
@@ -496,44 +482,22 @@ export function ControlsPanel({
 
           {/* Action buttons */}
           <Flex w="full" gap={2}>
-            <Button
-              flex={1}
-              size="xs"
-              bg={hasUnappliedChanges ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255, 255, 255, 0.05)'}
-              color={hasUnappliedChanges ? cyanAccent : 'gray.500'}
-              borderWidth="1px"
-              borderColor={hasUnappliedChanges ? 'rgba(6, 182, 212, 0.4)' : 'rgba(255, 255, 255, 0.1)'}
-              _hover={{
-                bg: hasUnappliedChanges ? 'rgba(6, 182, 212, 0.3)' : 'rgba(255, 255, 255, 0.08)',
-              }}
-              _active={{
-                bg: hasUnappliedChanges ? 'rgba(6, 182, 212, 0.4)' : 'rgba(255, 255, 255, 0.1)',
-              }}
+            <PillButton
               onClick={handleZoomToYear}
               disabled={!hasUnappliedChanges}
-              borderRadius="6px"
+              variant={hasUnappliedChanges ? 'primary' : 'default'}
+              fullWidth
+              size="xs"
             >
               Apply
-            </Button>
-            <Button
-              flex={1}
-              size="xs"
-              bg={colors.inputBg}
-              color={colors.textSecondary}
-              borderWidth="1px"
-              borderColor={colors.border}
-              _hover={{
-                bg: 'rgba(255, 255, 255, 0.06)',
-                borderColor: 'rgba(255, 255, 255, 0.15)',
-              }}
-              _active={{
-                bg: 'rgba(255, 255, 255, 0.08)',
-              }}
+            </PillButton>
+            <PillButton
               onClick={handleResetZoom}
-              borderRadius="6px"
+              fullWidth
+              size="xs"
             >
               Reset
-            </Button>
+            </PillButton>
           </Flex>
         </VStack>
       </Box>
