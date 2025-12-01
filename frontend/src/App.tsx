@@ -106,7 +106,7 @@ function AppContent() {
     >
       {/* Accessibility: Skip Links */}
       <SkipLink targetId="main-content">Skip to main content</SkipLink>
-      <SkipLink targetId="station-selector">Skip to station selector</SkipLink>
+      <SkipLink targetId="station-selector-desktop">Skip to station selector</SkipLink>
       <SkipLink targetId="chart-section">Skip to chart</SkipLink>
 
       {/* Header */}

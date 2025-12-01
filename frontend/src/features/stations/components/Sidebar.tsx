@@ -63,6 +63,7 @@ export function Sidebar({
         overflow="hidden"
       >
         <Box
+          id="sidebar-content"
           w="280px"
           h="100%"
           bg={colors.card}
