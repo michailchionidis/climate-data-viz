@@ -425,15 +425,34 @@ cd backend
 pytest --cov=app --cov-report=html --cov-fail-under=80
 ```
 
-### Frontend Tests (56 tests)
+### Frontend Tests (56 unit tests)
 - **Hook Tests**: useFilters (20 tests), useUIState (11 tests)
 - **Component Tests**: PillButton (13 tests), CollapsibleSection (8 tests)
 - **Integration Tests**: App rendering
 
 ```bash
-# Run frontend tests
+# Run frontend unit tests
 cd frontend
 npm run test:coverage
+```
+
+### E2E Tests (16 tests with Playwright)
+- **Desktop Tests (8)**: Layout, station selection, chart display, mode toggle, sigma overlay, year presets, theme toggle, sidebar collapse, keyboard shortcuts
+- **Mobile Tests (8)**: Responsive layout, touch controls, visualization options, scrolling, analytics display
+
+```bash
+# Run E2E tests
+cd frontend
+npm run test:e2e
+
+# Run only desktop tests
+npm run test:e2e:desktop
+
+# Run only mobile tests
+npm run test:e2e:mobile
+
+# Run with UI mode
+npm run test:e2e:ui
 ```
 
 ## ♿ Accessibility (WCAG 2.1 AA)

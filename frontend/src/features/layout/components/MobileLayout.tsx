@@ -40,7 +40,7 @@ export const MobileLayout = memo(function MobileLayout({
       <Flex direction="column" gap={3}>
         {/* Station Selector */}
         <Box
-          id="station-selector"
+          id="station-selector-mobile"
           p={3}
           bg={colors.card}
           borderRadius="10px"
