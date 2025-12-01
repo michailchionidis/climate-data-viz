@@ -3,9 +3,9 @@
  *
  * Verifies UI state management for:
  * - Loading state
- * - Sidebar collapse/expand
- * - Chat sidebar visibility
- * - AI Insights expansion
+ * - Sidebar collapse
+ * - Chat sidebar
+ * - AI Insights panel
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
@@ -21,16 +21,18 @@ describe('useUIState', () => {
   })
 
   describe('Loading State', () => {
-    it('should initialize as not loaded', () => {
+    it('should initialize with isLoaded false', () => {
       const { result } = renderHook(() => useUIState())
 
       expect(result.current.isLoaded).toBe(false)
     })
 
-    it('should become loaded after animation delay', () => {
+    it('should set isLoaded to true after animation delay', async () => {
       const { result } = renderHook(() => useUIState())
 
-      // Fast-forward past the animation delay
+      expect(result.current.isLoaded).toBe(false)
+
+      // Advance timers past the animation delay
       act(() => {
         vi.advanceTimersByTime(200)
       })
@@ -46,10 +48,8 @@ describe('useUIState', () => {
       expect(result.current.isSidebarCollapsed).toBe(false)
     })
 
-    it('should toggle sidebar using toggleSidebar', () => {
+    it('should toggle sidebar collapsed state', () => {
       const { result } = renderHook(() => useUIState())
-
-      expect(result.current.isSidebarCollapsed).toBe(false)
 
       act(() => {
         result.current.toggleSidebar()
@@ -65,14 +65,14 @@ describe('useUIState', () => {
     })
   })
 
-  describe('Chat Sidebar State', () => {
+  describe('Chat State', () => {
     it('should initialize with chat closed', () => {
       const { result } = renderHook(() => useUIState())
 
       expect(result.current.isChatOpen).toBe(false)
     })
 
-    it('should open chat using openChat', () => {
+    it('should open chat', () => {
       const { result } = renderHook(() => useUIState())
 
       act(() => {
@@ -82,7 +82,7 @@ describe('useUIState', () => {
       expect(result.current.isChatOpen).toBe(true)
     })
 
-    it('should close chat using closeChat', () => {
+    it('should close chat', () => {
       const { result } = renderHook(() => useUIState())
 
       // Open first
@@ -98,10 +98,8 @@ describe('useUIState', () => {
       expect(result.current.isChatOpen).toBe(false)
     })
 
-    it('should toggle chat using toggleChat', () => {
+    it('should toggle chat', () => {
       const { result } = renderHook(() => useUIState())
-
-      expect(result.current.isChatOpen).toBe(false)
 
       act(() => {
         result.current.toggleChat()
@@ -117,14 +115,14 @@ describe('useUIState', () => {
     })
   })
 
-  describe('AI Insights Expansion', () => {
+  describe('AI Insights State', () => {
     it('should initialize with AI insights collapsed', () => {
       const { result } = renderHook(() => useUIState())
 
       expect(result.current.isAIInsightsExpanded).toBe(false)
     })
 
-    it('should expand AI insights using setAIInsightsExpanded', () => {
+    it('should set AI insights expanded state', () => {
       const { result } = renderHook(() => useUIState())
 
       act(() => {
@@ -132,22 +130,25 @@ describe('useUIState', () => {
       })
 
       expect(result.current.isAIInsightsExpanded).toBe(true)
-    })
 
-    it('should collapse AI insights using setAIInsightsExpanded', () => {
-      const { result } = renderHook(() => useUIState())
-
-      // Expand first
-      act(() => {
-        result.current.setAIInsightsExpanded(true)
-      })
-
-      // Then collapse
       act(() => {
         result.current.setAIInsightsExpanded(false)
       })
 
       expect(result.current.isAIInsightsExpanded).toBe(false)
+    })
+  })
+
+  describe('Cleanup', () => {
+    it('should clean up timer on unmount', () => {
+      const { unmount } = renderHook(() => useUIState())
+
+      unmount()
+
+      // Should not throw or cause issues
+      act(() => {
+        vi.advanceTimersByTime(200)
+      })
     })
   })
 })

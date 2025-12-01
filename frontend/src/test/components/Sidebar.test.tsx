@@ -9,8 +9,8 @@ import type { ZoomState, Station } from '../../shared/types'
 vi.mock('../../shared/hooks/useClimateData', () => ({
   useStations: () => ({
     data: [
-      { id: '101234', name: 'Station 101234', lat: 40.0, lon: -74.0 },
-      { id: '66062', name: 'Station 66062', lat: 35.0, lon: -80.0 },
+      { id: '101234', name: 'Station 101234' },
+      { id: '66062', name: 'Station 66062' },
     ],
     isLoading: false,
     error: null,
@@ -18,8 +18,8 @@ vi.mock('../../shared/hooks/useClimateData', () => ({
 }))
 
 const mockStations: Station[] = [
-  { id: '101234', name: 'Station 101234', lat: 40.0, lon: -74.0 },
-  { id: '66062', name: 'Station 66062', lat: 35.0, lon: -80.0 },
+  { id: '101234', name: 'Station 101234' },
+  { id: '66062', name: 'Station 66062' },
 ]
 
 describe('Sidebar', () => {

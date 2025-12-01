@@ -26,6 +26,7 @@ const mockMonthlyData: MonthlyDataResponse = {
       ],
     },
   ],
+  total_points: 2,
 }
 
 const mockAnnualData: AnnualDataResponse = {
@@ -46,6 +47,7 @@ const mockAnnualData: AnnualDataResponse = {
       ],
     },
   ],
+  total_years: 1,
 }
 
 describe('ExportMenu', () => {

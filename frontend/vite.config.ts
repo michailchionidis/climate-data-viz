@@ -35,7 +35,16 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
       reportsDirectory: './coverage',
-      exclude: ['node_modules/', 'src/test/', 'e2e/'],
+      exclude: [
+        'node_modules/',
+        'src/test/',
+        'e2e/',
+        'coverage/',
+        'vite.config.ts',
+        'playwright.config.ts',
+        'src/vite-env.d.ts',
+        'src/main.tsx',
+      ],
       // Don't clean the coverage directory (important for Docker volume mounts)
       clean: false,
     },
