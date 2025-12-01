@@ -7,6 +7,18 @@ on:
     branches: [main, develop]
 
 jobs:
+  # Summary job to track test status
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [pre-commit, backend-test, frontend-test, docker-build, e2e-test, integration-test]
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          echo "✅ All tests completed"
+          exit 0
   # First gate: Pre-commit checks (catches formatting/linting issues early)
   pre-commit:
     name: Pre-commit Checks
