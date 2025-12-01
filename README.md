@@ -1,8 +1,9 @@
 # Climate Data Explorer
 
-[![Tests](https://github.com/mikechionidis/climate-data-viz/workflows/Test/badge.svg)](https://github.com/mikechionidis/climate-data-viz/actions)
-[![Backend Coverage](https://img.shields.io/badge/backend%20coverage-81%25-brightgreen)](https://github.com/mikechionidis/climate-data-viz)
-[![Docker](https://img.shields.io/badge/docker-ready-blue)](https://github.com/mikechionidis/climate-data-viz)
+[![Tests](https://github.com/michailchionidis/climate-data-viz/workflows/Test/badge.svg)](https://github.com/michailchionidis/climate-data-viz/actions)
+[![Backend Coverage](https://img.shields.io/badge/backend-81%25-brightgreen?label=coverage)](https://github.com/michailchionidis/climate-data-viz)
+[![E2E Tests](https://img.shields.io/badge/e2e-16%20tests-blue?label=playwright)](https://github.com/michailchionidis/climate-data-viz)
+[![Docker](https://img.shields.io/badge/docker-ready-blue)](https://github.com/michailchionidis/climate-data-viz)
 [![WCAG 2.1 AA](https://img.shields.io/badge/accessibility-WCAG%202.1%20AA-green)](https://www.w3.org/WAI/WCAG21/quickref/)
 
 A Tesla-level full-stack web application for exploring and visualizing 160 years of historical climate data from weather stations worldwide. Built with **FastAPI** and **React**, featuring **AI-powered insights via Grok (xAI)**, following **TDD** practices and **Domain-Driven Design**.
@@ -286,7 +287,7 @@ frontend/src/
 
 ```bash
 # Clone the repository
-git clone https://github.com/mikechionidis/climate-data-viz.git
+git clone https://github.com/michailchionidis/climate-data-viz.git
 cd climate-data-viz
 
 # Create .env file for AI features (optional)
