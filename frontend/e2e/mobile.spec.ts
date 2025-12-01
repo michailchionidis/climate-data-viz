@@ -22,8 +22,8 @@ test.describe('Mobile Responsive Design', () => {
     // Desktop sidebar should NOT be visible
     await expect(page.locator('#station-selector-desktop')).not.toBeVisible();
 
-    // Footer should be visible
-    await expect(page.getByText('Mike Chionidis').first()).toBeVisible();
+    // Footer should be hidden on mobile (as per design)
+    await expect(page.getByText('Mike Chionidis').first()).not.toBeVisible();
   });
 
   test('should allow station selection on mobile', async ({ page }) => {
