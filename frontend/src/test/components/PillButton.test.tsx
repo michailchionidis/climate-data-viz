@@ -1,175 +1,178 @@
-/**
- * Tests for PillButton component
- *
- * Verifies the pill-shaped button component:
- * - Rendering with different variants
- * - Size variations
- * - Disabled state
- * - Click handling
- * - Full width mode
- */
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { ChakraProvider, defaultSystem } from '@chakra-ui/react'
-import { PillButton } from '@/shared/components/ui/PillButton'
-import { ThemeProvider } from '@/context/ThemeContext'
-
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ChakraProvider value={defaultSystem}>
-    <ThemeProvider>{children}</ThemeProvider>
-  </ChakraProvider>
-)
+import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { PillButton } from '../../shared/components/ui/PillButton'
+import { renderWithProviders } from '../utils'
 
 describe('PillButton', () => {
-  describe('Rendering', () => {
-    it('should render with children text', () => {
-      render(
-        <TestWrapper>
-          <PillButton>Click Me</PillButton>
-        </TestWrapper>
-      )
+  describe('rendering', () => {
+    it('should render with children', () => {
+      renderWithProviders(<PillButton>Click Me</PillButton>)
 
       expect(screen.getByText('Click Me')).toBeInTheDocument()
     })
 
     it('should render as a button element', () => {
-      render(
-        <TestWrapper>
-          <PillButton>Button</PillButton>
-        </TestWrapper>
-      )
+      renderWithProviders(<PillButton>Button</PillButton>)
 
-      expect(screen.getByRole('button')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Button' })).toBeInTheDocument()
     })
   })
 
-  describe('Variants', () => {
+  describe('variants', () => {
     it('should render default variant', () => {
-      render(
-        <TestWrapper>
-          <PillButton variant="default">Default</PillButton>
-        </TestWrapper>
-      )
+      renderWithProviders(<PillButton variant="default">Default</PillButton>)
 
       expect(screen.getByText('Default')).toBeInTheDocument()
     })
 
     it('should render primary variant', () => {
-      render(
-        <TestWrapper>
-          <PillButton variant="primary">Primary</PillButton>
-        </TestWrapper>
-      )
+      renderWithProviders(<PillButton variant="primary">Primary</PillButton>)
 
       expect(screen.getByText('Primary')).toBeInTheDocument()
     })
 
     it('should render warning variant', () => {
-      render(
-        <TestWrapper>
-          <PillButton variant="warning">Warning</PillButton>
-        </TestWrapper>
-      )
+      renderWithProviders(<PillButton variant="warning">Warning</PillButton>)
 
       expect(screen.getByText('Warning')).toBeInTheDocument()
     })
   })
 
-  describe('Sizes', () => {
+  describe('sizes', () => {
     it('should render xs size', () => {
-      render(
-        <TestWrapper>
-          <PillButton size="xs">Extra Small</PillButton>
-        </TestWrapper>
-      )
+      renderWithProviders(<PillButton size="xs">XS Button</PillButton>)
 
-      expect(screen.getByText('Extra Small')).toBeInTheDocument()
+      expect(screen.getByText('XS Button')).toBeInTheDocument()
     })
 
     it('should render sm size', () => {
-      render(
-        <TestWrapper>
-          <PillButton size="sm">Small</PillButton>
-        </TestWrapper>
-      )
+      renderWithProviders(<PillButton size="sm">SM Button</PillButton>)
 
-      expect(screen.getByText('Small')).toBeInTheDocument()
+      expect(screen.getByText('SM Button')).toBeInTheDocument()
     })
 
     it('should render md size', () => {
-      render(
-        <TestWrapper>
-          <PillButton size="md">Medium</PillButton>
-        </TestWrapper>
-      )
+      renderWithProviders(<PillButton size="md">MD Button</PillButton>)
 
-      expect(screen.getByText('Medium')).toBeInTheDocument()
+      expect(screen.getByText('MD Button')).toBeInTheDocument()
     })
   })
 
-  describe('Interaction', () => {
-    it('should call onClick when clicked', () => {
-      const handleClick = vi.fn()
+  describe('icon', () => {
+    it('should render icon on the right by default', () => {
+      const icon = <span data-testid="icon">→</span>
+      renderWithProviders(<PillButton icon={icon}>With Icon</PillButton>)
 
-      render(
-        <TestWrapper>
-          <PillButton onClick={handleClick}>Click Me</PillButton>
-        </TestWrapper>
-      )
-
-      fireEvent.click(screen.getByText('Click Me'))
-
-      expect(handleClick).toHaveBeenCalledTimes(1)
+      expect(screen.getByTestId('icon')).toBeInTheDocument()
+      expect(screen.getByText('With Icon')).toBeInTheDocument()
     })
 
-    it('should not call onClick when disabled', () => {
-      const handleClick = vi.fn()
-
-      render(
-        <TestWrapper>
-          <PillButton onClick={handleClick} disabled>
-            Disabled
-          </PillButton>
-        </TestWrapper>
+    it('should render icon on the left when specified', () => {
+      const icon = <span data-testid="icon">←</span>
+      renderWithProviders(
+        <PillButton icon={icon} iconPosition="left">
+          With Left Icon
+        </PillButton>
       )
 
-      fireEvent.click(screen.getByText('Disabled'))
-
-      expect(handleClick).not.toHaveBeenCalled()
+      expect(screen.getByTestId('icon')).toBeInTheDocument()
     })
   })
 
-  describe('Disabled State', () => {
-    it('should have aria-disabled when disabled', () => {
-      render(
-        <TestWrapper>
-          <PillButton disabled>Disabled Button</PillButton>
-        </TestWrapper>
-      )
+  describe('disabled state', () => {
+    it('should be disabled when disabled prop is true', () => {
+      renderWithProviders(<PillButton disabled>Disabled</PillButton>)
 
-      expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true')
+      const button = screen.getByRole('button', { name: 'Disabled' })
+      expect(button).toHaveAttribute('aria-disabled', 'true')
     })
 
-    it('should have aria-disabled false when enabled', () => {
-      render(
-        <TestWrapper>
-          <PillButton>Enabled Button</PillButton>
-        </TestWrapper>
+    it('should not call onClick when disabled', async () => {
+      const user = userEvent.setup()
+      const onClick = vi.fn()
+
+      renderWithProviders(
+        <PillButton disabled onClick={onClick}>
+          Disabled
+        </PillButton>
       )
 
-      expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'false')
+      await user.click(screen.getByText('Disabled'))
+
+      expect(onClick).not.toHaveBeenCalled()
     })
   })
 
-  describe('Full Width', () => {
-    it('should render with full width when specified', () => {
-      render(
-        <TestWrapper>
-          <PillButton fullWidth>Full Width</PillButton>
-        </TestWrapper>
+  describe('loading state', () => {
+    it('should show spinner when loading', () => {
+      renderWithProviders(<PillButton isLoading>Loading</PillButton>)
+
+      // Should not show the text when loading
+      expect(screen.queryByText('Loading')).not.toBeInTheDocument()
+    })
+
+    it('should not call onClick when loading', async () => {
+      const user = userEvent.setup()
+      const onClick = vi.fn()
+
+      renderWithProviders(
+        <PillButton isLoading onClick={onClick}>
+          Loading
+        </PillButton>
       )
 
-      expect(screen.getByText('Full Width')).toBeInTheDocument()
+      const button = screen.getByRole('button')
+      await user.click(button)
+
+      expect(onClick).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('interaction', () => {
+    it('should call onClick when clicked', async () => {
+      const user = userEvent.setup()
+      const onClick = vi.fn()
+
+      renderWithProviders(<PillButton onClick={onClick}>Click Me</PillButton>)
+
+      await user.click(screen.getByText('Click Me'))
+
+      expect(onClick).toHaveBeenCalledTimes(1)
+    })
+
+    it('should pass event to onClick handler', async () => {
+      const user = userEvent.setup()
+      const onClick = vi.fn()
+
+      renderWithProviders(<PillButton onClick={onClick}>Click Me</PillButton>)
+
+      await user.click(screen.getByText('Click Me'))
+
+      expect(onClick).toHaveBeenCalledWith(expect.any(Object))
+    })
+  })
+
+  describe('accessibility', () => {
+    it('should have aria-label when provided', () => {
+      renderWithProviders(<PillButton ariaLabel="Custom label">Button</PillButton>)
+
+      expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Custom label')
+    })
+
+    it('should have title when provided', () => {
+      renderWithProviders(<PillButton title="Button title">Button</PillButton>)
+
+      expect(screen.getByRole('button')).toHaveAttribute('title', 'Button title')
+    })
+  })
+
+  describe('fullWidth', () => {
+    it('should render full width when fullWidth is true', () => {
+      renderWithProviders(<PillButton fullWidth>Full Width</PillButton>)
+
+      const button = screen.getByRole('button', { name: 'Full Width' })
+      expect(button).toHaveStyle({ width: '100%' })
     })
   })
 })

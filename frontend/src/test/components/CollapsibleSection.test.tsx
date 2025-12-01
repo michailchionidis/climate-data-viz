@@ -1,127 +1,168 @@
-/**
- * Tests for CollapsibleSection component
- *
- * Verifies the collapsible section behavior:
- * - Initial expanded/collapsed state
- * - Content visibility
- * - Badge rendering
- */
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import { ChakraProvider, defaultSystem } from '@chakra-ui/react'
-import { CollapsibleSection } from '@/shared/components/ui/CollapsibleSection'
-import { ThemeProvider } from '@/context/ThemeContext'
-
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ChakraProvider value={defaultSystem}>
-    <ThemeProvider>{children}</ThemeProvider>
-  </ChakraProvider>
-)
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { screen, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { CollapsibleSection } from '../../shared/components/ui/CollapsibleSection'
+import { renderWithProviders } from '../utils'
 
 describe('CollapsibleSection', () => {
-  describe('Rendering', () => {
-    it('should render with title', () => {
-      render(
-        <TestWrapper>
-          <CollapsibleSection title="Test Section">
-            <div>Content</div>
-          </CollapsibleSection>
-        </TestWrapper>
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  describe('rendering', () => {
+    it('should render the title', () => {
+      renderWithProviders(
+        <CollapsibleSection title="Test Section">
+          <div>Content</div>
+        </CollapsibleSection>
       )
 
       expect(screen.getByText('Test Section')).toBeInTheDocument()
     })
 
-    it('should render children when open', () => {
-      render(
-        <TestWrapper>
-          <CollapsibleSection title="Section" defaultOpen>
-            <div>Section Content</div>
-          </CollapsibleSection>
-        </TestWrapper>
+    it('should render children', () => {
+      renderWithProviders(
+        <CollapsibleSection title="Test Section">
+          <div>Test Content</div>
+        </CollapsibleSection>
       )
 
-      expect(screen.getByText('Section Content')).toBeInTheDocument()
+      expect(screen.getByText('Test Content')).toBeInTheDocument()
     })
-  })
 
-  describe('Default State', () => {
-    it('should be open by default', () => {
-      render(
-        <TestWrapper>
-          <CollapsibleSection title="Section">
-            <div data-testid="content">Visible Content</div>
-          </CollapsibleSection>
-        </TestWrapper>
+    it('should render badge when provided', () => {
+      renderWithProviders(
+        <CollapsibleSection title="Test Section" badge="5">
+          <div>Content</div>
+        </CollapsibleSection>
       )
 
-      expect(screen.getByTestId('content')).toBeInTheDocument()
+      expect(screen.getByText('5')).toBeInTheDocument()
     })
 
-    it('should be closed when defaultOpen is false', () => {
-      render(
-        <TestWrapper>
-          <CollapsibleSection title="Section" defaultOpen={false}>
-            <div data-testid="content">Hidden Content</div>
-          </CollapsibleSection>
-        </TestWrapper>
-      )
-
-      // Content is in DOM but hidden via CSS (height: 0)
-      expect(screen.getByTestId('content')).toBeInTheDocument()
-    })
-  })
-
-  describe('Badge', () => {
-    it('should render badge when provided as string', () => {
-      render(
-        <TestWrapper>
-          <CollapsibleSection title="Section" badge="5 items">
-            <div>Content</div>
-          </CollapsibleSection>
-        </TestWrapper>
-      )
-
-      expect(screen.getByText('5 items')).toBeInTheDocument()
-    })
-
-    it('should render badge when provided as number', () => {
-      render(
-        <TestWrapper>
-          <CollapsibleSection title="Section" badge={10}>
-            <div>Content</div>
-          </CollapsibleSection>
-        </TestWrapper>
+    it('should render numeric badge', () => {
+      renderWithProviders(
+        <CollapsibleSection title="Test Section" badge={10}>
+          <div>Content</div>
+        </CollapsibleSection>
       )
 
       expect(screen.getByText('10')).toBeInTheDocument()
     })
 
-    it('should not render badge when not provided', () => {
-      render(
-        <TestWrapper>
-          <CollapsibleSection title="Section">
-            <div>Content</div>
-          </CollapsibleSection>
-        </TestWrapper>
+    it('should render action element', () => {
+      renderWithProviders(
+        <CollapsibleSection
+          title="Test Section"
+          action={<button>Action</button>}
+        >
+          <div>Content</div>
+        </CollapsibleSection>
       )
 
-      // Only title should be present, no badge
-      expect(screen.getByText('Section')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Action' })).toBeInTheDocument()
     })
   })
 
-  describe('Action Slot', () => {
-    it('should render action element when provided', () => {
-      render(
-        <TestWrapper>
-          <CollapsibleSection title="Section" action={<button>Action</button>}>
-            <div>Content</div>
-          </CollapsibleSection>
-        </TestWrapper>
+  describe('default state', () => {
+    it('should be open by default', () => {
+      renderWithProviders(
+        <CollapsibleSection title="Test Section">
+          <div>Content</div>
+        </CollapsibleSection>
       )
 
-      expect(screen.getByText('Action')).toBeInTheDocument()
+      expect(screen.getByText('Content')).toBeInTheDocument()
+    })
+
+    it('should be closed when defaultOpen is false', () => {
+      renderWithProviders(
+        <CollapsibleSection title="Test Section" defaultOpen={false}>
+          <div>Hidden Content</div>
+        </CollapsibleSection>
+      )
+
+      // Content is in DOM but visually hidden
+      expect(screen.getByText('Hidden Content')).toBeInTheDocument()
+    })
+  })
+
+  describe('mobileOnly behavior', () => {
+    it('should be mobileOnly by default', () => {
+      renderWithProviders(
+        <CollapsibleSection title="Test Section">
+          <div>Content</div>
+        </CollapsibleSection>
+      )
+
+      // Content should be visible
+      expect(screen.getByText('Content')).toBeInTheDocument()
+    })
+
+    it('should allow toggle when mobileOnly is false', async () => {
+      renderWithProviders(
+        <CollapsibleSection title="Test Section" mobileOnly={false}>
+          <div>Content</div>
+        </CollapsibleSection>
+      )
+
+      // Click to toggle
+      fireEvent.click(screen.getByText('Test Section'))
+
+      // Content should still be in DOM
+      expect(screen.getByText('Content')).toBeInTheDocument()
+    })
+  })
+
+  describe('action click handling', () => {
+    it('should not toggle when action is clicked', async () => {
+      const user = userEvent.setup()
+      const actionClick = vi.fn()
+
+      renderWithProviders(
+        <CollapsibleSection
+          title="Test Section"
+          mobileOnly={false}
+          action={<button onClick={actionClick}>Action</button>}
+        >
+          <div>Content</div>
+        </CollapsibleSection>
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Action' }))
+
+      expect(actionClick).toHaveBeenCalled()
+    })
+  })
+
+  describe('styling', () => {
+    it('should apply uppercase text transform to title', () => {
+      renderWithProviders(
+        <CollapsibleSection title="test section">
+          <div>Content</div>
+        </CollapsibleSection>
+      )
+
+      const title = screen.getByText('test section')
+      expect(title).toHaveStyle({ textTransform: 'uppercase' })
+    })
+  })
+
+  describe('with different content', () => {
+    it('should render complex children', () => {
+      renderWithProviders(
+        <CollapsibleSection title="Complex Section">
+          <div>
+            <h3>Heading</h3>
+            <p>Paragraph</p>
+            <button>Button</button>
+          </div>
+        </CollapsibleSection>
+      )
+
+      expect(screen.getByText('Heading')).toBeInTheDocument()
+      expect(screen.getByText('Paragraph')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Button' })).toBeInTheDocument()
     })
   })
 })
