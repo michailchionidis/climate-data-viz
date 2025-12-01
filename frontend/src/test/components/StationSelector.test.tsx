@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, fireEvent, waitFor } from '@testing-library/react'
+import { screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { StationSelector } from '../../features/stations/components/StationSelector'
 import { renderWithProviders } from '../utils'
 
 // Mock the useStations hook at module level
 const mockStations = [
-  { id: '101234', name: 'Station 101234', lat: 40.0, lon: -74.0 },
-  { id: '66062', name: 'Station 66062', lat: 35.0, lon: -80.0 },
-  { id: '72503', name: 'Station 72503', lat: 45.0, lon: -90.0 },
+  { id: '101234', name: 'Station 101234' },
+  { id: '66062', name: 'Station 66062' },
+  { id: '72503', name: 'Station 72503' },
 ]
 
 vi.mock('../../shared/hooks/useClimateData', () => ({

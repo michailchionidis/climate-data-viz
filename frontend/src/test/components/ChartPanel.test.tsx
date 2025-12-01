@@ -26,6 +26,7 @@ const mockAnnualData: AnnualDataResponse = {
       ],
     },
   ],
+  total_years: 3,
 }
 
 describe('ChartPanel', () => {

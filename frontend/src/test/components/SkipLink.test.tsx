@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
 import { screen, fireEvent } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { SkipLink, VisuallyHidden } from '../../shared/components/ui/SkipLink'
 import { renderWithProviders } from '../utils'
 
