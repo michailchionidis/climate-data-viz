@@ -32,13 +32,21 @@ jobs:
 
             echo "🚀 Starting deployment..."
 
-            # Navigate to app directory
-            cd /opt/climate-data-explorer || {
-              echo "❌ Directory not found, cloning repository..."
-              sudo mkdir -p /opt
-              cd /opt
-              sudo git clone https://github.com/${{ github.repository }}.git climate-data-explorer
-              cd climate-data-explorer
+            # Navigate to app directory (same structure as user_data.sh)
+            APP_DIR="/opt/climate-data-explorer"
+            PROJECT_DIR="${APP_DIR}/Tesla Assignment"
+
+            if [ ! -d "${PROJECT_DIR}" ]; then
+              echo "❌ Project directory not found, cloning repository..."
+              sudo mkdir -p "${APP_DIR}"
+              cd "${APP_DIR}"
+              sudo git clone https://github.com/${{ github.repository }}.git .
+            fi
+
+            # Navigate to project directory
+            cd "${PROJECT_DIR}" || {
+              echo "❌ Failed to navigate to project directory"
+              exit 1
             }
 
             # Pull latest code
@@ -47,8 +55,17 @@ jobs:
             sudo git reset --hard origin/main
             sudo git clean -fd
 
-            # Set environment variables
-            export GROK_API_KEY="${{ secrets.GROK_API_KEY }}"
+            # Verify docker-compose.yml exists
+            if [ ! -f "docker-compose.yml" ]; then
+              echo "❌ docker-compose.yml not found in ${PROJECT_DIR}"
+              exit 1
+            fi
+
+            # Create/update backend .env file
+            echo "📝 Creating backend .env file..."
+            sudo mkdir -p backend
+            echo "ENVIRONMENT=production" | sudo tee backend/.env > /dev/null
+            echo "GROK_API_KEY=${{ secrets.GROK_API_KEY }}" | sudo tee -a backend/.env > /dev/null
 
             # Stop existing containers
             echo "🛑 Stopping existing containers..."
