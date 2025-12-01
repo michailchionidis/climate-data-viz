@@ -5,8 +5,15 @@
 [![E2E Tests](https://img.shields.io/badge/e2e-16%20tests-blue?label=playwright)](https://github.com/michailchionidis/climate-data-viz)
 [![Docker](https://img.shields.io/badge/docker-ready-blue)](https://github.com/michailchionidis/climate-data-viz)
 [![WCAG 2.1 AA](https://img.shields.io/badge/accessibility-WCAG%202.1%20AA-green)](https://www.w3.org/WAI/WCAG21/quickref/)
+[![AWS](https://img.shields.io/badge/AWS-deployed-orange?logo=amazon-aws)](http://63.180.58.237)
 
-A Tesla-level full-stack web application for exploring and visualizing 160 years of historical climate data from weather stations worldwide. Built with **FastAPI** and **React**, featuring **AI-powered insights via Grok (xAI)**, following **TDD** practices and **Domain-Driven Design**.
+## 🌐 Live Demo
+
+**[http://63.180.58.237](http://63.180.58.237)** - Deployed on AWS EC2 (eu-central-1)
+
+---
+
+A full-stack web application for exploring and visualizing 160 years of historical climate data from weather stations worldwide. Built with **FastAPI** and **React**, featuring **AI-powered insights via Grok (xAI)**, following **TDD** practices and **Domain-Driven Design**.
 
 ![Dashboard Preview - Dark Mode](docs/images/dashboard-desktop-dark.png)
 
@@ -476,9 +483,75 @@ The application is fully accessible:
 | `R` | Reset zoom |
 | `?` | Restart tour |
 
+## ☁️ AWS Deployment
+
+The application is deployed on **AWS EC2** using **Terraform** for infrastructure as code.
+
+### Infrastructure Overview
+
+| Resource | Type | Purpose |
+|----------|------|---------|
+| **EC2** | t3.small | Application server |
+| **VPC** | Custom | Isolated network |
+| **Security Group** | Custom | Firewall (ports 22, 80, 443, 8000) |
+| **Elastic IP** | Static | Persistent public IP |
+
+### Deploy with Terraform
+
+```bash
+cd terraform
+
+# Configure credentials (see terraform.tfvars.example)
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your AWS credentials and Grok API key
+
+# Or use environment variables
+export TF_VAR_aws_access_key="your-access-key"
+export TF_VAR_aws_secret_key="your-secret-key"
+export TF_VAR_grok_api_key="your-grok-api-key"
+
+# Initialize and apply
+terraform init
+terraform plan
+terraform apply
+
+# Get outputs
+terraform output app_url        # Application URL
+terraform output ssh_command    # SSH connection command
+```
+
+### Manual Deployment (without Terraform)
+
+```bash
+# SSH into EC2
+ssh -i your-key.pem ec2-user@<EC2_IP>
+
+# Install dependencies
+sudo dnf install -y docker git
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Clone and deploy
+cd /opt
+sudo git clone https://github.com/michailchionidis/climate-data-viz.git
+cd climate-data-viz
+
+# Create .env
+echo "GROK_API_KEY=your_api_key" > backend/.env
+
+# Build and run
+docker build -t climate-backend ./backend
+docker build -t climate-frontend ./frontend
+docker network create app-network
+docker run -d --name backend --network app-network -p 8000:8000 climate-backend
+docker run -d --name frontend --network app-network -p 80:80 climate-frontend
+```
+
 ## 🔄 CI/CD Pipeline
 
-The project uses GitHub Actions for continuous integration:
+The project uses GitHub Actions for continuous integration and deployment:
+
+### Test Workflow (`test.yml`)
 
 1. **Pre-commit Checks** (first gate):
    - Code formatting (Ruff)
@@ -489,12 +562,26 @@ The project uses GitHub Actions for continuous integration:
    - Run backend tests with coverage (80% threshold)
    - Run frontend tests and type checking
    - Build Docker images
+   - E2E tests with Playwright
    - Integration tests with Docker Compose
 
-3. **On Release**:
-   - Build production images
-   - Push to container registry
-   - Deploy to AWS
+### Deploy Workflow (`deploy.yml`)
+
+Triggered on push to `main` branch:
+
+1. **SSH into EC2** via `appleboy/ssh-action`
+2. **Pull latest code** from repository
+3. **Build Docker images** on EC2
+4. **Start containers** with docker-compose
+5. **Health checks** to verify deployment
+
+### Required GitHub Secrets
+
+| Secret | Description |
+|--------|-------------|
+| `AWS_EC2_HOST` | EC2 public IP address |
+| `AWS_SSH_PRIVATE_KEY` | SSH private key for EC2 |
+| `GROK_API_KEY` | xAI Grok API key |
 
 ## 🌿 Git Workflow
 
