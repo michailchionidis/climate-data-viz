@@ -36,24 +36,30 @@ jobs:
             APP_DIR="/opt/climate-data-explorer"
             PROJECT_DIR="${APP_DIR}/Tesla Assignment"
 
-            if [ ! -d "${PROJECT_DIR}" ]; then
-              echo "❌ Project directory not found, cloning repository..."
+            if [ ! -d "${APP_DIR}" ]; then
+              echo "❌ App directory not found, cloning repository..."
               sudo mkdir -p "${APP_DIR}"
               cd "${APP_DIR}"
               sudo git clone https://github.com/${{ github.repository }}.git .
             fi
+
+            # Navigate to app directory (git repo root)
+            cd "${APP_DIR}" || {
+              echo "❌ Failed to navigate to app directory"
+              exit 1
+            }
+
+            # Pull latest code (at repo root)
+            echo "📥 Pulling latest code..."
+            sudo git fetch origin
+            sudo git reset --hard origin/main
+            sudo git clean -fd
 
             # Navigate to project directory
             cd "${PROJECT_DIR}" || {
               echo "❌ Failed to navigate to project directory"
               exit 1
             }
-
-            # Pull latest code
-            echo "📥 Pulling latest code..."
-            sudo git fetch origin
-            sudo git reset --hard origin/main
-            sudo git clean -fd
 
             # Verify docker-compose.yml exists
             if [ ! -f "docker-compose.yml" ]; then
