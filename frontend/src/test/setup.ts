@@ -13,6 +13,9 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 }
 
+// Mock scrollIntoView for jsdom
+Element.prototype.scrollIntoView = () => {}
+
 // Mock window.matchMedia for theme detection
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
