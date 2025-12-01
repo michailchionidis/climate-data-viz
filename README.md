@@ -9,7 +9,9 @@
 
 ## 🌐 Live Demo
 
-**[http://63.180.58.237](http://63.180.58.237)** - Deployed on AWS EC2 (eu-central-1)
+🔒 **[https://climate-explorer.click](https://climate-explorer.click)** - Deployed on AWS EC2 (eu-central-1) with SSL
+
+> Alternative: [http://63.180.58.237](http://63.180.58.237)
 
 ---
 
