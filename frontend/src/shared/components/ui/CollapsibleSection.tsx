@@ -66,17 +66,14 @@ export function CollapsibleSection({
             {title}
           </Text>
           {badge !== undefined && (
-            <Box
-              px={1.5}
-              py={0.5}
-              bg="rgba(6, 182, 212, 0.15)"
-              borderRadius="full"
+            <Text
               fontSize="2xs"
-              color={colors.accentCyanText}
-              fontWeight="600"
+              color={colors.textMuted}
+              fontFamily="mono"
+              letterSpacing="0.02em"
             >
               {badge}
-            </Box>
+            </Text>
           )}
         </Flex>
 

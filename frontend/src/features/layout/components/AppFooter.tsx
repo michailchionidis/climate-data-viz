@@ -23,6 +23,7 @@ export const AppFooter = memo(function AppFooter({ isLoaded }: AppFooterProps) {
       flexShrink={0}
       opacity={isLoaded ? 1 : 0}
       transition="opacity 0.5s ease-out 0.4s"
+      display={{ base: 'none', md: 'block' }}
     >
       <Container maxW="1800px" px={4} mx="auto">
         <Flex justify="space-between" align="center">
