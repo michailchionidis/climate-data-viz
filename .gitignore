@@ -61,3 +61,21 @@ Assignment*.txt
 
 # Root-level data file (use backend/data/climate_data.csv instead)
 /temperature_data_extended.csv
+
+# --- SECURITY & TERRAFORM ---
+# Terraform state
+*.tfstate
+*.tfstate.*
+
+# Terraform variables
+*.tfvars
+terraform.tfvars
+terraform.tfvars.json
+
+# Terraform credentials
+credentials.env
+
+# SSH Keys
+*.pem
+terraform/keys/
+keys/

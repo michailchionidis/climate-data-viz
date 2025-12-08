@@ -29,7 +29,7 @@ variable "environment" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t3.micro" # Free tier eligible
+  default     = "t3.medium" # Upgraded for stability
 }
 
 variable "app_name" {
