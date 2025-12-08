@@ -70,6 +70,13 @@ export function ControlsPanel({
     zoom.windowSize !== appliedZoom.windowSize
   )
 
+  // Check if there's anything to reset (any non-default value)
+  const hasChangesToReset =
+    yearFrom !== null ||
+    yearTo !== null ||
+    zoom.centerYear !== null ||
+    zoom.windowSize !== 10
+
   // Handle year input changes
   // Updates parent immediately, shows validation messages with debounce
   const handleYearFromChange = useCallback((inputValue: string) => {
@@ -727,6 +734,7 @@ export function ControlsPanel({
             </PillButton>
             <PillButton
               onClick={handleResetZoom}
+              disabled={!hasChangesToReset}
               fullWidth
               size="xs"
             >

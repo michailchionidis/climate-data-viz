@@ -248,4 +248,75 @@ describe('ControlsPanel', () => {
       expect(screen.getByRole('radio', { name: /Annual/i })).toBeInTheDocument()
     })
   })
+
+  describe('reset button', () => {
+    it('should be disabled when all values are default', () => {
+      renderWithProviders(<ControlsPanel {...defaultProps} />)
+
+      const resetButton = screen.getByRole('button', { name: 'Reset' })
+      expect(resetButton).toHaveAttribute('aria-disabled', 'true')
+    })
+
+    it('should be enabled when yearFrom has a value', () => {
+      renderWithProviders(<ControlsPanel {...defaultProps} yearFrom={1950} />)
+
+      const resetButton = screen.getByRole('button', { name: 'Reset' })
+      expect(resetButton).not.toHaveAttribute('aria-disabled', 'true')
+    })
+
+    it('should be enabled when yearTo has a value', () => {
+      renderWithProviders(<ControlsPanel {...defaultProps} yearTo={2000} />)
+
+      const resetButton = screen.getByRole('button', { name: 'Reset' })
+      expect(resetButton).not.toHaveAttribute('aria-disabled', 'true')
+    })
+
+    it('should be enabled when zoom centerYear is set', () => {
+      renderWithProviders(
+        <ControlsPanel
+          {...defaultProps}
+          zoom={{ centerYear: 1990, windowSize: 10 }}
+        />
+      )
+
+      const resetButton = screen.getByRole('button', { name: 'Reset' })
+      expect(resetButton).not.toHaveAttribute('aria-disabled', 'true')
+    })
+
+    it('should be enabled when zoom windowSize differs from default', () => {
+      renderWithProviders(
+        <ControlsPanel
+          {...defaultProps}
+          zoom={{ centerYear: null, windowSize: 20 }}
+        />
+      )
+
+      const resetButton = screen.getByRole('button', { name: 'Reset' })
+      expect(resetButton).not.toHaveAttribute('aria-disabled', 'true')
+    })
+
+    it('should call reset handlers when clicked', async () => {
+      const user = userEvent.setup()
+      const onYearFromChange = vi.fn()
+      const onYearToChange = vi.fn()
+      const onZoomChange = vi.fn()
+
+      renderWithProviders(
+        <ControlsPanel
+          {...defaultProps}
+          yearFrom={1950}
+          yearTo={2000}
+          onYearFromChange={onYearFromChange}
+          onYearToChange={onYearToChange}
+          onZoomChange={onZoomChange}
+        />
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Reset' }))
+
+      expect(onYearFromChange).toHaveBeenCalledWith(null)
+      expect(onYearToChange).toHaveBeenCalledWith(null)
+      expect(onZoomChange).toHaveBeenCalledWith({ centerYear: null, windowSize: 10 })
+    })
+  })
 })
