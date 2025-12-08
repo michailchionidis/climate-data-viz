@@ -439,6 +439,23 @@ export const STATION_COLORS = [
   '#14b8a6', // teal
 ] as const
 
+/**
+ * Get a consistent color for a station based on its ID.
+ * Uses a simple hash function to ensure the same station always gets the same color,
+ * regardless of which stations are currently selected.
+ */
+export function getStationColor(stationId: string): string {
+  // Simple hash function for string
+  let hash = 0
+  for (let i = 0; i < stationId.length; i++) {
+    const char = stationId.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+  const index = Math.abs(hash) % STATION_COLORS.length
+  return STATION_COLORS[index]
+}
+
 // Chart theme configuration
 export const chartTheme = {
   paper_bgcolor: 'transparent',

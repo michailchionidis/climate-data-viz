@@ -2,14 +2,14 @@
  * Interactive chart panel using Plotly.js
  * Premium visualization with smooth animations and rich tooltips
  */
-import { useState, useEffect, useRef, useCallback, memo } from 'react'
+import { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react'
 import { Box, Text, Flex } from '@chakra-ui/react'
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi'
 import Plot from 'react-plotly.js'
 import type { Data, Layout } from 'plotly.js'
 import { Card, CardHeader, CardBody, LoadingState, LineChartIcon, InfoIcon } from '@/shared/components/ui'
 import { ExportMenu } from './ExportMenu'
-import { STATION_COLORS, getChartTheme } from '@/theme'
+import { getStationColor, getChartTheme } from '@/theme'
 import { useTheme } from '@/context/ThemeContext'
 import type { MonthlyDataResponse, AnnualDataResponse, VisualizationMode } from '@/shared/types'
 
@@ -66,6 +66,23 @@ export const ChartPanel = memo(function ChartPanel({
       return () => clearTimeout(timer)
     }
   }, [containerKey])
+
+  // Create a stable data signature to detect actual data changes
+  // This ensures Plotly updates when stations are added/removed
+  const dataSignature = useMemo(() => {
+    const stationIds = mode === 'monthly'
+      ? monthlyData?.stations.map(s => s.station_id).join(',')
+      : annualData?.stations.map(s => s.station_id).join(',')
+    const totalPoints = mode === 'monthly'
+      ? monthlyData?.total_points
+      : annualData?.total_years
+    return `${mode}-${showSigmaBounds}-${stationIds}-${totalPoints}`
+  }, [mode, showSigmaBounds, monthlyData, annualData])
+
+  // Trigger chart re-render when data signature changes
+  useEffect(() => {
+    setRevision((r) => r + 1)
+  }, [dataSignature])
 
   const cardHeight = fillHeight ? '100%' : 'auto'
   const chartMinHeight = fillHeight ? '400px' : '450px'
@@ -147,8 +164,9 @@ export const ChartPanel = memo(function ChartPanel({
   const traces: Data[] = []
 
   if (mode === 'monthly' && monthlyData) {
-    monthlyData.stations.forEach((station, idx) => {
-      const color = STATION_COLORS[idx % STATION_COLORS.length]
+    monthlyData.stations.forEach((station) => {
+      // Use stable color based on station_id, not array index
+      const color = getStationColor(station.station_id)
 
       // Convert to x-axis labels (year-month)
       const x = station.data.map((d) => `${d.year}-${String(d.month).padStart(2, '0')}`)
@@ -173,8 +191,9 @@ export const ChartPanel = memo(function ChartPanel({
       })
     })
   } else if (mode === 'annual' && annualData) {
-    annualData.stations.forEach((station, idx) => {
-      const color = STATION_COLORS[idx % STATION_COLORS.length]
+    annualData.stations.forEach((station) => {
+      // Use stable color based on station_id, not array index
+      const color = getStationColor(station.station_id)
 
       const x = station.data.map((d) => d.year)
       const yMean = station.data.map((d) => d.mean)

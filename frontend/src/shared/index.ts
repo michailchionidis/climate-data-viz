@@ -16,4 +16,4 @@ export * from './constants'
 export * from './types'
 
 // Theme
-export { STATION_COLORS, getChartTheme } from '@/theme'
+export { STATION_COLORS, getStationColor, getChartTheme } from '@/theme'
