@@ -6,7 +6,7 @@ import { useState, useMemo, useRef, useCallback, memo } from 'react'
 import { Box, Text, Flex, Input, Spinner } from '@chakra-ui/react'
 import { useStations } from '@/shared/hooks/useClimateData'
 import { SectionHeader, CheckIcon, AlertIcon, VisuallyHidden } from '@/shared/components/ui'
-import { STATION_COLORS } from '@/theme'
+import { getStationColor } from '@/theme'
 import { useTheme } from '@/context/ThemeContext'
 
 interface StationSelectorProps {
@@ -107,14 +107,10 @@ export const StationSelector = memo(function StationSelector({
     }
   }, [filteredStations, focusedIndex, handleToggle])
 
-  // Get color for station - used only for the small color dot indicator
-  // Chart colors are based on selection order, so we match that here
+  // Get color for station - uses stable hash-based color assignment
+  // This ensures the same station always has the same color regardless of selection order
   const getStationChartColor = (stationId: string): string => {
-    const selectedIndex = selectedStations.indexOf(stationId)
-    if (selectedIndex !== -1) {
-      return STATION_COLORS[selectedIndex % STATION_COLORS.length]
-    }
-    return STATION_COLORS[0]
+    return getStationColor(stationId)
   }
 
   if (isLoading) {
