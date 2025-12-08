@@ -13,6 +13,9 @@ interface AnalyticsPanelProps {
   isLoading: boolean
   selectedStations: string[]
   compact?: boolean
+  /** Year range for validation */
+  yearFrom?: number | null
+  yearTo?: number | null
 }
 
 // Minimal stat display component
@@ -62,9 +65,19 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({
   isLoading,
   selectedStations,
   compact = false,
+  yearFrom,
+  yearTo,
 }: AnalyticsPanelProps) {
   const { colors, colorMode } = useTheme()
   const warningColor = colorMode === 'light' ? 'orange.600' : 'orange.300'
+
+  // Check for invalid year range - hide panel completely
+  const hasInvalidYearRange = yearFrom !== null && yearFrom !== undefined &&
+    yearTo !== null && yearTo !== undefined && yearFrom > yearTo
+
+  if (hasInvalidYearRange) {
+    return null // Don't show anything when year range is invalid
+  }
 
   // Empty state - show skeleton structure matching final layout
   if (selectedStations.length === 0) {

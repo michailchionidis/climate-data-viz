@@ -1,12 +1,16 @@
 /**
  * Controls panel for visualization settings
- * Premium UI with smooth interactions
+ * Premium UI with smooth interactions and input validation
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Box, Text, Flex, Input, VStack } from '@chakra-ui/react'
 import { SectionHeader, PillButton } from '@/shared/components/ui'
 import { useTheme } from '@/context/ThemeContext'
+import { validateYear, validateYearRange, parseYearInput } from '@/shared'
 import type { VisualizationMode, ZoomState } from '@/shared/types'
+
+// Validation delay in ms (wait for user to stop typing)
+const VALIDATION_DELAY = 800
 
 interface ControlsPanelProps {
   yearFrom: number | null
@@ -50,11 +54,133 @@ export function ControlsPanel({
   // Track the last applied zoom settings to know when Apply should be enabled
   const [appliedZoom, setAppliedZoom] = useState<ZoomState>({ centerYear: null, windowSize: 10 })
 
+  // Validation states (errors inform user, warnings are softer)
+  const [yearFromError, setYearFromError] = useState<string | null>(null)
+  const [yearFromWarning, setYearFromWarning] = useState<string | null>(null)
+  const [yearToError, setYearToError] = useState<string | null>(null)
+  const [yearToWarning, setYearToWarning] = useState<string | null>(null)
+
+  // Debounce timers for validation messages
+  const yearFromValidationTimer = useRef<NodeJS.Timeout | null>(null)
+  const yearToValidationTimer = useRef<NodeJS.Timeout | null>(null)
+
   // Check if current zoom differs from applied zoom (i.e., there are unapplied changes)
   const hasUnappliedChanges = zoom.centerYear !== null && (
     zoom.centerYear !== appliedZoom.centerYear ||
     zoom.windowSize !== appliedZoom.windowSize
   )
+
+  // Handle year input changes
+  // Updates parent immediately, shows validation messages with debounce
+  const handleYearFromChange = useCallback((inputValue: string) => {
+    // Clear any pending validation
+    if (yearFromValidationTimer.current) {
+      clearTimeout(yearFromValidationTimer.current)
+    }
+
+    const value = parseYearInput(inputValue)
+
+    // Update parent immediately
+    onYearFromChange(value)
+
+    // Clear messages if empty
+    if (value === null) {
+      setYearFromError(null)
+      setYearFromWarning(null)
+      return
+    }
+
+    // Immediate validation for obvious errors
+    if (value < 0) {
+      setYearFromError('Year cannot be negative')
+      setYearFromWarning(null)
+      return
+    }
+
+    // Clear error while typing
+    setYearFromError(null)
+    setYearFromWarning(null)
+
+    // Debounce validation messages
+    yearFromValidationTimer.current = setTimeout(() => {
+      const validation = validateYear(value, 'from')
+
+      // Check range consistency
+      if (yearTo !== null && value > yearTo) {
+        setYearFromError('From year cannot be greater than To year')
+        return
+      }
+
+      // Set warning if applicable
+      setYearFromWarning(validation.warning || null)
+      setYearToError(null)
+    }, VALIDATION_DELAY)
+  }, [yearTo, onYearFromChange])
+
+  const handleYearToChange = useCallback((inputValue: string) => {
+    // Clear any pending validation
+    if (yearToValidationTimer.current) {
+      clearTimeout(yearToValidationTimer.current)
+    }
+
+    const value = parseYearInput(inputValue)
+
+    // Update parent immediately
+    onYearToChange(value)
+
+    // Clear messages if empty
+    if (value === null) {
+      setYearToError(null)
+      setYearToWarning(null)
+      return
+    }
+
+    // Immediate validation for obvious errors
+    if (value < 0) {
+      setYearToError('Year cannot be negative')
+      setYearToWarning(null)
+      return
+    }
+
+    // Clear error while typing
+    setYearToError(null)
+    setYearToWarning(null)
+
+    // Debounce validation messages
+    yearToValidationTimer.current = setTimeout(() => {
+      const validation = validateYear(value, 'to')
+
+      // Check range consistency
+      if (yearFrom !== null && value < yearFrom) {
+        setYearToError('To year cannot be less than From year')
+        return
+      }
+
+      // Set warning if applicable
+      setYearToWarning(validation.warning || null)
+      setYearFromError(null)
+    }, VALIDATION_DELAY)
+  }, [yearFrom, onYearToChange])
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (yearFromValidationTimer.current) clearTimeout(yearFromValidationTimer.current)
+      if (yearToValidationTimer.current) clearTimeout(yearToValidationTimer.current)
+    }
+  }, [])
+
+  // Clear validation messages when year range changes externally (e.g., via presets)
+  useEffect(() => {
+    const rangeValidation = validateYearRange(yearFrom, yearTo)
+    if (rangeValidation.isValid) {
+      setYearFromError(null)
+      setYearToError(null)
+    }
+    // Also clear warnings if values are within range
+    if (yearFrom === null) setYearFromWarning(null)
+    if (yearTo === null) setYearToWarning(null)
+  }, [yearFrom, yearTo])
 
   const handleZoomToYear = () => {
     if (zoom.centerYear) {
@@ -177,66 +303,67 @@ export function ControlsPanel({
           </Flex>
         </Box>
 
-        {/* Sigma bounds toggle - only for annual mode */}
-        {mode === 'annual' && (
-          <Flex
-            mt={2}
-            p={compact ? 2 : 3}
-            borderRadius="6px"
-            bg={colors.inputBg}
-            borderWidth="1px"
-            borderColor={colors.border}
-            cursor="pointer"
-            onClick={() => onShowSigmaBoundsChange(!showSigmaBounds)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onShowSigmaBoundsChange(!showSigmaBounds)
-              }
-            }}
-            _hover={{
-              bg: colors.buttonHover,
-            }}
-            _focus={{
-              boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.1)',
-              outline: 'none',
-            }}
+        {/* Sigma bounds toggle - disabled for monthly mode */}
+        <Flex
+          mt={2}
+          p={compact ? 2 : 3}
+          borderRadius="6px"
+          bg={colors.inputBg}
+          borderWidth="1px"
+          borderColor={colors.border}
+          cursor={mode === 'annual' ? 'pointer' : 'not-allowed'}
+          opacity={mode === 'annual' ? 1 : 0.5}
+          onClick={mode === 'annual' ? () => onShowSigmaBoundsChange(!showSigmaBounds) : undefined}
+          onKeyDown={(e) => {
+            if (mode === 'annual' && (e.key === 'Enter' || e.key === ' ')) {
+              e.preventDefault()
+              onShowSigmaBoundsChange(!showSigmaBounds)
+            }
+          }}
+          _hover={mode === 'annual' ? {
+            bg: colors.buttonHover,
+          } : {}}
+          _focus={{
+            boxShadow: mode === 'annual' ? '0 0 0 2px rgba(255, 255, 255, 0.1)' : 'none',
+            outline: 'none',
+          }}
+          transition="all 0.2s ease"
+          align="center"
+          gap={2}
+          tabIndex={mode === 'annual' ? 0 : -1}
+          role="switch"
+          aria-checked={showSigmaBounds}
+          aria-disabled={mode !== 'annual'}
+          aria-label="Show plus or minus one standard deviation overlay on chart (only available in Annual mode)"
+          title={mode === 'monthly' ? 'Only available in Annual mode' : undefined}
+        >
+          {/* Toggle switch - white when on */}
+          <Box
+            w={compact ? '28px' : '36px'}
+            h={compact ? '16px' : '20px'}
+            borderRadius="full"
+            bg={showSigmaBounds && mode === 'annual' ? 'rgba(255, 255, 255, 0.9)' : colors.buttonBg}
+            position="relative"
             transition="all 0.2s ease"
-            align="center"
-            gap={2}
-            tabIndex={0}
-            role="switch"
-            aria-checked={showSigmaBounds}
-            aria-label="Show plus or minus one standard deviation overlay on chart"
+            flexShrink={0}
+            aria-hidden="true"
           >
-            {/* Toggle switch - white when on */}
             <Box
-              w={compact ? '28px' : '36px'}
-              h={compact ? '16px' : '20px'}
+              w={compact ? '12px' : '16px'}
+              h={compact ? '12px' : '16px'}
               borderRadius="full"
-              bg={showSigmaBounds ? 'rgba(255, 255, 255, 0.9)' : colors.buttonBg}
-              position="relative"
+              bg={showSigmaBounds && mode === 'annual' ? colors.bg : 'white'}
+              position="absolute"
+              top="2px"
+              left={showSigmaBounds && mode === 'annual' ? (compact ? '14px' : '18px') : '2px'}
               transition="all 0.2s ease"
-              flexShrink={0}
-              aria-hidden="true"
-            >
-              <Box
-                w={compact ? '12px' : '16px'}
-                h={compact ? '12px' : '16px'}
-                borderRadius="full"
-                bg={showSigmaBounds ? colors.bg : 'white'}
-                position="absolute"
-                top="2px"
-                left={showSigmaBounds ? (compact ? '14px' : '18px') : '2px'}
-                transition="all 0.2s ease"
-                boxShadow="0 1px 3px rgba(0,0,0,0.3)"
-              />
-            </Box>
-            <Text fontSize="xs" color={showSigmaBounds ? colors.text : colors.textMuted} fontWeight="500">
-              Show ±1σ Overlay
-            </Text>
-          </Flex>
-        )}
+              boxShadow="0 1px 3px rgba(0,0,0,0.3)"
+            />
+          </Box>
+          <Text fontSize="xs" color={mode === 'annual' && showSigmaBounds ? colors.text : colors.textMuted} fontWeight="500">
+            Show ±1σ Overlay
+          </Text>
+        </Flex>
       </Box>
 
       {/* Year Range */}
@@ -247,7 +374,7 @@ export function ControlsPanel({
           badgeColor="cyan"
           compact={compact}
         />
-        <Flex gap={2} align="center">
+        <Flex gap={2} align="flex-start">
           <Box flex={1}>
             <Text fontSize="2xs" color={colors.textMuted} mb={1} fontWeight="500">
               From
@@ -256,10 +383,10 @@ export function ControlsPanel({
               size="sm"
               type="number"
               placeholder={String(minYear)}
-              value={yearFrom || ''}
-              onChange={(e) => onYearFromChange(e.target.value ? parseInt(e.target.value) : null)}
+              value={yearFrom ?? ''}
+              onChange={(e) => handleYearFromChange(e.target.value)}
               bg={colors.inputBg}
-              borderColor={colors.border}
+              borderColor={yearFromError ? 'rgba(239, 68, 68, 0.6)' : colors.border}
               borderRadius="6px"
               px={3}
               py={1.5}
@@ -267,16 +394,38 @@ export function ControlsPanel({
               fontSize="xs"
               color={colors.text}
               _placeholder={{ color: colors.textMuted }}
-              _hover={{ borderColor: colors.borderHover }}
+              _hover={{ borderColor: yearFromError ? 'rgba(239, 68, 68, 0.8)' : colors.borderHover }}
               _focus={{
-                borderColor: 'rgba(6, 182, 212, 0.5)',
-                boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
+                borderColor: yearFromError ? 'rgba(239, 68, 68, 0.8)' : 'rgba(6, 182, 212, 0.5)',
+                boxShadow: yearFromError ? '0 0 0 1px rgba(239, 68, 68, 0.3)' : '0 0 0 1px rgba(6, 182, 212, 0.3)',
               }}
               fontFamily="mono"
               aria-label="Year range start"
+              aria-invalid={!!yearFromError}
+              aria-describedby={yearFromError ? 'year-from-error' : undefined}
             />
+            {yearFromError && (
+              <Text
+                id="year-from-error"
+                fontSize="2xs"
+                color="red.400"
+                mt={1}
+                role="alert"
+              >
+                {yearFromError}
+              </Text>
+            )}
+            {!yearFromError && yearFromWarning && (
+              <Text
+                fontSize="2xs"
+                color="orange.400"
+                mt={1}
+              >
+                {yearFromWarning}
+              </Text>
+            )}
           </Box>
-          <Text color={colors.textMuted} pt={4} fontSize="sm">
+          <Text color={colors.textMuted} pt={5} fontSize="sm">
             —
           </Text>
           <Box flex={1}>
@@ -287,10 +436,10 @@ export function ControlsPanel({
               size="sm"
               type="number"
               placeholder={String(maxYear)}
-              value={yearTo || ''}
-              onChange={(e) => onYearToChange(e.target.value ? parseInt(e.target.value) : null)}
+              value={yearTo ?? ''}
+              onChange={(e) => handleYearToChange(e.target.value)}
               bg={colors.inputBg}
-              borderColor={colors.border}
+              borderColor={yearToError ? 'rgba(239, 68, 68, 0.6)' : colors.border}
               borderRadius="6px"
               px={3}
               py={1.5}
@@ -298,14 +447,36 @@ export function ControlsPanel({
               fontSize="xs"
               color={colors.text}
               _placeholder={{ color: colors.textMuted }}
-              _hover={{ borderColor: colors.borderHover }}
+              _hover={{ borderColor: yearToError ? 'rgba(239, 68, 68, 0.8)' : colors.borderHover }}
               _focus={{
-                borderColor: 'rgba(6, 182, 212, 0.5)',
-                boxShadow: '0 0 0 1px rgba(6, 182, 212, 0.3)',
+                borderColor: yearToError ? 'rgba(239, 68, 68, 0.8)' : 'rgba(6, 182, 212, 0.5)',
+                boxShadow: yearToError ? '0 0 0 1px rgba(239, 68, 68, 0.3)' : '0 0 0 1px rgba(6, 182, 212, 0.3)',
               }}
               fontFamily="mono"
               aria-label="Year range end"
+              aria-invalid={!!yearToError}
+              aria-describedby={yearToError ? 'year-to-error' : undefined}
             />
+            {yearToError && (
+              <Text
+                id="year-to-error"
+                fontSize="2xs"
+                color="red.400"
+                mt={1}
+                role="alert"
+              >
+                {yearToError}
+              </Text>
+            )}
+            {!yearToError && yearToWarning && (
+              <Text
+                fontSize="2xs"
+                color="orange.400"
+                mt={1}
+              >
+                {yearToWarning}
+              </Text>
+            )}
           </Box>
         </Flex>
 
