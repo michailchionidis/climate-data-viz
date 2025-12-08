@@ -114,6 +114,8 @@ export const MobileLayout = memo(function MobileLayout({
             isLoading={isAnalyticsLoading}
             selectedStations={filters.selectedStations}
             compact
+            yearFrom={filters.yearFrom}
+            yearTo={filters.yearTo}
           />
         </ErrorBoundary>
 
@@ -138,6 +140,8 @@ export const MobileLayout = memo(function MobileLayout({
               selectedStations={filters.selectedStations}
               fillHeight
               containerKey={`mobile-${colorMode}-${filters.mode}`}
+              yearFrom={filters.yearFrom}
+              yearTo={filters.yearTo}
             />
           </ErrorBoundary>
         </Box>

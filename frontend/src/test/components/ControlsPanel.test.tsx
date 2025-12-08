@@ -110,6 +110,52 @@ describe('ControlsPanel', () => {
 
       expect(onShowSigmaBoundsChange).toHaveBeenCalledWith(true)
     })
+
+    it('should be disabled in monthly mode', () => {
+      renderWithProviders(<ControlsPanel {...defaultProps} mode="monthly" />)
+
+      const toggle = screen.getByRole('switch')
+      expect(toggle).toHaveAttribute('aria-disabled', 'true')
+    })
+
+    it('should have tooltip explaining disabled state in monthly mode', () => {
+      renderWithProviders(<ControlsPanel {...defaultProps} mode="monthly" />)
+
+      const toggle = screen.getByRole('switch')
+      expect(toggle).toHaveAttribute('title', 'Only available in Annual mode')
+    })
+
+    it('should not have tooltip in annual mode', () => {
+      renderWithProviders(<ControlsPanel {...defaultProps} mode="annual" />)
+
+      const toggle = screen.getByRole('switch')
+      expect(toggle).not.toHaveAttribute('title')
+    })
+
+    it('should not respond to clicks in monthly mode', async () => {
+      const user = userEvent.setup()
+      const onShowSigmaBoundsChange = vi.fn()
+
+      renderWithProviders(
+        <ControlsPanel
+          {...defaultProps}
+          mode="monthly"
+          showSigmaBounds={false}
+          onShowSigmaBoundsChange={onShowSigmaBoundsChange}
+        />
+      )
+
+      await user.click(screen.getByRole('switch'))
+
+      expect(onShowSigmaBoundsChange).not.toHaveBeenCalled()
+    })
+
+    it('should have reduced opacity in monthly mode', () => {
+      renderWithProviders(<ControlsPanel {...defaultProps} mode="monthly" />)
+
+      const toggle = screen.getByRole('switch')
+      expect(toggle).toHaveStyle({ opacity: '0.5' })
+    })
   })
 
   describe('year range inputs', () => {

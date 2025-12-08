@@ -52,6 +52,14 @@ export function AIInsightsPanel({
     })
   }, [onExpandChange])
 
+  // Check for invalid year range - hide panel completely
+  const hasInvalidYearRange = yearFrom !== null && yearFrom !== undefined &&
+    yearTo !== null && yearTo !== undefined && yearFrom > yearTo
+
+  if (hasInvalidYearRange) {
+    return null // Don't show anything when year range is invalid
+  }
+
   const noStationsSelected = stations.length === 0
 
   return (

@@ -7,7 +7,7 @@ import { Box, Text, Flex } from '@chakra-ui/react'
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi'
 import Plot from 'react-plotly.js'
 import type { Data, Layout } from 'plotly.js'
-import { Card, CardHeader, CardBody, LoadingState, LineChartIcon, InfoIcon } from '@/shared/components/ui'
+import { Card, CardHeader, CardBody, LoadingState, LineChartIcon, InfoIcon, AlertIcon } from '@/shared/components/ui'
 import { ExportMenu } from './ExportMenu'
 import { getStationColor, getChartTheme } from '@/theme'
 import { useTheme } from '@/context/ThemeContext'
@@ -23,6 +23,9 @@ interface ChartPanelProps {
   fillHeight?: boolean
   /** Used to trigger chart resize when container changes */
   containerKey?: string | number
+  /** Year range for validation */
+  yearFrom?: number | null
+  yearTo?: number | null
 }
 
 export const ChartPanel = memo(function ChartPanel({
@@ -34,6 +37,8 @@ export const ChartPanel = memo(function ChartPanel({
   selectedStations,
   fillHeight = false,
   containerKey,
+  yearFrom,
+  yearTo,
 }: ChartPanelProps) {
   const { colorMode, colors } = useTheme()
   const chartTheme = getChartTheme(colorMode)
@@ -155,6 +160,56 @@ export const ChartPanel = memo(function ChartPanel({
             minHeight={chartMinHeight}
             size="lg"
           />
+        </CardBody>
+      </Card>
+    )
+  }
+
+  // Invalid year range state
+  const hasInvalidYearRange = yearFrom !== null && yearFrom !== undefined &&
+    yearTo !== null && yearTo !== undefined && yearFrom > yearTo
+
+  if (hasInvalidYearRange) {
+    return (
+      <Card h={cardHeight} display="flex" flexDirection="column">
+        <CardHeader showBorder={false}>
+          <Flex justify="space-between" align="center">
+            <Flex align="center" gap={2}>
+              <Box color={colors.textMuted}>
+                <FiChevronDown size={14} />
+              </Box>
+              <Text
+                fontSize={fillHeight ? 'xs' : 'sm'}
+                fontWeight="600"
+                color={colors.textSecondary}
+                textTransform="uppercase"
+                letterSpacing="wide"
+              >
+                {mode === 'monthly' ? 'Monthly Temperature Data' : 'Annual Averages'}
+              </Text>
+            </Flex>
+          </Flex>
+        </CardHeader>
+        <CardBody p={0} flex={1} display="flex" alignItems="center" justifyContent="center">
+          <Flex direction="column" align="center" textAlign="center" py={8} px={4} maxW="320px">
+            <Box
+              p={3}
+              borderRadius="full"
+              bg="rgba(239, 68, 68, 0.1)"
+              mb={3}
+            >
+              <AlertIcon size="lg" color="#ef4444" />
+            </Box>
+            <Text fontSize="14px" fontWeight="600" color={colors.text} mb={1}>
+              Invalid Year Range
+            </Text>
+            <Text fontSize="13px" color={colors.textSecondary} mb={3}>
+              The "From" year ({yearFrom}) cannot be greater than the "To" year ({yearTo}).
+            </Text>
+            <Text fontSize="12px" color={colors.textMuted}>
+              Please adjust the year range in the sidebar to continue.
+            </Text>
+          </Flex>
         </CardBody>
       </Card>
     )

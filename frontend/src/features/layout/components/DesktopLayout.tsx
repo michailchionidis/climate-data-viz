@@ -80,6 +80,8 @@ export const DesktopLayout = memo(function DesktopLayout({
                 isLoading={isAnalyticsLoading}
                 selectedStations={filters.selectedStations}
                 compact
+                yearFrom={filters.yearFrom}
+                yearTo={filters.yearTo}
               />
             </ErrorBoundary>
           </Box>
@@ -109,6 +111,8 @@ export const DesktopLayout = memo(function DesktopLayout({
                 selectedStations={filters.selectedStations}
                 fillHeight
                 containerKey={`desktop-${ui.isSidebarCollapsed ? 'collapsed' : 'expanded'}-${ui.isChatOpen ? 'chat' : 'nochat'}-${colorMode}-${filters.mode}-ai${ui.isAIInsightsExpanded ? 'open' : 'closed'}`}
+                yearFrom={filters.yearFrom}
+                yearTo={filters.yearTo}
               />
             </ErrorBoundary>
           </Box>

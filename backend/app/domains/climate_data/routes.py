@@ -29,7 +29,21 @@ def parse_station_ids(stations: str) -> list[str]:
 
 
 def validate_year_range(year_from: int | None, year_to: int | None) -> None:
-    """Validate year range parameters."""
+    """Validate year range parameters.
+
+    Validates:
+    - Years cannot be negative
+    - year_from cannot be greater than year_to
+
+    Note: We don't enforce specific min/max year bounds here
+    to allow flexibility for future data expansion.
+    """
+    if year_from is not None and year_from < 0:
+        raise InvalidDateRangeError(year_from, year_to, "Year cannot be negative")
+
+    if year_to is not None and year_to < 0:
+        raise InvalidDateRangeError(year_from, year_to, "Year cannot be negative")
+
     if year_from and year_to and year_from > year_to:
         raise InvalidDateRangeError(
             year_from, year_to, "year_from cannot be greater than year_to"
@@ -50,14 +64,12 @@ def get_monthly_data(
     ),
     year_from: int | None = Query(
         None,
-        ge=1800,
-        le=2100,
+        ge=0,
         description="Start year (inclusive)",
     ),
     year_to: int | None = Query(
         None,
-        ge=1800,
-        le=2100,
+        ge=0,
         description="End year (inclusive)",
     ),
 ) -> MonthlyDataResponse:
@@ -91,14 +103,12 @@ def get_annual_data(
     ),
     year_from: int | None = Query(
         None,
-        ge=1800,
-        le=2100,
+        ge=0,
         description="Start year (inclusive)",
     ),
     year_to: int | None = Query(
         None,
-        ge=1800,
-        le=2100,
+        ge=0,
         description="End year (inclusive)",
     ),
 ) -> AnnualDataResponse:
